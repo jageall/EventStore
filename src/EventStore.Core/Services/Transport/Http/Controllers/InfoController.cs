@@ -26,6 +26,7 @@ namespace EventStore.Core.Services.Transport.Http.Controllers
             Ensure.NotNull(service, "service");
             service.RegisterAction(new ControllerAction("/info", HttpMethod.Get, Codec.NoCodecs, SupportedCodecs), OnGetInfo);
             service.RegisterAction(new ControllerAction("/info/options", HttpMethod.Get, Codec.NoCodecs, SupportedCodecs), OnGetOptions);
+            service.RegisterAction(new ControllerAction("/info/options", HttpMethod.Post, Codec.NoCodecs, SupportedCodecs), OnUpdateOptions);
         }
 
         private void OnGetInfo(HttpEntityManager entity, UriTemplateMatch match)
@@ -49,6 +50,43 @@ namespace EventStore.Core.Services.Transport.Http.Controllers
                                     entity.ResponseCodec.ContentType,
                                     null,
                                     e => Log.ErrorException(e, "error while writing http response (options)"));
+        }
+
+        private void OnUpdateOptions(HttpEntityManager entity, UriTemplateMatch match)
+        {
+            entity.ReadTextRequestAsync(
+                            (man, body) =>
+                            {
+                                OptionSource[] optionsToUpdate = null;
+                                try
+                                {
+                                    optionsToUpdate = Json.ParseJson<OptionSource[]>(body);
+                                }
+                                catch (Exception ex)
+                                {
+                                    SendBadRequest(man, ex.Message);
+                                    return;
+                                }
+                                var updatedOptions = EventStoreOptions.Update(optionsToUpdate);
+                                SendOk(man);
+                            },
+                            e => Log.Debug("Error while reading request (POST entry): {0}.", e.Message));
+        }
+
+        protected RequestParams SendBadRequest(HttpEntityManager httpEntityManager, string reason)
+        {
+            httpEntityManager.ReplyStatus(HttpStatusCode.BadRequest,
+                                          reason,
+                                          e => Log.Debug("Error while closing http connection (bad request): {0}.", e.Message));
+            return new RequestParams(done: true);
+        }
+
+        protected RequestParams SendOk(HttpEntityManager httpEntityManager)
+        {
+            httpEntityManager.ReplyStatus(HttpStatusCode.OK,
+                                          "OK",
+                                          e => Log.Debug("Error while closing http connection (ok): {0}.", e.Message));
+            return new RequestParams(done: true);
         }
 
         public class OptionStructure

@@ -74,15 +74,16 @@ namespace EventStore.Common.Options
             return Yaml.FromFile(configFile, sectionName).ApplyTo<TOptions>();
         }
 
+        public const string ConfigKey = "Config";
         public static IEnumerable<OptionSource> Update(IEnumerable<OptionSource> optionSources, string defaultConfigFile = "eventstore.clusternode.config.yaml")
         {
-            if ((_effectiveOptions.Any(x => x.Name == "Config" && String.IsNullOrEmpty((string)x.Value))) &&
-                (optionSources.Any(x => x.Name == "Config" && String.IsNullOrEmpty((string)x.Value))))
+            if ((_effectiveOptions.Any(x => x.Name == ConfigKey && String.IsNullOrEmpty((string)x.Value))) &&
+                (optionSources.Any(x => x.Name == ConfigKey && String.IsNullOrEmpty((string)x.Value))))
             {
-                optionSources = optionSources.Select(x => x.Name == "Config" ? new OptionSource("Update", "Config", true, defaultConfigFile) : x);
+                optionSources = optionSources.Select(x => x.Name == ConfigKey ? new OptionSource("Update", ConfigKey, true, defaultConfigFile) : x);
             }
             var optionsToSave = optionSources.Except(_effectiveOptions);
-            var configFile = optionsToSave.First(x => x.Name == "Config");
+            var configFile = optionsToSave.First(x => x.Name == ConfigKey);
             var dictionary = new ExpandoObject();
             foreach (var option in optionsToSave.ToDictionary(x => x.Name, x => x.Value))
             {
