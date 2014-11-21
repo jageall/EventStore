@@ -17,7 +17,7 @@ namespace EventStore.Core.Tests.Common.EventStoreOptionsTests.when_updating
         [TestFixtureSetUp]
         public void Setup()
         {
-            tempFileName = Path.GetTempPath() + "with_a_single_change_when_no_config_file_is_specified.yaml";
+            tempFileName = Path.GetTempPath() + Guid.NewGuid().ToString() + ".yaml";
             if (File.Exists(tempFileName))
             {
                 File.Delete(tempFileName);
