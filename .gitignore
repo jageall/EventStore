@@ -43,6 +43,8 @@ bin
 *.cache
 *.ncrunchsolution
 *.ncrunchproject
+src/_NCrunch_EventStore/
+scr/TestResults
 
 .idea
 
