@@ -3,11 +3,10 @@ using EventStore.Core.Bus;
 using EventStore.Core.Messaging;
 using EventStore.Core.Tests.Bus.Helpers;
 using EventStore.Core.Tests.Helpers;
-using NUnit.Framework;
+using Xunit;
 
 namespace EventStore.Core.Tests.Bus
 {
-    [TestFixture]
     public abstract class when_publishing_to_queued_handler_before_starting : QueuedHandlerTestWithWaitingConsumer
     {
         protected when_publishing_to_queued_handler_before_starting(Func<IHandle<Message>, string, TimeSpan, IQueuedHandler> queuedHandlerFactory)
@@ -15,13 +14,13 @@ namespace EventStore.Core.Tests.Bus
         {
         }
 
-        [Test]
+        [Fact]
         public void should_not_throw()
         {
             Assert.DoesNotThrow(() => Queue.Publish(new TestMessage()));
         }
 
-        [Test]
+        [Fact]
         public void should_not_forward_message_to_bus()
         {
             Consumer.SetWaitingCount(1);
@@ -30,10 +29,10 @@ namespace EventStore.Core.Tests.Bus
 
             Consumer.Wait(10);
 
-            Assert.That(Consumer.HandledMessages.ContainsNo<TestMessage>());
+            Assert.True(Consumer.HandledMessages.ContainsNo<TestMessage>());
         }
 
-        [Test]
+        [Fact]
         public void and_then_starting_message_should_be_forwarded_to_bus()
         {
             Consumer.SetWaitingCount(1);
@@ -49,10 +48,10 @@ namespace EventStore.Core.Tests.Bus
                 Queue.Stop();
             }
 
-            Assert.That(Consumer.HandledMessages.ContainsSingle<TestMessage>());
+            Assert.True(Consumer.HandledMessages.ContainsSingle<TestMessage>());
         }
 
-        [Test]
+        [Fact]
         public void multiple_messages_and_then_starting_messages_should_be_forwarded_to_bus()
         {
             Consumer.SetWaitingCount(3);
@@ -71,13 +70,12 @@ namespace EventStore.Core.Tests.Bus
                 Queue.Stop();
             }
 
-            Assert.That(Consumer.HandledMessages.ContainsSingle<TestMessage>() &&
+            Assert.True(Consumer.HandledMessages.ContainsSingle<TestMessage>() &&
                         Consumer.HandledMessages.ContainsSingle<TestMessage2>() &&
                         Consumer.HandledMessages.ContainsSingle<TestMessage3>());
         }
     }
 
-    [TestFixture]
     public class when_publishing_to_queued_handler_mres_before_starting : when_publishing_to_queued_handler_before_starting
     {
         public when_publishing_to_queued_handler_mres_before_starting()
@@ -86,7 +84,6 @@ namespace EventStore.Core.Tests.Bus
         }
     }
 
-    [TestFixture]
     public class when_publishing_to_queued_handler_autoreset_before_starting : when_publishing_to_queued_handler_before_starting
     {
         public when_publishing_to_queued_handler_autoreset_before_starting()
@@ -95,7 +92,6 @@ namespace EventStore.Core.Tests.Bus
         }
     }
 
-    [TestFixture]
     public class when_publishing_to_queued_handler_sleep_before_starting : when_publishing_to_queued_handler_before_starting
     {
         public when_publishing_to_queued_handler_sleep_before_starting()
@@ -104,7 +100,6 @@ namespace EventStore.Core.Tests.Bus
         }
     }
 
-    [TestFixture]
     public class when_publishing_to_queued_handler_pulse_before_starting : when_publishing_to_queued_handler_before_starting
     {
         public when_publishing_to_queued_handler_pulse_before_starting()

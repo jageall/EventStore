@@ -1,43 +1,51 @@
 using System;
 using System.Linq;
 using EventStore.Core.Index;
-using NUnit.Framework;
+using Xunit;
 
 namespace EventStore.Core.Tests.Index
 {
-    [TestFixture]
-    public class ptable_should: SpecificationWithFilePerTestFixture
+    public class ptable_should:IUseFixture<ptable_should.FixtureData>
     {
+        
         private PTable _ptable;
 
-        public override void TestFixtureSetUp()
+        public class FixtureData : SpecificationWithFilePerTestFixture
         {
-            base.TestFixtureSetUp();
+            public readonly PTable _ptable;
 
-            var table = new HashListMemTable(maxSize: 10);
-            table.Add(0x0101, 0x0001, 0x0001);
-            _ptable = PTable.FromMemtable(table, Filename, cacheDepth: 0);
+            public FixtureData()
+            {
+                var table = new HashListMemTable(maxSize: 10);
+                table.Add(0x0101, 0x0001, 0x0001);
+                _ptable = PTable.FromMemtable(table, Filename, cacheDepth: 0);
+            }
+
+            public override void Dispose()
+            {
+                _ptable.Dispose();
+                base.Dispose();
+            }
         }
 
-        public override void TestFixtureTearDown()
+        public void SetFixture(FixtureData data)
         {
-            _ptable.Dispose();
-            base.TestFixtureTearDown();
+            _ptable = data._ptable;
         }
 
-        [Test]
+        [Fact]
         public void throw_argumentoutofrangeexception_on_range_query_when_provided_with_negative_start_version()
         {
             Assert.Throws<ArgumentOutOfRangeException>(() => _ptable.GetRange(0x0000, -1, int.MaxValue).ToArray());
         }
 
-        [Test]
+        [Fact]
         public void throw_argumentoutofrangeexception_on_range_query_when_provided_with_negative_end_version()
         {
             Assert.Throws<ArgumentOutOfRangeException>(() => _ptable.GetRange(0x0000, 0, -1).ToArray());
         }
 
-        [Test]
+        [Fact]
         public void throw_argumentoutofrangeexception_on_get_one_entry_query_when_provided_with_negative_version()
         {
             long pos;

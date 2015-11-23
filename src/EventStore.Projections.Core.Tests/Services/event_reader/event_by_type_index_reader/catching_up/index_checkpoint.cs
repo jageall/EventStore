@@ -5,13 +5,13 @@ using EventStore.Core.Data;
 using EventStore.Core.Messages;
 using EventStore.Projections.Core.Messages;
 using EventStore.Projections.Core.Services.Processing;
-using NUnit.Framework;
+using Xunit;
 
 namespace EventStore.Projections.Core.Tests.Services.event_reader.event_by_type_index_reader.catching_up
 {
     namespace index_checkpoint
     {
-        abstract class with_some_indexed_events : TestFixtureWithEventReaderService
+        public abstract class with_some_indexed_events : TestFixtureWithEventReaderService
         {
             protected Guid _subscriptionId;
             private QuerySourcesDefinition _sourceDefinition;
@@ -62,21 +62,21 @@ namespace EventStore.Projections.Core.Tests.Services.event_reader.event_by_type_
                 return string.Format(@"{{""$c"":{0},""$p"":{1}}}", tfPos.CommitPosition, tfPos.PreparePosition);
             }
 
-            [Test]
+            [Fact]
             public void returns_events_in_original_order()
             {
                 var receivedEvents =
                     _consumer.HandledMessages.OfType<EventReaderSubscriptionMessage.CommittedEventReceived>().ToArray();
 
-                Assert.That(
+                Assert.True(
                     (from e in receivedEvents orderby e.Data.EventSequenceNumber select e.Data.EventSequenceNumber)
                         .SequenceEqual(from e in receivedEvents select e.Data.EventSequenceNumber),
                     "Incorrect event order received");
             }
         }
 
-        [TestFixture]
-        class when_index_checkpoint_is_written_while_idle : with_some_indexed_events
+        
+        public class when_index_checkpoint_is_written_while_idle : with_some_indexed_events
         {
             protected override void GivenInitialIndexState()
             {
@@ -107,7 +107,7 @@ namespace EventStore.Projections.Core.Tests.Services.event_reader.event_by_type_
                 yield return CreateWriteEvent("$et", "$Checkpoint", TFPosToMetadata(_tfPos2), TFPosToMetadata(_tfPos2));
 
                 // we are still in index-based reading mode
-                Assert.IsEmpty(_consumer.HandledMessages.OfType<ClientMessage.ReadAllEventsForward>());
+                Assert.Empty(_consumer.HandledMessages.OfType<ClientMessage.ReadAllEventsForward>());
 
                 // simulate late response to the read request in this particular order
                 yield return
@@ -120,18 +120,18 @@ namespace EventStore.Projections.Core.Tests.Services.event_reader.event_by_type_
                 EnableTimer();*/
             }
 
-            [Test]
+            [Fact]
             public void returns_all_events()
             {
                 var receivedEvents =
                     _consumer.HandledMessages.OfType<EventReaderSubscriptionMessage.CommittedEventReceived>().ToArray();
 
-                Assert.AreEqual(3, receivedEvents.Length);
+                Assert.Equal(3, receivedEvents.Length);
             }
         }
 
-        [TestFixture]
-        class when_the_index_checkpoint_is_read_last : with_some_indexed_events
+
+        public class when_the_index_checkpoint_is_read_last : with_some_indexed_events
         {
             protected override void GivenInitialIndexState()
             {
@@ -152,13 +152,13 @@ namespace EventStore.Projections.Core.Tests.Services.event_reader.event_by_type_
                         _subscriptionId, fromZeroPosition, _readerStrategy, _readerSubscriptionOptions);
             }
 
-            [Test]
+            [Fact]
             public void stays_in_index_based_reading_mode()
             {
-                Assert.IsEmpty(_consumer.HandledMessages.OfType<ClientMessage.ReadAllEventsForward>());
+                Assert.Empty(_consumer.HandledMessages.OfType<ClientMessage.ReadAllEventsForward>());
             }
 
-            [Test]
+            [Fact]
             public void returns_just_first_event_which_is_safe_to_return()
             {
                 var receivedEvents =
@@ -167,7 +167,7 @@ namespace EventStore.Projections.Core.Tests.Services.event_reader.event_by_type_
                 //NOTE: 
                 // the first event is safe to read as we know the next event in another stream
                 // the second event is not safe as there is no more events in the first stream and checkpoint is not yet available
-                Assert.AreEqual(1, receivedEvents.Length);
+                Assert.Equal(1, receivedEvents.Length);
             }
         }
     }

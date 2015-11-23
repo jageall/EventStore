@@ -7,29 +7,24 @@ using EventStore.ClientAPI.Exceptions;
 using EventStore.Common.Utils;
 using EventStore.Core.Tests.ClientAPI.Helpers;
 using EventStore.Core.Tests.Helpers;
-using NUnit.Framework;
+using Xunit;
 using System.Linq;
 
 namespace EventStore.Core.Tests.ClientAPI
 {
-    [TestFixture, Category("LongRunning")]
-    public class transaction : SpecificationWithDirectoryPerTestFixture
+    public class transaction : IUseFixture<SpecificationWithDirectoryPerTestFixture>, IDisposable
     {
         private MiniNode _node;
 
-        [TestFixtureSetUp]
-        public override void TestFixtureSetUp()
+        public void SetFixture(SpecificationWithDirectoryPerTestFixture data)
         {
-            base.TestFixtureSetUp();
-            _node = new MiniNode(PathName);
+            _node = new MiniNode(data.PathName);
             _node.Start();
         }
 
-        [TestFixtureTearDown]
-        public override void TestFixtureTearDown()
+        public void Dispose()
         {
             _node.Shutdown();
-            base.TestFixtureTearDown();
         }
 
         protected virtual IEventStoreConnection BuildConnection(MiniNode node)
@@ -37,8 +32,8 @@ namespace EventStore.Core.Tests.ClientAPI
             return TestConnection.Create(node.TcpEndPoint);
         }
 
-        [Test]
-        [Category("Network")]
+        [Fact]
+        [Trait("Category", "Network")]
         public void should_start_on_non_existing_stream_with_correct_exp_ver_and_create_stream_on_commit()
         {
             const string stream = "should_start_on_non_existing_stream_with_correct_exp_ver_and_create_stream_on_commit";
@@ -48,13 +43,13 @@ namespace EventStore.Core.Tests.ClientAPI
                 using (var transaction = store.StartTransactionAsync(stream, ExpectedVersion.NoStream).Result)
                 {
                     transaction.WriteAsync(new[] {TestEvent.NewTestEvent()}).Wait();
-                    Assert.AreEqual(0, transaction.CommitAsync().Result.NextExpectedVersion);
+                    Assert.Equal(0, transaction.CommitAsync().Result.NextExpectedVersion);
                 }
             }
         }
 
-        [Test]
-        [Category("Network")]
+        [Fact]
+        [Trait("Category", "Network")]
         public void should_start_on_non_existing_stream_with_exp_ver_any_and_create_stream_on_commit()
         {
             const string stream = "should_start_on_non_existing_stream_with_exp_ver_any_and_create_stream_on_commit";
@@ -64,13 +59,13 @@ namespace EventStore.Core.Tests.ClientAPI
                 using (var transaction = store.StartTransactionAsync(stream, ExpectedVersion.Any).Result)
                 {
                     transaction.WriteAsync(new[] {TestEvent.NewTestEvent()}).Wait();
-                    Assert.AreEqual(0, transaction.CommitAsync().Result.NextExpectedVersion);
+                    Assert.Equal(0, transaction.CommitAsync().Result.NextExpectedVersion);
                 }
             }
         }
 
-        [Test]
-        [Category("Network")]
+        [Fact]
+        [Trait("Category", "Network")]
         public void should_fail_to_commit_non_existing_stream_with_wrong_exp_ver()
         {
             const string stream = "should_fail_to_commit_non_existing_stream_with_wrong_exp_ver";
@@ -80,15 +75,14 @@ namespace EventStore.Core.Tests.ClientAPI
                 using (var transaction = store.StartTransactionAsync(stream, 1).Result)
                 {
                     transaction.WriteAsync(TestEvent.NewTestEvent()).Wait();
-                    Assert.That(() => transaction.CommitAsync().Wait(),
-                                Throws.Exception.TypeOf<AggregateException>()
-                                .With.InnerException.TypeOf<WrongExpectedVersionException>());
+                    var thrown = Assert.Throws<AggregateException>(() => transaction.CommitAsync().Wait());
+                    Assert.IsType<WrongExpectedVersionException>(thrown.InnerException);
                 }
             }
         }
 
-        [Test]
-        [Category("Network")]
+        [Fact]
+        [Trait("Category", "Network")]
         public void should_do_nothing_if_commits_no_events_to_empty_stream()
         {
             const string stream = "should_do_nothing_if_commits_no_events_to_empty_stream";
@@ -97,15 +91,15 @@ namespace EventStore.Core.Tests.ClientAPI
                 store.ConnectAsync().Wait();
                 using (var transaction = store.StartTransactionAsync(stream, ExpectedVersion.NoStream).Result)
                 {
-                    Assert.AreEqual(-1, transaction.CommitAsync().Result.NextExpectedVersion);
+                    Assert.Equal(-1, transaction.CommitAsync().Result.NextExpectedVersion);
                 }
 
                 var result = store.ReadStreamEventsForwardAsync(stream, 0, 1, resolveLinkTos: false).Result;
-                Assert.That(result.Events.Length, Is.EqualTo(0));
+                Assert.Equal(0, result.Events.Length);
             }
         }
 
-        [Test, Category("Network")]
+        [Fact, Trait("Category", "Network")]
         public void should_do_nothing_if_transactionally_writing_no_events_to_empty_stream()
         {
             const string stream = "should_do_nothing_if_transactionally_writing_no_events_to_empty_stream";
@@ -115,16 +109,16 @@ namespace EventStore.Core.Tests.ClientAPI
                 using (var transaction = store.StartTransactionAsync(stream, ExpectedVersion.NoStream).Result)
                 {
                     Assert.DoesNotThrow(() => transaction.WriteAsync().Wait());
-                    Assert.AreEqual(-1, transaction.CommitAsync().Result.NextExpectedVersion);
+                    Assert.Equal(-1, transaction.CommitAsync().Result.NextExpectedVersion);
                 }
 
                 var result = store.ReadStreamEventsForwardAsync(stream, 0, 1, resolveLinkTos: false).Result;
-                Assert.That(result.Events.Length, Is.EqualTo(0));
+                Assert.Equal(0, result.Events.Length);
             }
         }
 
-        [Test]
-        [Category("Network")]
+        [Fact]
+        [Trait("Category", "Network")]
         public void should_validate_expectations_on_commit()
         {
             const string stream = "should_validate_expectations_on_commit";
@@ -134,14 +128,14 @@ namespace EventStore.Core.Tests.ClientAPI
                 using (var transaction = store.StartTransactionAsync(stream, 100500).Result)
                 {
                     transaction.WriteAsync(TestEvent.NewTestEvent());
-                    Assert.That(() => transaction.CommitAsync().Wait(),
-                                Throws.Exception.TypeOf<AggregateException>().With.InnerException.TypeOf<WrongExpectedVersionException>());
+                    var thrown = Assert.Throws<AggregateException>(() => transaction.CommitAsync().Wait());
+                    Assert.IsType<WrongExpectedVersionException>(thrown.InnerException);
                 }
             }
         }
 
-        [Test]
-        [Category("Network")]
+        [Fact]
+        [Trait("Category", "Network")]
         public void should_commit_when_writing_with_exp_ver_any_even_while_somene_is_writing_in_parallel()
         {
             const string stream = "should_commit_when_writing_with_exp_ver_any_even_while_somene_is_writing_in_parallel";
@@ -204,17 +198,15 @@ namespace EventStore.Core.Tests.ClientAPI
             {
                 store.ConnectAsync().Wait();
                 var slice = store.ReadStreamEventsForwardAsync(stream, 0, totalTranWrites + totalPlainWrites, false).Result;
-                Assert.That(slice.Events.Length, Is.EqualTo(totalTranWrites + totalPlainWrites));
+                Assert.Equal(totalTranWrites + totalPlainWrites, slice.Events.Length);
 
-                Assert.That(slice.Events.Count(ent => Helper.UTF8NoBom.GetString(ent.Event.Metadata) == "trans write"),
-                            Is.EqualTo(totalTranWrites));
-                Assert.That(slice.Events.Count(ent => Helper.UTF8NoBom.GetString(ent.Event.Metadata) == "plain write"),
-                            Is.EqualTo(totalPlainWrites));
+                Assert.Equal(totalTranWrites, slice.Events.Count(ent => Helper.UTF8NoBom.GetString(ent.Event.Metadata) == "trans write"));
+                Assert.Equal(totalPlainWrites, slice.Events.Count(ent => Helper.UTF8NoBom.GetString(ent.Event.Metadata) == "plain write"));
             }
         }
 
-        [Test]
-        [Category("Network")]
+        [Fact]
+        [Trait("Category", "Network")]
         public void should_fail_to_commit_if_started_with_correct_ver_but_committing_with_bad()
         {
             const string stream = "should_fail_to_commit_if_started_with_correct_ver_but_committing_with_bad";
@@ -225,13 +217,13 @@ namespace EventStore.Core.Tests.ClientAPI
                 {
                     store.AppendToStreamAsync(stream, ExpectedVersion.EmptyStream, new[] {TestEvent.NewTestEvent()}).Wait();
                     transaction.WriteAsync(TestEvent.NewTestEvent()).Wait();
-                    Assert.That(() => transaction.CommitAsync().Wait(),
-                                Throws.Exception.TypeOf<AggregateException>().With.InnerException.TypeOf<WrongExpectedVersionException>());
+                    var thrown = Assert.Throws<AggregateException>(() => transaction.CommitAsync().Wait());
+                    Assert.IsType<WrongExpectedVersionException>(thrown.InnerException);
                 }
             }
         }
 
-        [Test, Category("Network")]
+        [Fact, Trait("Category", "Network")]
         public void should_not_fail_to_commit_if_started_with_wrong_ver_but_committing_with_correct_ver()
         {
             const string stream = "should_not_fail_to_commit_if_started_with_wrong_ver_but_committing_with_correct_ver";
@@ -242,13 +234,13 @@ namespace EventStore.Core.Tests.ClientAPI
                 {
                     store.AppendToStreamAsync(stream, ExpectedVersion.EmptyStream, new[] {TestEvent.NewTestEvent()}).Wait();
                     transaction.WriteAsync(TestEvent.NewTestEvent()).Wait();
-                    Assert.AreEqual(1, transaction.CommitAsync().Result.NextExpectedVersion);
+                    Assert.Equal(1, transaction.CommitAsync().Result.NextExpectedVersion);
                 }
             }
         }
 
-        [Test]
-        [Category("Network")]
+        [Fact]
+        [Trait("Category", "Network")]
         public void should_fail_to_commit_if_started_with_correct_ver_but_on_commit_stream_was_deleted()
         {
             const string stream = "should_fail_to_commit_if_started_with_correct_ver_but_on_commit_stream_was_deleted";
@@ -259,13 +251,13 @@ namespace EventStore.Core.Tests.ClientAPI
                 {
                     transaction.WriteAsync(TestEvent.NewTestEvent()).Wait();
                     store.DeleteStreamAsync(stream, ExpectedVersion.EmptyStream, hardDelete: true).Wait();
-                    Assert.That(() => transaction.CommitAsync().Wait(),
-                                Throws.Exception.TypeOf<AggregateException>().With.InnerException.TypeOf<StreamDeletedException>());
+                    var thrown = Assert.Throws<AggregateException>(() => transaction.CommitAsync().Wait());
+                    Assert.IsType<StreamDeletedException>(thrown.InnerException);
                 }
             }
         }
 
-        [Test, Category("LongRunning")]
+        [Fact][Trait("Category", "LongRunning")]
         public void idempotency_is_correct_for_explicit_transactions_with_expected_version_any()
         {
             const string streamId = "idempotency_is_correct_for_explicit_transactions_with_expected_version_any";
@@ -277,15 +269,15 @@ namespace EventStore.Core.Tests.ClientAPI
 
                 var transaction1 = store.StartTransactionAsync(streamId, ExpectedVersion.Any).Result;
                 transaction1.WriteAsync(new[] {e}).Wait();
-                Assert.AreEqual(0, transaction1.CommitAsync().Result.NextExpectedVersion);
+                Assert.Equal(0, transaction1.CommitAsync().Result.NextExpectedVersion);
 
                 var transaction2 = store.StartTransactionAsync(streamId, ExpectedVersion.Any).Result;
                 transaction2.WriteAsync(new[] {e}).Wait();
-                Assert.AreEqual(0, transaction2.CommitAsync().Result.NextExpectedVersion);
+                Assert.Equal(0, transaction2.CommitAsync().Result.NextExpectedVersion);
 
                 var res = store.ReadStreamEventsForwardAsync(streamId, 0, 100, false).Result;
-                Assert.AreEqual(1, res.Events.Length);
-                Assert.AreEqual(e.EventId, res.Events[0].Event.EventId);
+                Assert.Equal(1, res.Events.Length);
+                Assert.Equal(e.EventId, res.Events[0].Event.EventId);
             }
         }
     }

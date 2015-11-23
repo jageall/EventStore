@@ -3,11 +3,10 @@ using System.IO;
 using System.Linq;
 using EventStore.Core.Index;
 using EventStore.Core.Util;
-using NUnit.Framework;
+using Xunit;
 
 namespace EventStore.Core.Tests.Index
 {
-    [TestFixture]
     public class saving_index_with_six_items_to_a_file: SpecificationWithDirectory
     {
         private string _filename;
@@ -16,11 +15,9 @@ namespace EventStore.Core.Tests.Index
         private IndexMap _map;
         private MergeResult _result;
 
-        [SetUp]
-        public override void SetUp()
+        public saving_index_with_six_items_to_a_file()
         {
-            base.SetUp();
-
+ 
             _filename = GetFilePathFor("indexfile");
             _tablename = GetTempFilePath();
             _mergeFile = GetFilePathFor("outfile");
@@ -46,13 +43,13 @@ namespace EventStore.Core.Tests.Index
             _result.ToDelete.ForEach(x => x.Dispose());
         }
 
-        [Test]
+        [Fact]
         public void the_file_exists()
         {
-            Assert.IsTrue(File.Exists(_filename));
+            Assert.True(File.Exists(_filename));
         }
 
-        [Test]
+        [Fact]
         public void the_file_contains_correct_data()
         {
             using (var fs = File.OpenRead(_filename))
@@ -65,26 +62,26 @@ namespace EventStore.Core.Tests.Index
                 var md5 = MD5Hash.GetHashFor(fs);
                 var md5String = BitConverter.ToString(md5).Replace("-", "");
 
-                Assert.AreEqual(7, lines.Count());
-                Assert.AreEqual(md5String, lines[0]);
-                Assert.AreEqual(PTable.Version.ToString(), lines[1]);
-                Assert.AreEqual("7/11", lines[2]);
+                Assert.Equal(7, lines.Count());
+                Assert.Equal(md5String, lines[0]);
+                Assert.Equal(PTable.Version.ToString(), lines[1]);
+                Assert.Equal("7/11", lines[2]);
                 var name = new FileInfo(_tablename).Name;
-                Assert.AreEqual("0,0," + name, lines[3]);
-                Assert.AreEqual("0,1," + name, lines[4]);
-                Assert.AreEqual("1,0," + Path.GetFileName(_mergeFile), lines[5]);
-                Assert.AreEqual("", lines[6]);
+                Assert.Equal("0,0," + name, lines[3]);
+                Assert.Equal("0,1," + name, lines[4]);
+                Assert.Equal("1,0," + Path.GetFileName(_mergeFile), lines[5]);
+                Assert.Equal("", lines[6]);
             }
         }
 
-        [Test]
+        [Fact]
         public void saved_file_could_be_read_correctly_and_without_errors()
         {
             var map = IndexMap.FromFile(_filename);
             map.InOrder().ToList().ForEach(x => x.Dispose());
 
-            Assert.AreEqual(7, map.PrepareCheckpoint);
-            Assert.AreEqual(11, map.CommitCheckpoint);
+            Assert.Equal(7, map.PrepareCheckpoint);
+            Assert.Equal(11, map.CommitCheckpoint);
         }
     }
 }

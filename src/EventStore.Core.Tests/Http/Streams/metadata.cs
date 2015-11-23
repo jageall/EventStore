@@ -3,11 +3,10 @@ using System.Net;
 using EventStore.Core.Tests.Helpers;
 using EventStore.Core.Tests.Http.Streams.basic;
 using Newtonsoft.Json.Linq;
-using NUnit.Framework;
+using Xunit;
 
 namespace EventStore.Core.Tests.Http.Streams
 {
-    [TestFixture]
     public class when_posting_metadata_as_json_to_non_existing_stream : HttpBehaviorSpecification
     {
         private HttpWebResponse _response;
@@ -21,22 +20,26 @@ namespace EventStore.Core.Tests.Http.Streams
             var req = CreateRawJsonPostRequest(TestStream + "/metadata", "POST", new {A = "1"},
                 DefaultData.AdminNetworkCredentials);
             req.Headers.Add("ES-EventId", Guid.NewGuid().ToString());
-            _response = (HttpWebResponse) req.GetResponse();
+            var response = (HttpWebResponse) req.GetResponse();
+            Fixture.AddStashedValueAssignment(this, instance =>
+            {
+                instance._response = response;
+            });
         }
 
-        [Test]
+        [Fact]
         public void returns_created_status_code()
         {
-            Assert.AreEqual(HttpStatusCode.Created, _response.StatusCode);
+            Assert.Equal(HttpStatusCode.Created, _response.StatusCode);
         }
 
-        [Test]
+        [Fact]
         public void returns_a_location_header()
         {
-            Assert.IsNotEmpty(_response.Headers[HttpResponseHeader.Location]);
+            Assert.NotEmpty(_response.Headers[HttpResponseHeader.Location]);
         }
 
-        [Test]
+        [Fact]
         public void returns_a_location_header_that_can_be_read_as_json()
         {
             var json = GetJson<JObject>(_response.Headers[HttpResponseHeader.Location]);
@@ -44,14 +47,17 @@ namespace EventStore.Core.Tests.Http.Streams
         }
     }
 
-    [TestFixture]
     public class when_posting_metadata_as_json_to_existing_stream : HttpBehaviorSpecificationWithSingleEvent
     {
         protected override void Given()
         {
-            _response = MakeArrayEventsPost(
+            var response = MakeArrayEventsPost(
                 TestStream,
                 new[] {new {EventId = Guid.NewGuid(), EventType = "event-type", Data = new {A = "1"}}});
+            Fixture.AddStashedValueAssignment(this, instance =>
+            {
+                instance._response = response;
+            });
         }
 
         protected override void When()
@@ -59,22 +65,26 @@ namespace EventStore.Core.Tests.Http.Streams
             var req = CreateRawJsonPostRequest(TestStream + "/metadata", "POST", new { A = "1" },
                 DefaultData.AdminNetworkCredentials);
             req.Headers.Add("ES-EventId", Guid.NewGuid().ToString());
-            _response = (HttpWebResponse)req.GetResponse();
+            var response = (HttpWebResponse)req.GetResponse();
+            Fixture.AddStashedValueAssignment(this, instance =>
+            {
+                instance._response = response;
+            });
         }
 
-        [Test]
+        [Fact]
         public void returns_created_status_code()
         {
-            Assert.AreEqual(HttpStatusCode.Created, _response.StatusCode);
+            Assert.Equal(HttpStatusCode.Created, _response.StatusCode);
         }
 
-        [Test]
+        [Fact]
         public void returns_a_location_header()
         {
-            Assert.IsNotEmpty(_response.Headers[HttpResponseHeader.Location]);
+            Assert.NotEmpty(_response.Headers[HttpResponseHeader.Location]);
         }
 
-        [Test]
+        [Fact]
         public void returns_a_location_header_that_can_be_read_as_json()
         {
             var json = GetJson<JObject>(_response.Headers[HttpResponseHeader.Location]);
@@ -82,7 +92,6 @@ namespace EventStore.Core.Tests.Http.Streams
         }
     }
 
-    [TestFixture]
     public class when_getting_metadata_for_an_existing_stream_and_no_metadata_exists : HttpBehaviorSpecificationWithSingleEvent
     {
         protected override void Given()
@@ -97,22 +106,22 @@ namespace EventStore.Core.Tests.Http.Streams
             Get(TestStream + "/metadata", String.Empty, EventStore.Transport.Http.ContentType.Json, DefaultData.AdminNetworkCredentials);
         }
 
-        [Test]
+        [Fact]
         public void returns_ok_status_code()
         {
-            Assert.AreEqual(HttpStatusCode.OK, _lastResponse.StatusCode);
+            Assert.Equal(HttpStatusCode.OK, LastResponse.StatusCode);
         }
 
-        [Test]
+        [Fact]
         public void returns_empty_etag()
         {
-            Assert.IsNullOrEmpty(_lastResponse.Headers["ETag"]);
+            Assert.True(string.IsNullOrEmpty(LastResponse.Headers["ETag"]), LastResponse.Headers["ETag"]);
         }
 
-        [Test]
+        [Fact]
         public void returns_empty_body()
         {
-            Assert.AreEqual("{}", _lastResponseBody);
+            Assert.Equal("{}", LastResponseBody);
         }
     }
 }

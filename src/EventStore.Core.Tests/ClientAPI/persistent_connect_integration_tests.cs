@@ -3,11 +3,10 @@ using System.Text;
 using System.Threading;
 using EventStore.ClientAPI;
 using EventStore.ClientAPI.Common;
-using NUnit.Framework;
+using Xunit;
 
 namespace EventStore.Core.Tests.ClientAPI
 {
-    [TestFixture, Category("LongRunning")]
     public class happy_case_writing_and_subscribing_to_normal_events_manual_ack : SpecificationWithMiniNode
     {
         private readonly string StreamName = Guid.NewGuid().ToString();
@@ -23,8 +22,8 @@ namespace EventStore.Core.Tests.ClientAPI
 
         }
 
-
-        [Test]
+        [Fact]
+        [Trait("Category", "LongRunning")]
         public void Test()
         {
             var settings = PersistentSubscriptionSettings
@@ -55,16 +54,11 @@ namespace EventStore.Core.Tests.ClientAPI
 
                 _conn.AppendToStreamAsync(StreamName, ExpectedVersion.Any, DefaultData.AdminCredentials, eventData);
             }
-
-            if (!_eventsReceived.WaitOne(TimeSpan.FromSeconds(5)))
-            {
-                throw new Exception("Timed out waiting for events.");
-            }
+            Assert.True(_eventsReceived.WaitOne(TimeSpan.FromSeconds(5)),"Timed out waiting for events.");
+            
         }
     }
 
-
-    [TestFixture, Category("LongRunning")]
     public class happy_case_writing_and_subscribing_to_normal_events_auto_ack : SpecificationWithMiniNode
     {
         private readonly string StreamName = Guid.NewGuid().ToString();
@@ -79,7 +73,8 @@ namespace EventStore.Core.Tests.ClientAPI
         {
         }
 
-        [Test]
+        [Fact]
+        [Trait("Category", "LongRunning")]
         public void Test()
         {
             var settings = PersistentSubscriptionSettings
@@ -115,8 +110,6 @@ namespace EventStore.Core.Tests.ClientAPI
         }
     }
 
-
-    [TestFixture, Category("LongRunning")]
     public class happy_case_catching_up_to_normal_events_auto_ack : SpecificationWithMiniNode
     {
         private readonly string StreamName = Guid.NewGuid().ToString();
@@ -131,7 +124,8 @@ namespace EventStore.Core.Tests.ClientAPI
         {
         }
 
-        [Test]
+        [Fact]
+        [Trait("Category", "LongRunning")]
         public void Test()
         {
             var settings = PersistentSubscriptionSettings
@@ -168,8 +162,6 @@ namespace EventStore.Core.Tests.ClientAPI
         }
     }
 
-
-    [TestFixture, Category("LongRunning")]
     public class happy_case_catching_up_to_normal_events_manual_ack : SpecificationWithMiniNode
     {
         private readonly string StreamName = Guid.NewGuid().ToString();
@@ -184,7 +176,8 @@ namespace EventStore.Core.Tests.ClientAPI
         {
         }
 
-        [Test]
+        [Fact]
+        [Trait("Category", "LongRunning")]
         public void Test()
         {
             var settings = PersistentSubscriptionSettings
@@ -222,9 +215,6 @@ namespace EventStore.Core.Tests.ClientAPI
         }
     }
 
-
-
-    [TestFixture, Category("LongRunning")]
     public class happy_case_catching_up_to_link_to_events_manual_ack : SpecificationWithMiniNode
     {
         private readonly string StreamName = Guid.NewGuid().ToString();
@@ -239,7 +229,8 @@ namespace EventStore.Core.Tests.ClientAPI
         {
         }
 
-        [Test]
+        [Fact]
+        [Trait("Category", "LongRunning")]
         public void Test()
         {
             var settings = PersistentSubscriptionSettings
@@ -283,8 +274,6 @@ namespace EventStore.Core.Tests.ClientAPI
         }
     }
 
-
-    [TestFixture, Category("LongRunning")]
     public class happy_case_catching_up_to_link_to_events_auto_ack : SpecificationWithMiniNode
     {
         private readonly string StreamName = Guid.NewGuid().ToString();
@@ -299,7 +288,8 @@ namespace EventStore.Core.Tests.ClientAPI
         {
         }
 
-        [Test]
+        [Fact]
+        [Trait("Category", "LongRunning")]
         public void Test()
         {
             var settings = PersistentSubscriptionSettings

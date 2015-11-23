@@ -6,7 +6,7 @@ using EventStore.Core.TransactionLog.Checkpoint;
 using EventStore.Projections.Core.Messages;
 using EventStore.Projections.Core.Services;
 using EventStore.Projections.Core.Services.Processing;
-using NUnit.Framework;
+using Xunit;
 using TestFixtureWithExistingEvents = EventStore.Projections.Core.Tests.Services.core_projection.TestFixtureWithExistingEvents;
 
 namespace EventStore.Projections.Core.Tests.Services.event_reader
@@ -26,8 +26,7 @@ namespace EventStore.Projections.Core.Tests.Services.event_reader
             return new ManualQueue(_bus, _timeProvider);
         }
 
-        [SetUp]
-        public void Setup()
+        public TestFixtureWithEventReaderService()
         {
             _bus.Subscribe(_consumer);
 
@@ -90,7 +89,7 @@ namespace EventStore.Projections.Core.Tests.Services.event_reader
         {
             var readerAssignedMessage =
                 _consumer.HandledMessages.OfType<EventReaderSubscriptionMessage.ReaderAssignedReader>().LastOrDefault();
-            Assert.IsNotNull(readerAssignedMessage);
+            Assert.NotNull(readerAssignedMessage);
             var reader = readerAssignedMessage.ReaderId;
             return reader;
         }

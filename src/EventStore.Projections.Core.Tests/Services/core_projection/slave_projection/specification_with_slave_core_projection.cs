@@ -4,7 +4,7 @@ using EventStore.Core.Data;
 using EventStore.Projections.Core.Messages;
 using EventStore.Projections.Core.Messages.ParallelQueryProcessingMessages;
 using EventStore.Projections.Core.Services.Processing;
-using NUnit.Framework;
+using Xunit;
 using ResolvedEvent = EventStore.Projections.Core.Services.Processing.ResolvedEvent;
 
 namespace EventStore.Projections.Core.Tests.Services.core_projection.slave_projection
@@ -78,8 +78,8 @@ namespace EventStore.Projections.Core.Tests.Services.core_projection.slave_proje
         }
     }
 
-    [TestFixture]
-    class when_processes_one_partition : specification_with_slave_core_projection
+
+    public class when_processes_one_partition : specification_with_slave_core_projection
     {
         protected override void When()
         {
@@ -101,16 +101,16 @@ namespace EventStore.Projections.Core.Tests.Services.core_projection.slave_proje
                     "account-01", 2));
         }
 
-        [Test]
+        [Fact]
         public void publishes_partition_processing_result_message()
         {
             var results = HandledMessages.OfType<PartitionProcessingResult>().ToArray();
-            Assert.AreEqual(1, results.Length);
+            Assert.Equal(1, results.Length);
         }
     }
 
-    [TestFixture]
-    class when_processes_multiple_partitions : specification_with_slave_core_projection
+
+    public class when_processes_multiple_partitions : specification_with_slave_core_projection
     {
         protected override void When()
         {
@@ -142,11 +142,11 @@ namespace EventStore.Projections.Core.Tests.Services.core_projection.slave_proje
                     "account-01", 4));
         }
 
-        [Test]
+        [Fact]
         public void publishes_all_partition_processing_result_messages()
         {
             var results = HandledMessages.OfType<PartitionProcessingResult>().ToArray();
-            Assert.AreEqual(2, results.Length);
+            Assert.Equal(2, results.Length);
         }
     }
 }

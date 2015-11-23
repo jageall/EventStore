@@ -1,13 +1,13 @@
 ﻿using System;
 using EventStore.Core.Tests.Helpers;
-using NUnit.Framework;
+using Xunit;
 
 namespace EventStore.Projections.Core.Tests.Other
 {
-    [TestFixture]
-    class Stopwatch
+
+    public class Stopwatch
     {
-        [Test]
+        [Fact]
         public void MeasureStopwatch()
         {
             var sw = new System.Diagnostics.Stopwatch();

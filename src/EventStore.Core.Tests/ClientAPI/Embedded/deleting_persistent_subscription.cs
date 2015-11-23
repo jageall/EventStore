@@ -1,11 +1,10 @@
 ﻿using EventStore.ClientAPI;
 using EventStore.Core.Tests.ClientAPI.Helpers;
 using EventStore.Core.Tests.Helpers;
-using NUnit.Framework;
+using Xunit;
 
 namespace EventStore.Core.Tests.ClientAPI.Embedded
 {
-    [TestFixture, Category("LongRunning")]
     public class deleting_existing_persistent_subscription_group_with_permissions :
         ClientAPI.deleting_existing_persistent_subscription_group_with_permissions
     {
@@ -15,7 +14,6 @@ namespace EventStore.Core.Tests.ClientAPI.Embedded
         }
     }
 
-    [TestFixture, Category("LongRunning")]
     public class deleting_persistent_subscription_group_that_doesnt_exist :
         ClientAPI.deleting_persistent_subscription_group_that_doesnt_exist
     {
@@ -25,7 +23,6 @@ namespace EventStore.Core.Tests.ClientAPI.Embedded
         }
     }
 
-    [TestFixture, Category("LongRunning")]
     public class deleting_persistent_subscription_group_without_permissions :
         ClientAPI.deleting_persistent_subscription_group_without_permissions
     {

@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using EventStore.Projections.Core.Messages;
 using EventStore.Projections.Core.Services;
 using EventStore.Projections.Core.Services.Management;
-using NUnit.Framework;
+using Xunit;
 
 namespace EventStore.Projections.Core.Tests.Services.projections_manager
 {
-    public abstract class TestFixtureWithJsProjection
+    public abstract class TestFixtureWithJsProjection : IDisposable
     {
         private ProjectionStateHandlerFactory _stateHandlerFactory;
         protected IProjectionStateHandler _stateHandler;
@@ -17,8 +17,12 @@ namespace EventStore.Projections.Core.Tests.Services.projections_manager
         protected string _sharedState = null;
         protected IQuerySources _source;
 
-        [SetUp]
-        public void Setup()
+        public TestFixtureWithJsProjection()
+        {
+            Setup();
+        }
+
+        protected void Setup()
         {
             _state = null;
             _projection = null;
@@ -27,12 +31,12 @@ namespace EventStore.Projections.Core.Tests.Services.projections_manager
             _stateHandlerFactory = new ProjectionStateHandlerFactory();
             _stateHandler = _stateHandlerFactory.Create(
                 "JS", _projection, logger: (s, _) =>
-                    {
-                        if (s.StartsWith("P:"))
-                            Console.WriteLine(s);
-                        else
-                            _logged.Add(s);
-                    }); // skip prelude debug output
+                {
+                    if (s.StartsWith("P:"))
+                        Console.WriteLine(s);
+                    else
+                        _logged.Add(s);
+                }); // skip prelude debug output
             _source = _stateHandler.GetSourceDefinition();
 
             if (_state != null)
@@ -51,8 +55,12 @@ namespace EventStore.Projections.Core.Tests.Services.projections_manager
 
         protected abstract void Given();
 
-        [TearDown]
-        public void Teardown()
+        public void Dispose()
+        {
+            Teardown();
+        }
+
+        protected void Teardown()
         {
             if (_stateHandler != null)
                 _stateHandler.Dispose();

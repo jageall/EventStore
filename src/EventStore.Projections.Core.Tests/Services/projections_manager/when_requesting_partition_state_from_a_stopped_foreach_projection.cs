@@ -4,11 +4,11 @@ using System.Linq;
 using EventStore.Core.Messages;
 using EventStore.Core.Messaging;
 using EventStore.Projections.Core.Messages;
-using NUnit.Framework;
+using Xunit;
 
 namespace EventStore.Projections.Core.Tests.Services.projections_manager
 {
-    [TestFixture]
+    
     public class when_requesting_partition_state_from_a_stopped_foreach_projection :
         TestFixtureWithProjectionCoreAndManagementServices
     {
@@ -41,25 +41,25 @@ namespace EventStore.Projections.Core.Tests.Services.projections_manager
             yield return (new SystemMessage.BecomeMaster(Guid.NewGuid()));
         }
 
-        [Test]
+        [Fact]
         public void the_projection_state_can_be_retrieved()
         {
             _manager.Handle(new ProjectionManagementMessage.Command.GetState(new PublishEnvelope(_bus), _projectionName, "a"));
             _queue.Process();
             
-            Assert.AreEqual(1, _consumer.HandledMessages.OfType<ProjectionManagementMessage.ProjectionState>().Count());
+            Assert.Equal(1, _consumer.HandledMessages.OfType<ProjectionManagementMessage.ProjectionState>().Count());
 
             var first = _consumer.HandledMessages.OfType<ProjectionManagementMessage.ProjectionState>().First();
-            Assert.AreEqual(_projectionName, first.Name);
-            Assert.AreEqual(@"{""data"":1}", first.State);
+            Assert.Equal(_projectionName, first.Name);
+            Assert.Equal(@"{""data"":1}", first.State);
 
             _manager.Handle(new ProjectionManagementMessage.Command.GetState(new PublishEnvelope(_bus), _projectionName, "b"));
             _queue.Process();
 
-            Assert.AreEqual(2, _consumer.HandledMessages.OfType<ProjectionManagementMessage.ProjectionState>().Count());
+            Assert.Equal(2, _consumer.HandledMessages.OfType<ProjectionManagementMessage.ProjectionState>().Count());
             var second = _consumer.HandledMessages.OfType<ProjectionManagementMessage.ProjectionState>().Skip(1).First();
-            Assert.AreEqual(_projectionName, second.Name);
-            Assert.AreEqual("", second.State);
+            Assert.Equal(_projectionName, second.Name);
+            Assert.Equal("", second.State);
         }
     }
 }

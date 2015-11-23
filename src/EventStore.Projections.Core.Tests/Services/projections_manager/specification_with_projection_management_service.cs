@@ -10,7 +10,7 @@ using EventStore.Core.Tests.Helpers;
 using EventStore.Projections.Core.Messages;
 using EventStore.Projections.Core.Messages.ParallelQueryProcessingMessages;
 using EventStore.Projections.Core.Services.Management;
-using NUnit.Framework;
+using Xunit;
 
 namespace EventStore.Projections.Core.Tests.Services.projections_manager
 {
@@ -42,8 +42,7 @@ namespace EventStore.Projections.Core.Tests.Services.projections_manager
             return new ManualQueue(_bus, _timeProvider);
         }
 
-        [SetUp]
-        public void Setup()
+        public specification_with_projection_management_service()
         {
             //TODO: this became an integration test - proper ProjectionCoreService and ProjectionManager testing is required as well
             _bus.Subscribe(_consumer);

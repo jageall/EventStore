@@ -13,23 +13,23 @@ using EventStore.Core.Bus;
 using EventStore.Core.Tests;
 using EventStore.Core.Tests.Helpers;
 using EventStore.Projections.Core.Services.Processing;
-using NUnit.Framework;
+using Xunit;
 using ResolvedEvent = EventStore.ClientAPI.ResolvedEvent;
 using EventStore.ClientAPI.Projections;
 
 namespace EventStore.Projections.Core.Tests.ClientAPI.Cluster
 {
-    [Category("ClientAPI")]
-    public class specification_with_standard_projections_runnning : SpecificationWithDirectoryPerTestFixture
+    public class StandardProjectionsRunning : SpecificationWithDirectoryPerTestFixture
     {
-        protected MiniClusterNode[] _nodes = new MiniClusterNode[3];
-        protected Endpoints[] _nodeEndpoints = new Endpoints[3];
-        protected IEventStoreConnection _conn;
-        protected ProjectionsSubsystem _projections;
-        protected UserCredentials _admin = DefaultData.AdminCredentials;
-        protected ProjectionsManager _manager;
+        private readonly MiniClusterNode[] _nodes = new MiniClusterNode[3];
+        private readonly Endpoints[] _nodeEndpoints = new Endpoints[3];
+        public IEventStoreConnection Conn { get; private set; }
+        private ProjectionsSubsystem _projections;
+        public ProjectionsManager Manager { get; private set; }
+        private Action<Action, Action, Action> _initialize;
+        private Action<specification_with_standard_projections_runnning> _assignStashedValues;
 
-        protected class Endpoints
+        private class Endpoints
         {
             public readonly IPEndPoint InternalTcp;
             public readonly IPEndPoint InternalTcpSec;
@@ -54,59 +54,71 @@ namespace EventStore.Projections.Core.Tests.ClientAPI.Cluster
             }
         }
 
-        [TestFixtureSetUp]
-        public override void TestFixtureSetUp()
+        public StandardProjectionsRunning()
         {
-            base.TestFixtureSetUp();
-#if (!DEBUG)
-            throw new NotSupportedException("These tests require DEBUG conditional");
-#else
-            QueueStatsCollector.InitializeIdleDetection();
-            _nodeEndpoints[0] = new Endpoints(
-                PortsHelper.GetAvailablePort(IPAddress.Loopback), PortsHelper.GetAvailablePort(IPAddress.Loopback),
-                PortsHelper.GetAvailablePort(IPAddress.Loopback), PortsHelper.GetAvailablePort(IPAddress.Loopback),
-                PortsHelper.GetAvailablePort(IPAddress.Loopback), PortsHelper.GetAvailablePort(IPAddress.Loopback));
-            _nodeEndpoints[1] = new Endpoints(
-                PortsHelper.GetAvailablePort(IPAddress.Loopback), PortsHelper.GetAvailablePort(IPAddress.Loopback),
-                PortsHelper.GetAvailablePort(IPAddress.Loopback), PortsHelper.GetAvailablePort(IPAddress.Loopback),
-                PortsHelper.GetAvailablePort(IPAddress.Loopback), PortsHelper.GetAvailablePort(IPAddress.Loopback));
-            _nodeEndpoints[2] = new Endpoints(
-                PortsHelper.GetAvailablePort(IPAddress.Loopback), PortsHelper.GetAvailablePort(IPAddress.Loopback),
-                PortsHelper.GetAvailablePort(IPAddress.Loopback), PortsHelper.GetAvailablePort(IPAddress.Loopback),
-                PortsHelper.GetAvailablePort(IPAddress.Loopback), PortsHelper.GetAvailablePort(IPAddress.Loopback));
+            _assignStashedValues = _ => { };
+            _initialize = (runStandardProjections, given, when) =>
+            {
+                _initialize = (_, __, ___) => { };
+#if DEBUG
+                QueueStatsCollector.InitializeIdleDetection();
+#endif
+                _nodeEndpoints[0] = new Endpoints(
+                    PortsHelper.GetAvailablePort(IPAddress.Loopback), PortsHelper.GetAvailablePort(IPAddress.Loopback),
+                    PortsHelper.GetAvailablePort(IPAddress.Loopback), PortsHelper.GetAvailablePort(IPAddress.Loopback),
+                    PortsHelper.GetAvailablePort(IPAddress.Loopback), PortsHelper.GetAvailablePort(IPAddress.Loopback));
+                _nodeEndpoints[1] = new Endpoints(
+                    PortsHelper.GetAvailablePort(IPAddress.Loopback), PortsHelper.GetAvailablePort(IPAddress.Loopback),
+                    PortsHelper.GetAvailablePort(IPAddress.Loopback), PortsHelper.GetAvailablePort(IPAddress.Loopback),
+                    PortsHelper.GetAvailablePort(IPAddress.Loopback), PortsHelper.GetAvailablePort(IPAddress.Loopback));
+                _nodeEndpoints[2] = new Endpoints(
+                    PortsHelper.GetAvailablePort(IPAddress.Loopback), PortsHelper.GetAvailablePort(IPAddress.Loopback),
+                    PortsHelper.GetAvailablePort(IPAddress.Loopback), PortsHelper.GetAvailablePort(IPAddress.Loopback),
+                    PortsHelper.GetAvailablePort(IPAddress.Loopback), PortsHelper.GetAvailablePort(IPAddress.Loopback));
 
-            PortsHelper.GetAvailablePort(IPAddress.Loopback);
+                PortsHelper.GetAvailablePort(IPAddress.Loopback);
 
-            _nodes[0] = CreateNode(0,
-                _nodeEndpoints[0], new IPEndPoint[] { _nodeEndpoints[1].InternalHttp, _nodeEndpoints[2].InternalHttp });
-            _nodes[1] = CreateNode(1,
-                _nodeEndpoints[1], new IPEndPoint[] { _nodeEndpoints[0].InternalHttp, _nodeEndpoints[2].InternalHttp });
+                _nodes[0] = CreateNode(0,
+                    _nodeEndpoints[0], new IPEndPoint[] {_nodeEndpoints[1].InternalHttp, _nodeEndpoints[2].InternalHttp});
+                _nodes[1] = CreateNode(1,
+                    _nodeEndpoints[1], new IPEndPoint[] {_nodeEndpoints[0].InternalHttp, _nodeEndpoints[2].InternalHttp});
 
-            _nodes[2] = CreateNode(2,
-                _nodeEndpoints[2], new IPEndPoint[] { _nodeEndpoints[0].InternalHttp, _nodeEndpoints[1].InternalHttp });
+                _nodes[2] = CreateNode(2,
+                    _nodeEndpoints[2], new IPEndPoint[] {_nodeEndpoints[0].InternalHttp, _nodeEndpoints[1].InternalHttp});
 
 
-            _nodes[0].Start();
-            _nodes[1].Start();
-            _nodes[2].Start();
+                _nodes[0].Start();
+                _nodes[1].Start();
+                _nodes[2].Start();
 
-            WaitHandle.WaitAll(new[] { _nodes[0].StartedEvent, _nodes[1].StartedEvent, _nodes[2].StartedEvent });
-            QueueStatsCollector.WaitIdle(waitForNonEmptyTf: true);
-            _conn = EventStoreConnection.Create(_nodes[0].ExternalTcpEndPoint);
-            _conn.ConnectAsync().Wait();
+                WaitHandle.WaitAll(new[] {_nodes[0].StartedEvent, _nodes[1].StartedEvent, _nodes[2].StartedEvent});
+                QueueStatsCollector.WaitIdle(waitForNonEmptyTf: true);
+                Conn = EventStoreConnection.Create(_nodes[0].ExternalTcpEndPoint);
+                Conn.ConnectAsync().Wait();
 
-            _manager = new ProjectionsManager(
-                new ConsoleLogger(),
-                _nodes[0].ExternalHttpEndPoint,
-                TimeSpan.FromMilliseconds(10000));
+                Manager = new ProjectionsManager(
+                    new ConsoleLogger(),
+                    _nodes[0].ExternalHttpEndPoint,
+                    TimeSpan.FromMilliseconds(10000));
 
-            if (GivenStandardProjectionsRunning())
-                EnableStandardProjections();
-            QueueStatsCollector.WaitIdle();
-            Given();
-            When();
+                runStandardProjections();
+                QueueStatsCollector.WaitIdle();
+                given();
+                when();
+            };
+        }
+
+        public override void Dispose()
+        {
+            Conn.Close();
+            _nodes[0].Shutdown();
+            _nodes[1].Shutdown();
+            _nodes[2].Shutdown();
+#if DEBUG
+            QueueStatsCollector.InitializeIdleDetection(false);
 #endif
         }
+
 
         private MiniClusterNode CreateNode(int index, Endpoints endpoints, IPEndPoint[] gossipSeeds)
         {
@@ -115,16 +127,59 @@ namespace EventStore.Projections.Core.Tests.ClientAPI.Cluster
                 PathName, index, endpoints.InternalTcp, endpoints.InternalTcpSec, endpoints.InternalHttp, endpoints.ExternalTcp,
                 endpoints.ExternalTcpSec, endpoints.ExternalHttp, skipInitializeStandardUsersCheck: false,
                 subsystems: new ISubsystem[] { _projections }, gossipSeeds: gossipSeeds);
-            WaitIdle();
+            QueueStatsCollector.WaitIdle();
             return node;
         }
 
-        [TearDown]
-        public void PostTestAsserts()
+        public void EnsureInitialized(Action runStandardProjections, Action given, Action when)
+        {
+            _initialize(runStandardProjections, given, when);
+        }
+
+        public void AddStashedValueAssignment<T>(T ignored, Action<T> assignStashedValues)
+            where T : specification_with_standard_projections_runnning
+        {
+            _assignStashedValues += instance => assignStashedValues((T)instance);
+        }
+
+        public void AssignStashedValues(specification_with_standard_projections_runnning scenario)
+        {
+            _assignStashedValues(scenario);
+        }
+    }
+    
+    public class specification_with_standard_projections_runnning : IUseFixture<StandardProjectionsRunning>, IDisposable
+    {
+        protected readonly UserCredentials _admin = DefaultData.AdminCredentials;
+        protected ProjectionsManager _manager{get { return _fixture.Manager; }}
+        protected IEventStoreConnection _conn{get { return _fixture.Conn; }}
+        private StandardProjectionsRunning _fixture;
+        protected StandardProjectionsRunning Fixture{get{return _fixture;}}
+
+
+        public specification_with_standard_projections_runnning()
+        {
+#if (!DEBUG)
+            throw new NotSupportedException("These tests require DEBUG conditional");
+#else
+
+#endif
+        }
+
+        public void SetFixture(StandardProjectionsRunning fixture)
+        {
+            _fixture = fixture;
+            _fixture.EnsureInitialized(
+                () => { if (GivenStandardProjectionsRunning()) EnableStandardProjections(); },
+                Given,
+                When
+                );
+            _fixture.AssignStashedValues(this);
+        }
+        public void Dispose()
         {
             var all = _manager.ListAllAsync(_admin).Result;
-            if (all.Any(p => p.Name == "Faulted"))
-                Assert.Fail("Projections faulted while running the test" + "\r\n" + all);
+            Assert.False (all.Any(p => p.Name == "Faulted"),"Projections faulted while running the test" + "\r\n" + all);
         }
 
         protected void EnableStandardProjections()
@@ -158,18 +213,6 @@ namespace EventStore.Projections.Core.Tests.ClientAPI.Cluster
             _manager.DisableAsync(name, _admin).Wait();
         }
 
-        [TestFixtureTearDown]
-        public override void TestFixtureTearDown()
-        {
-            _conn.Close();
-            _nodes[0].Shutdown();
-            _nodes[1].Shutdown();
-            _nodes[2].Shutdown();
-            base.TestFixtureTearDown();
-#if DEBUG
-            QueueStatsCollector.InitializeIdleDetection(false);
-#endif
-        }
 
         protected virtual void When()
         {
@@ -212,10 +255,10 @@ namespace EventStore.Projections.Core.Tests.ClientAPI.Cluster
             switch (result.Status)
             {
                 case SliceReadStatus.StreamDeleted:
-                    Assert.Fail("Stream '{0}' is deleted", streamId);
+                    Assert.True(false, string.Format("Stream '{0}' is deleted", streamId));
                     break;
                 case SliceReadStatus.StreamNotFound:
-                    Assert.Fail("Stream '{0}' does not exist", streamId);
+                    Assert.True(false, string.Format("Stream '{0}' does not exist", streamId));
                     break;
                 case SliceReadStatus.Success:
                     var resultEventsReversed = result.Events.Reverse().ToArray();
@@ -249,10 +292,10 @@ namespace EventStore.Projections.Core.Tests.ClientAPI.Cluster
             switch (result.Status)
             {
                 case SliceReadStatus.StreamDeleted:
-                    Assert.Fail("Stream '{0}' is deleted", streamId);
+                    Assert.True(false, string.Format("Stream '{0}' is deleted", streamId));
                     break;
                 case SliceReadStatus.StreamNotFound:
-                    Assert.Fail("Stream '{0}' does not exist", streamId);
+                    Assert.True(false, string.Format("Stream '{0}' does not exist", streamId));
                     break;
                 case SliceReadStatus.Success:
                     Dump("Dumping..", streamId, result.Events.Reverse().ToArray());
@@ -272,9 +315,9 @@ namespace EventStore.Projections.Core.Tests.ClientAPI.Cluster
                 "", (a, v) => a + "\r\n" + v.Event.EventType + ":" + v.Event.DebugMetadataView);
 
 
-            Assert.Fail(
+            Assert.True(false, string.Format(
                 "Stream: '{0}'\r\n{1}\r\n\r\nExisting events: \r\n{2}\r\n Expected events: \r\n{3}\r\n\r\nActual metas:{4}", streamId,
-                message, actual, expected, actualMeta);
+                message, actual, expected, actualMeta));
 
         }
 
@@ -300,10 +343,10 @@ namespace EventStore.Projections.Core.Tests.ClientAPI.Cluster
         }
     }
 
-    [TestFixture, Explicit]
     public class TestTest : specification_with_standard_projections_runnning
     {
-        [Test, Explicit]
+        //TODO JAG this appears to be the only test that inherits from the base class in cluster
+        [DebugBuildFact][Trait("Category", "Explicit")][Trait("Category", "ClientAPI")]
         public void Test()
         {
             PostProjection(@"fromStream('$user-admin').outputState()");

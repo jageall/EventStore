@@ -3,12 +3,12 @@ using System.Linq;
 using System.Text;
 using EventStore.Core.Data;
 using EventStore.Projections.Core.Messages;
-using NUnit.Framework;
+using Xunit;
 using ResolvedEvent = EventStore.Projections.Core.Services.Processing.ResolvedEvent;
 
 namespace EventStore.Projections.Core.Tests.Services.core_projection
 {
-    [TestFixture]
+    
     public class when_receiving_committed_event_the_projection_with_existing_partitioned_state_should :
         TestFixtureWithCoreProjectionStarted
     {
@@ -57,13 +57,13 @@ namespace EventStore.Projections.Core.Tests.Services.core_projection
                     _subscriptionId, 1));
         }
 
-        [Test]
+        [Fact]
         public void register_new_partition_state_stream_only_once()
         {
             var writes =
                 _writeEventHandler.HandledMessages.Where(v => v.EventStreamId == "$projections-projection-partitions")
                                   .ToArray();
-            Assert.AreEqual(0, writes.Length);
+            Assert.Equal(0, writes.Length);
         }
     }
 }

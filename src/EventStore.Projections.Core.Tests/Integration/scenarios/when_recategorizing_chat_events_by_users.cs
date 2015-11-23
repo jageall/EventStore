@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
-using NUnit.Framework;
+using Xunit;
 
 namespace EventStore.Projections.Core.Tests.Integration.scenarios
 {
-    [TestFixture]
+    
     public class when_recategorizing_chat_events_by_users : specification_with_a_v8_query_posted
     {
         protected override void GivenEvents()
@@ -126,14 +126,14 @@ fromCategory(""user"")
 ";
         }
 
-        [Test]
+        [Fact]
         public void query1_returns_correct_result()
         {
             AssertStreamTailWithLinks(
                 "$projections-query1-result", @"Result:{""count"":3}", @"Result:{""count"":2}", "$Eof:");
         }
 
-        [Test]
+        [Fact]
         public void query2_returns_correct_result()
         {
             AssertStreamTailWithLinks(
@@ -141,7 +141,7 @@ fromCategory(""user"")
                 @"Result:{""count"":1}", "$Eof:");
         }
 
-        [Test]
+        [Fact]
         public void query3_returns_correct_result()
         {
             AssertStreamTailWithLinks(
@@ -149,7 +149,7 @@ fromCategory(""user"")
                 @"Result:{""count"":1}", "$Eof:");
         }
 
-        [Test]
+        [Fact]
         public void other_1_projection_produces_correct_results()
         {
             AssertStreamTail(

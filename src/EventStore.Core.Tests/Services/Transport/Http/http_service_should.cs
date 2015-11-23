@@ -4,77 +4,113 @@ using System.Threading;
 using EventStore.Core.Messages;
 using EventStore.Core.Tests.Helpers;
 using EventStore.Transport.Http;
-using NUnit.Framework;
+using Xunit;
 using EventStore.Common.Utils;
 using System.Linq;
 using HttpStatusCode = System.Net.HttpStatusCode;
 
 namespace EventStore.Core.Tests.Services.Transport.Http
 {
-    [TestFixture,Category("LongRunning")]
-    public class http_service_should
+    public class LeasedPort : IDisposable
     {
-        private readonly IPEndPoint _serverEndPoint;
-        private readonly PortableServer _portableServer;
+        public readonly int Port;
 
-        public http_service_should()
+        public LeasedPort()
         {
-            var port = PortsHelper.GetAvailablePort(IPAddress.Loopback);
-            _serverEndPoint = new IPEndPoint(IPAddress.Loopback, port);
-            _portableServer = new PortableServer(_serverEndPoint);
+            Port = PortsHelper.GetAvailablePort(IPAddress.Loopback);
         }
 
-        [SetUp]
-        public void SetUp()
+        public virtual void Dispose()
         {
-            _portableServer.SetUp();
+            PortsHelper.ReturnPort(Port);
+        }
+    }
+
+    public class http_service_should : IUseFixture<http_service_should.Fixture>, IDisposable
+    {
+        private Fixture _fixture;
+        public IPEndPoint ServerEndPoint { get { return _fixture.ServerEndPoint; } }
+        public PortableServer PortableServer { get { return _fixture.PortableServer; } }
+        public class Fixture : LeasedPort
+        {
+            public readonly IPEndPoint ServerEndPoint;
+            public readonly PortableServer PortableServer;
+            private readonly Exception _setupException;
+
+            public Fixture()
+            {
+                try
+                {
+
+                    ServerEndPoint = new IPEndPoint(IPAddress.Loopback, Port);
+                    PortableServer = new PortableServer(ServerEndPoint);
+                    PortableServer.SetUp();
+                }
+                catch (Exception ex)
+                {
+                    _setupException = ex;
+                }
+            }
+
+            public override void Dispose()
+            {
+                if(PortableServer != null)
+                    PortableServer.TearDown();
+                base.Dispose();
+            }
+
+            public void EnsureInitialized()
+            {
+                if(_setupException != null)
+                    throw new ApplicationException("Fixture setup failed", _setupException);
+            }
         }
 
-        [TearDown]
-        public void TearDown()
+        public void SetFixture(Fixture fixture)
         {
-            _portableServer.TearDown();
+            _fixture = fixture;
+            fixture.EnsureInitialized();
+            PortableServer.SetUp();
         }
 
-        [TestFixtureTearDown]
-        public void TestFixtureTearDown()
+        public void Dispose()
         {
-            PortsHelper.ReturnPort(_serverEndPoint.Port);            
+            PortableServer.TearDown();
         }
 
-        [Test]
-        [Category("Network")]
+        [Fact]
+        [Trait("Category", "Network")]
         public void start_after_system_message_system_init_published()
         {
-            Assert.IsFalse(_portableServer.IsListening);
-            _portableServer.Publish(new SystemMessage.SystemInit());
-            Assert.IsTrue(_portableServer.IsListening);
+            Assert.False(PortableServer.IsListening);
+            PortableServer.Publish(new SystemMessage.SystemInit());
+            Assert.True(PortableServer.IsListening);
         }
 
-        [Test]
-        [Category("Network")]
+        [Fact]
+        [Trait("Category", "Network")]
         public void ignore_shutdown_message_that_does_not_say_shut_down()
         {
-            _portableServer.Publish(new SystemMessage.SystemInit());
-            Assert.IsTrue(_portableServer.IsListening);
+            PortableServer.Publish(new SystemMessage.SystemInit());
+            Assert.True(PortableServer.IsListening);
 
-            _portableServer.Publish(new SystemMessage.BecomeShuttingDown(Guid.NewGuid(), exitProcess: false, shutdownHttp: false));
-            Assert.IsTrue(_portableServer.IsListening);
+            PortableServer.Publish(new SystemMessage.BecomeShuttingDown(Guid.NewGuid(), exitProcess: false, shutdownHttp: false));
+            Assert.True(PortableServer.IsListening);
         }
 
-        [Test]
-        [Category("Network")]
+        [Fact]
+        [Trait("Category", "Network")]
         public void react_to_shutdown_message_that_cause_process_exit()
         {
-            _portableServer.Publish(new SystemMessage.SystemInit());
-            Assert.IsTrue(_portableServer.IsListening);
+            PortableServer.Publish(new SystemMessage.SystemInit());
+            Assert.True(PortableServer.IsListening);
 
-            _portableServer.Publish(new SystemMessage.BecomeShuttingDown(Guid.NewGuid(), exitProcess: true, shutdownHttp:true));
-            Assert.IsFalse(_portableServer.IsListening);
+            PortableServer.Publish(new SystemMessage.BecomeShuttingDown(Guid.NewGuid(), exitProcess: true, shutdownHttp:true));
+            Assert.False(PortableServer.IsListening);
         }
 
-        [Test]
-        [Category("Network")]
+        [Fact]
+        [Trait("Category", "Network")]
         public void reply_with_404_to_every_request_when_there_are_no_registered_controllers()
         {
             var requests = new[] {"/ping", "/streams", "/gossip", "/stuff", "/notfound", "/magic/url.exe"};
@@ -84,12 +120,12 @@ namespace EventStore.Core.Tests.Services.Transport.Http
             for (var i = 0; i < signals.Length; i++)
                 signals[i] = new AutoResetEvent(false);
 
-            _portableServer.Publish(new SystemMessage.SystemInit());
+            PortableServer.Publish(new SystemMessage.SystemInit());
 
             for (var i = 0; i < requests.Length; i++)
             {
                 var i1 = i;
-                _portableServer.BuiltInClient.Get(_serverEndPoint.ToHttpUrl(requests[i]),
+                PortableServer.BuiltInClient.Get(ServerEndPoint.ToHttpUrl(requests[i]),
                             TimeSpan.FromMilliseconds(10000),
                             response =>
                                 {
@@ -107,19 +143,19 @@ namespace EventStore.Core.Tests.Services.Transport.Http
             foreach (var signal in signals)
                 signal.WaitOne();
 
-            Assert.IsTrue(successes.All(x => x), string.Join(";", errors.Where(e => !string.IsNullOrEmpty(e))));
+            Assert.True(successes.All(x => x), string.Join(";", errors.Where(e => !string.IsNullOrEmpty(e))));
         }
 
-        [Test]
-        [Category("Network")]
+        [Fact]
+        [Trait("Category", "Network")]
         public void handle_invalid_characters_in_url()
         {
-            var url = _serverEndPoint.ToHttpUrl("/ping^\"");
+            var url = ServerEndPoint.ToHttpUrl("/ping^\"");
             Func<HttpResponse, bool> verifier = response => string.IsNullOrEmpty(response.Body) &&
                                                             response.HttpStatusCode == (int) HttpStatusCode.NotFound;
 
-            var result = _portableServer.StartServiceAndSendRequest(HttpBootstrap.RegisterPing, url, verifier);
-            Assert.IsTrue(result.Item1, result.Item2);
+            var result = PortableServer.StartServiceAndSendRequest(HttpBootstrap.RegisterPing, url, verifier);
+            Assert.True(result.Item1, result.Item2);
         }
     }
 }

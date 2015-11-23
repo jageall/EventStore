@@ -2,18 +2,17 @@
 using System.Collections.Generic;
 using EventStore.ClientAPI.Common.Utils;
 using EventStore.Projections.Core.Services.Management;
-using NUnit.Framework;
+using Xunit;
 
 namespace EventStore.Projections.Core.Tests.Services.slave_projection_response_writer
 {
-    abstract class specification_with_slave_projection_response_writer
+    public abstract class specification_with_slave_projection_response_writer
     {
         protected SlaveProjectionResponseWriter _sut;
         protected List<Tuple<string, Guid, object>> _publishedResponses;
         private IMultiStreamMessageWriter _writer;
 
-        [SetUp]
-        public void SetUp()
+        public specification_with_slave_projection_response_writer()
         {
             _publishedResponses = new List<Tuple<string, Guid, object>>();
             _writer = new FakeWriter(this);
@@ -24,10 +23,10 @@ namespace EventStore.Projections.Core.Tests.Services.slave_projection_response_w
 
         protected T AssertParsedSingleResponse<T>(string response, Guid workerId)
         {
-            Assert.AreEqual(1, _publishedResponses.Count);
-            Assert.AreEqual(response, _publishedResponses[0].Item1);
-            Assert.AreEqual(workerId, _publishedResponses[0].Item2);
-            Assert.IsInstanceOf<T>(_publishedResponses[0].Item3);
+            Assert.Equal(1, _publishedResponses.Count);
+            Assert.Equal(response, _publishedResponses[0].Item1);
+            Assert.Equal(workerId, _publishedResponses[0].Item2);
+            Assert.IsType<T>(_publishedResponses[0].Item3);
             var source = (T) _publishedResponses[0].Item3;
             var serialized = source.ToJson();
             var parsed = serialized.ParseJson<T>();

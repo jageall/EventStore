@@ -1,9 +1,9 @@
 ﻿using EventStore.Core.Data;
-using NUnit.Framework;
+using EventStore.Core.Tests.Services.Storage;
+using Xunit;
 
 namespace EventStore.Core.Tests.TransactionLog.Truncation
 {
-    [TestFixture]
     public class when_truncating_single_uncompleted_chunk_with_index_on_disk : TruncateScenario
     {
         private EventRecord _event2;
@@ -15,19 +15,19 @@ namespace EventStore.Core.Tests.TransactionLog.Truncation
 
         protected override void WriteTestScenario()
         {
-            WriteSingleEvent("ES", 0, new string('.', 500));
-            _event2 = WriteSingleEvent("ES", 1, new string('.', 500));
-            WriteSingleEvent("ES", 2, new string('.', 500));  // index goes to disk
-            WriteSingleEvent("ES", 3, new string('.', 500));
+            Fixture.WriteSingleEvent("ES", 0, new string('.', 500));
+            _event2 = Fixture.WriteSingleEvent("ES", 1, new string('.', 500));
+            Fixture.WriteSingleEvent("ES", 2, new string('.', 500));  // index goes to disk
+            Fixture.WriteSingleEvent("ES", 3, new string('.', 500));
 
             TruncateCheckpoint = _event2.LogPosition;
         }
 
-        [Test]
+        [Fact]
         public void checksums_should_be_equal_to_ack_checksum()
         {
-            Assert.AreEqual(TruncateCheckpoint, WriterCheckpoint.Read());
-            Assert.AreEqual(TruncateCheckpoint, ChaserCheckpoint.Read());
+            Assert.Equal(TruncateCheckpoint, WriterCheckpoint.Read());
+            Assert.Equal(TruncateCheckpoint, ChaserCheckpoint.Read());
         }
     }
 }

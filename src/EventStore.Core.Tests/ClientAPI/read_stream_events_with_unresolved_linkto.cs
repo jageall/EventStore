@@ -6,13 +6,12 @@ using EventStore.ClientAPI.SystemData;
 using EventStore.Core.Data;
 using EventStore.Core.Services;
 using EventStore.Core.Tests.ClientAPI.Helpers;
-using NUnit.Framework;
+using Xunit;
 using ExpectedVersion = EventStore.ClientAPI.ExpectedVersion;
 using StreamMetadata = EventStore.ClientAPI.StreamMetadata;
 
 namespace EventStore.Core.Tests.ClientAPI
 {
-    [TestFixture, Category("LongRunning")]
     public class read_stream_events_with_unresolved_linkto : SpecificationWithMiniNode
     {
         private EventData[] _testEvents;
@@ -35,21 +34,23 @@ namespace EventStore.Core.Tests.ClientAPI
             _conn.DeleteStreamAsync("stream", ExpectedVersion.Any).Wait();
         }
 
-        [Test, Category("LongRunning")]
+        [Fact]
+        [Trait("Category", "LongRunning")]
         public void ensure_deleted_stream()
         {
             var res = _conn.ReadStreamEventsForwardAsync("stream", 0, 100, false).Result;
-            Assert.AreEqual(SliceReadStatus.StreamNotFound, res.Status);
-            Assert.AreEqual(0, res.Events.Length);
+            Assert.Equal(SliceReadStatus.StreamNotFound, res.Status);
+            Assert.Equal(0, res.Events.Length);
         }
 
-        [Test, Category("LongRunning")]
+        [Fact]
+        [Trait("Category", "LongRunning")]
         public void returns_unresolved_linkto()
         {
             var read = _conn.ReadStreamEventsForwardAsync("links", 0, 1, true).Result;
-            Assert.AreEqual(1, read.Events.Length);
-            Assert.IsNull(read.Events[0].Event);
-            Assert.IsNotNull(read.Events[0].Link);
+            Assert.Equal(1, read.Events.Length);
+            Assert.Null(read.Events[0].Event);
+            Assert.NotNull(read.Events[0].Link);
         }
     }
 }

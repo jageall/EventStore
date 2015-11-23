@@ -4,11 +4,10 @@ using EventStore.Core.Data;
 using EventStore.Core.Services.Storage.ReaderIndex;
 using EventStore.Core.Tests.TransactionLog.Scavenging.Helpers;
 using EventStore.Core.TransactionLog.LogRecords;
-using NUnit.Framework;
+using Xunit;
 
 namespace EventStore.Core.Tests.TransactionLog.Scavenging
 {
-    [TestFixture]
     public class when_having_stream_with_strict_max_age_leaving_no_events_in_stream : ScavengeTestScenario
     {
         protected override DbResult CreateDb(TFChunkDbCreationHelper dbCreator)
@@ -35,7 +34,7 @@ namespace EventStore.Core.Tests.TransactionLog.Scavenging
             };
         }
 
-        [Test]
+        [Fact]
         public void expired_prepares_are_scavenged_but_the_last_in_stream_is_physically_kept()
         {
             CheckRecords();

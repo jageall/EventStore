@@ -3,25 +3,23 @@ using EventStore.ClientAPI;
 using EventStore.ClientAPI.Exceptions;
 using EventStore.ClientAPI.SystemData;
 using EventStore.Core.Services;
-using NUnit.Framework;
+using Xunit;
 
 namespace EventStore.Core.Tests.ClientAPI.Security
 {
-    [TestFixture, Category("LongRunning"), Category("Network")]
     public class multiple_role_security : AuthenticationTestBase
     {
-        [TestFixtureSetUp]
-        public override void TestFixtureSetUp()
+        protected override void AdditionalFixtureSetup()
         {
-            base.TestFixtureSetUp();
-            
             var settings = new SystemSettings(
                 new StreamAcl(new[]{"user1", "user2"}, new[]{"$admins", "user1"}, new[] {"user1", SystemRoles.All}, null, null),
                 null);
             Connection.SetSystemSettingsAsync(settings, new UserCredentials("adm", "admpa$$")).Wait();
         }
 
-        [Test, Category("LongRunning"), Category("Network")]
+        [Fact]
+        [Trait("Category", "LongRunning")]
+        [Trait("Category", "Network")]
         public void multiple_roles_are_handled_correctly()
         {
             Expect<AccessDeniedException>(() => ReadEvent("usr-stream", null, null));

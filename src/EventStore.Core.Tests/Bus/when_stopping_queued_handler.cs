@@ -3,11 +3,10 @@ using System.Threading;
 using EventStore.Core.Bus;
 using EventStore.Core.Messaging;
 using EventStore.Core.Tests.Bus.Helpers;
-using NUnit.Framework;
+using Xunit;
 
 namespace EventStore.Core.Tests.Bus
 {
-    [TestFixture]
     public abstract class when_stopping_queued_handler : QueuedHandlerTestWithNoopConsumer
     {
         protected when_stopping_queued_handler(Func<IHandle<Message>, string, TimeSpan, IQueuedHandler> queuedHandlerFactory)
@@ -15,15 +14,14 @@ namespace EventStore.Core.Tests.Bus
         {
         }
 
-
-        [Test]
+        [Fact]
         public void gracefully_should_not_throw()
         {
             Queue.Start();
             Assert.DoesNotThrow(() => Queue.Stop());
         }
 
-        [Test]
+        [Fact]
         public void gracefully_and_queue_is_not_busy_should_not_take_much_time()
         {
             Queue.Start();
@@ -36,10 +34,10 @@ namespace EventStore.Core.Tests.Bus
                 wait.Set();
             });
 
-            Assert.IsTrue(wait.Wait(5000), "Could not stop queue in time.");
+            Assert.True(wait.Wait(5000), "Could not stop queue in time.");
         }
 
-        [Test]
+        [Fact]
         public void second_time_should_not_throw()
         {
             Queue.Start();
@@ -47,7 +45,7 @@ namespace EventStore.Core.Tests.Bus
             Assert.DoesNotThrow(() => Queue.Stop());
         }
 
-        [Test]
+        [Fact]
         public void second_time_should_not_take_much_time()
         {
             Queue.Start();
@@ -61,10 +59,10 @@ namespace EventStore.Core.Tests.Bus
                 wait.Set();
             });
 
-            Assert.IsTrue(wait.Wait(1000), "Could not stop queue in time.");
+            Assert.True(wait.Wait(1000), "Could not stop queue in time.");
         }
 
-        [Test]
+        [Fact]
         public void while_queue_is_busy_should_crash_with_timeout()
         {
             var consumer = new WaitingConsumer(1);
@@ -96,7 +94,6 @@ namespace EventStore.Core.Tests.Bus
         }
     }
 
-    [TestFixture]
     public class when_stopping_queued_handler_mres_should : when_stopping_queued_handler
     {
         public when_stopping_queued_handler_mres_should()
@@ -105,7 +102,6 @@ namespace EventStore.Core.Tests.Bus
         }
     }
 
-    [TestFixture]
     public class when_stopping_queued_handler_autoreset : when_stopping_queued_handler
     {
         public when_stopping_queued_handler_autoreset()
@@ -114,7 +110,6 @@ namespace EventStore.Core.Tests.Bus
         }
     }
 
-    [TestFixture]
     public class when_stopping_queued_handler_sleep : when_stopping_queued_handler
     {
         public when_stopping_queued_handler_sleep()
@@ -123,7 +118,6 @@ namespace EventStore.Core.Tests.Bus
         }
     }
 
-    [TestFixture]
     public class when_stopping_queued_handler_pulse : when_stopping_queued_handler
     {
         public when_stopping_queued_handler_pulse()
@@ -132,7 +126,6 @@ namespace EventStore.Core.Tests.Bus
         }
     }
 
-    [TestFixture]
     public class when_stopping_queued_handler_threadpool : when_stopping_queued_handler
     {
         public when_stopping_queued_handler_threadpool()

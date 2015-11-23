@@ -4,30 +4,26 @@ using EventStore.ClientAPI.Common.Log;
 using EventStore.ClientAPI.UserManagement;
 using EventStore.Core.Tests.ClientAPI.Helpers;
 using EventStore.Core.Tests.Helpers;
-using NUnit.Framework;
+using Xunit;
 
 namespace EventStore.Core.Tests.ClientAPI.UserManagement
 {
-    [Category("LongRunning")]
     public class TestWithNode : SpecificationWithDirectoryPerTestFixture
     {
         protected MiniNode _node;
         protected UsersManager _manager;
 
-        [TestFixtureSetUp]
-        public override void TestFixtureSetUp()
+        public TestWithNode()
         {
-            base.TestFixtureSetUp();
             _node = new MiniNode(PathName);
             _node.Start();
             _manager = new UsersManager(new NoopLogger(), _node.ExtHttpEndPoint, TimeSpan.FromSeconds(5));
         }
 
-        [TestFixtureTearDown]
-        public override void TestFixtureTearDown()
+        public override void Dispose()
         {
             _node.Shutdown();
-            base.TestFixtureTearDown();
+            base.Dispose();
         }
 
 

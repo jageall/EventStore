@@ -3,134 +3,176 @@ using System.Net;
 using System.Threading;
 using EventStore.ClientAPI;
 using EventStore.Core.Tests.Http.Users.users;
-using NUnit.Framework;
+using Xunit;
 
 namespace EventStore.Core.Tests.Http.PersistentSubscription
 {
-    [TestFixture, Category("LongRunning")]
-    class when_deleting_non_existing_subscription : with_admin_user
+    public class when_deleting_non_existing_subscription : with_admin_user
     {
         private HttpWebResponse _response;
 
         protected override void Given()
         {
-
+            var response = MakeJsonPut(
+                "/subscriptions/stream/groupname156",
+                new
+                {
+                    ResolveLinkTos = true
+                }, _admin);
+            Fixture.AddStashedValueAssignment(this, instance => instance._response = response);
         }
 
         protected override void When()
         {
             var req = CreateRequest("/subscriptions/stream/groupname158", "DELETE", _admin);
-            _response = GetRequestResponse(req);
+            var response = GetRequestResponse(req);
+            Fixture.AddStashedValueAssignment(this, instance =>
+            {
+                instance._response = response;
+            });
         }
 
-        [Test]
-        public void returns_not_found()
+        [Fact]
+	[Trait("Category", "LongRunning")]
+        public void returns_notfound()
         {
-            Assert.AreEqual(HttpStatusCode.NotFound, _response.StatusCode);
+            Assert.Equal(HttpStatusCode.NotFound, _response.StatusCode);
         }
     }
 
-    [TestFixture, Category("LongRunning")]
-    class when_deleting_an_existing_subscription : with_admin_user
+    public class when_deleting_an_existing_subscription : with_admin_user
     {
         private HttpWebResponse _response;
 
         protected override void Given()
         {
-            _response = MakeJsonPut(
+            var response = MakeJsonPut(
                 "/subscriptions/stream/groupname156",
                 new
                 {
                     ResolveLinkTos = true
                 }, _admin);
+            Fixture.AddStashedValueAssignment(this, instance =>
+            {
+                instance._response = response;
+            });
         }
 
         protected override void When()
         {
             var req = CreateRequest("/subscriptions/stream/groupname156", "DELETE", _admin);
-            _response = GetRequestResponse(req);
+            var response = GetRequestResponse(req);
+            Fixture.AddStashedValueAssignment(this, instance =>
+            {
+                instance._response = response;
+            });
         }
 
-        [Test]
-        public void returns_ok()
+        [Fact]
+        [Trait("Category", "LongRunning")]
+        public void returns_ok_status_code()
         {
-            Assert.AreEqual(HttpStatusCode.OK, _response.StatusCode);
+            Assert.Equal(HttpStatusCode.OK, _response.StatusCode);
         }
     }
 
-    [TestFixture, Category("LongRunning")]
-    class when_deleting_an_existing_subscription_without_permissions : with_admin_user
+    public class when_deleting_an_existing_subscription_without_permissions : with_admin_user
     {
         private HttpWebResponse _response;
 
         protected override void Given()
         {
-            _response = MakeJsonPut(
+            var response = MakeJsonPut(
                 "/subscriptions/stream/groupname156",
                 new
                 {
                     ResolveLinkTos = true
                 }, _admin);
+            Fixture.AddStashedValueAssignment(this, instance =>
+            {
+                instance._response = response;
+            });
         }
 
         protected override void When()
         {
             var req = CreateRequest("/subscriptions/stream/groupname156", "DELETE");
-            _response = GetRequestResponse(req);
+            var response = GetRequestResponse(req);
+            Fixture.AddStashedValueAssignment(this, instance =>
+            {
+                instance._response = response;
+            });
+            Fixture.AddStashedValueAssignment(this, instance => instance._response = response);
         }
 
-        [Test]
+        [Fact]
         public void returns_unauthorized()
         {
-            Assert.AreEqual(HttpStatusCode.Unauthorized, _response.StatusCode);
+            Assert.Equal(HttpStatusCode.Unauthorized, _response.StatusCode);
         }
     }
 
-    [TestFixture, Category("LongRunning")]
-    class when_deleting_an_existing_subscription_with_subscribers : with_admin_user
+    public class when_deleting_an_existing_subscription_with_subscribers : with_admin_user
     {
         private HttpWebResponse _response;
         private const string _stream = "astreamname";
-        private readonly string _groupName = Guid.NewGuid().ToString();
+        private string _groupName;
         private SubscriptionDropReason _reason;
         private Exception _exception;
-        private readonly AutoResetEvent _dropped = new AutoResetEvent(false);
+        private AutoResetEvent _dropped;
 
         protected override void Given()
         {
-            _response = MakeJsonPut(
+            var dropped = new AutoResetEvent(false);
+            SubscriptionDropReason reason = SubscriptionDropReason.Unknown;
+            var groupName = _groupName = Guid.NewGuid().ToString();
+            Exception exception = null;
+            var response = MakeJsonPut(
                 string.Format("/subscriptions/{0}/{1}", _stream, _groupName),
                 new
                 {
                     ResolveLinkTos = true
                 }, _admin);
-            _connection.ConnectToPersistentSubscription(_stream, _groupName, (x, y) => { },
-                (sub, reason, e) =>
+            Connection.ConnectToPersistentSubscription(_stream, _groupName, (x, y) => { },
+                // ReSharper disable once ImplicitlyCapturedClosure pretty important it captures it really
+                (sub, r, e) =>
                 {
-                    _dropped.Set();
-                    _reason = reason;
-                    _exception = e;
+                    dropped.Set();
+                    reason = r;
+                    exception = e;
                 });
+            Fixture.AddStashedValueAssignment(this, instance =>
+            {
+                instance._response = response;
+                instance._dropped = dropped;
+                instance._exception = exception;
+                instance._reason = reason;
+                instance._groupName = groupName;
+            });
         }
 
         protected override void When()
         {
             var req = CreateRequest(string.Format("/subscriptions/{0}/{1}", _stream, _groupName), "DELETE", _admin);
-            _response = GetRequestResponse(req);
+            var response = GetRequestResponse(req);
+            Fixture.AddStashedValueAssignment(this, instance =>
+            {
+                instance._response = response;
+            });
         }
 
-        [Test]
+        [Fact]
         public void returns_ok()
         {
-            Assert.AreEqual(HttpStatusCode.OK, _response.StatusCode);
+            Assert.Equal(HttpStatusCode.OK, _response.StatusCode);
         }
 
-        [Test]
+        [Fact]
         public void the_subscription_is_dropped()
         {
-            Assert.IsTrue(_dropped.WaitOne(TimeSpan.FromSeconds(5)));
-            Assert.AreEqual(SubscriptionDropReason.UserInitiated, _reason);
-            Assert.IsNull(_exception);
+            Assert.True(_dropped.WaitOne(TimeSpan.FromSeconds(5)));
+            Assert.Equal(SubscriptionDropReason.UserInitiated, _reason);
+            Assert.Null(_exception);
         }
     }
 }

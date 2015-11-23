@@ -5,53 +5,41 @@ using EventStore.Core.Messages;
 using EventStore.Core.Tests.Helpers;
 using EventStore.Transport.Http;
 using EventStore.Transport.Http.Codecs;
-using NUnit.Framework;
+using Xunit;
 
 namespace EventStore.Core.Tests.Services.Transport.Http
 {
     [MightyMooseIgnore]
-    [TestFixture, Category("LongRunning")]
-    public class ping_controller_should
+    public class ping_controller_should : IUseFixture<LeasedPort>, IDisposable
     {
-        private readonly IPEndPoint _serverEndPoint;
-        private readonly PortableServer _portableServer;
+        private IPEndPoint _serverEndPoint;
+        private PortableServer _portableServer;
 
-        public ping_controller_should()
+        public void SetFixture(LeasedPort data)
         {
-            var port = PortsHelper.GetAvailablePort(IPAddress.Loopback);
-            _serverEndPoint = new IPEndPoint(IPAddress.Loopback, port);
+            _serverEndPoint = new IPEndPoint(IPAddress.Loopback, data.Port);
             _portableServer = new PortableServer(_serverEndPoint);
-        }
-
-        [SetUp]
-        public void SetUp()
-        {
             _portableServer.SetUp();
         }
 
-        [TearDown]
-        public void TearDown()
+        public void Dispose()
         {
             _portableServer.TearDown();
         }
 
-        [TestFixtureTearDown]
-        public void TestFixtureTearDown()
-        {
-            PortsHelper.ReturnPort(_serverEndPoint.Port);
-        }
-
-        [Test]
+        [Fact]
+        [Trait("Category", "LongRunning")]
         public void respond_with_httpmessage_text_message()
         {
             var url = _serverEndPoint.ToHttpUrl("/ping?format=json");
             Func<HttpResponse, bool> verifier = response => Codec.Json.From<HttpMessage.TextMessage>(response.Body) != null;
 
             var result = _portableServer.StartServiceAndSendRequest(HttpBootstrap.RegisterPing, url, verifier);
-            Assert.IsTrue(result.Item1, result.Item2);
+            Assert.True(result.Item1, result.Item2);
         }
 
-        [Test]
+        [Fact]
+        [Trait("Category", "LongRunning")]
         public void return_response_in_json_if_requested_by_query_param_and_set_content_type_header()
         {
             var url = _serverEndPoint.ToHttpUrl("/ping?format=json");
@@ -60,10 +48,11 @@ namespace EventStore.Core.Tests.Services.Transport.Http
                                                             StringComparison.InvariantCultureIgnoreCase);
 
             var result = _portableServer.StartServiceAndSendRequest(HttpBootstrap.RegisterPing, url, verifier);
-            Assert.IsTrue(result.Item1, result.Item2);
+            Assert.True(result.Item1, result.Item2);
         }
 
-        [Test]
+        [Fact]
+        [Trait("Category", "LongRunning")]
         public void return_response_in_xml_if_requested_by_query_param_and_set_content_type_header()
         {
             var url = _serverEndPoint.ToHttpUrl("/ping?format=xml");
@@ -72,10 +61,11 @@ namespace EventStore.Core.Tests.Services.Transport.Http
                                                             StringComparison.InvariantCultureIgnoreCase);
 
             var result = _portableServer.StartServiceAndSendRequest(HttpBootstrap.RegisterPing, url, verifier);
-            Assert.IsTrue(result.Item1, result.Item2);
+            Assert.True(result.Item1, result.Item2);
         }
 
-        [Test]
+        [Fact]
+        [Trait("Category", "LongRunning")]
         public void return_response_in_plaintext_if_requested_by_query_param_and_set_content_type_header()
         {
             var url = _serverEndPoint.ToHttpUrl("/ping?format=text");
@@ -84,7 +74,7 @@ namespace EventStore.Core.Tests.Services.Transport.Http
                                                             StringComparison.InvariantCultureIgnoreCase);
 
             var result = _portableServer.StartServiceAndSendRequest(HttpBootstrap.RegisterPing, url, verifier);
-            Assert.IsTrue(result.Item1, result.Item2);
+            Assert.True(result.Item1, result.Item2);
         }
 
         private string StripAdditionalAttributes(string value)

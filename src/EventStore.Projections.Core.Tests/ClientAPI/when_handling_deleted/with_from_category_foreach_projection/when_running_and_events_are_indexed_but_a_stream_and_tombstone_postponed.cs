@@ -1,8 +1,8 @@
-﻿using NUnit.Framework;
+﻿using Xunit;
 
 namespace EventStore.Projections.Core.Tests.ClientAPI.when_handling_deleted.with_from_category_foreach_projection
 {
-    [TestFixture]
+    
     public class when_running_and_events_are_indexed_but_a_stream_and_tombstone_postponed :
         specification_with_standard_projections_runnning
     {
@@ -46,7 +46,9 @@ fromCategory('stream').foreachStream().when({
             WaitIdle();
         }
 
-        [Test, Category("Network")]
+        [DebugBuildFact]
+        [Trait("Category", "Network")]
+        [Trait("Category", "ClientAPI")]
         public void receives_deleted_notification()
         {
             AssertStreamTail("$projections-test-projection-stream-1-result", "Result:{\"a\":2,\"deleted\":1}");

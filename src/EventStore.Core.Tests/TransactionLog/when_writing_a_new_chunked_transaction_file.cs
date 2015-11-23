@@ -4,18 +4,17 @@ using EventStore.Core.TransactionLog.Checkpoint;
 using EventStore.Core.TransactionLog.Chunks;
 using EventStore.Core.TransactionLog.FileNamingStrategy;
 using EventStore.Core.TransactionLog.LogRecords;
-using NUnit.Framework;
+using Xunit;
 
 namespace EventStore.Core.Tests.TransactionLog
 {
-    [TestFixture]
     public class when_writing_a_new_chunked_transaction_file : SpecificationWithDirectory
     {
         private readonly Guid _eventId = Guid.NewGuid();
         private readonly Guid _correlationId = Guid.NewGuid();
         private InMemoryCheckpoint _checkpoint;
 
-        [Test]
+        [Fact]
         public void a_record_can_be_written()
         {
             _checkpoint = new InMemoryCheckpoint(0);
@@ -47,7 +46,7 @@ namespace EventStore.Core.Tests.TransactionLog
             tf.Close();
             db.Dispose();
 
-            Assert.AreEqual(record.GetSizeWithLengthPrefixAndSuffix(), _checkpoint.Read());
+            Assert.Equal(record.GetSizeWithLengthPrefixAndSuffix(), _checkpoint.Read());
             using (var filestream = File.Open(GetFilePathFor("chunk-000000.000000"), FileMode.Open, FileAccess.Read))
             {
                 filestream.Position = ChunkHeader.Size;
@@ -55,7 +54,7 @@ namespace EventStore.Core.Tests.TransactionLog
                 var reader = new BinaryReader(filestream);
                 reader.ReadInt32();
                 var read = LogRecord.ReadFrom(reader);
-                Assert.AreEqual(record, read);
+                Assert.Equal(record, read);
             }
         }
     }

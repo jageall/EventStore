@@ -1,38 +1,37 @@
 ﻿using System;
 using System.Text;
 using EventStore.Projections.Core.Services.Processing;
-using NUnit.Framework;
+using Xunit;
 
 namespace EventStore.Projections.Core.Tests.Services.result_emitter
 {
     public static class result_emitter
     {
 
-        [TestFixture]
+        
         public class when_creating
         {
             private ProjectionNamesBuilder _namesBuilder;
 
-            [SetUp]
-            public void setup()
+            public when_creating()
             {
                 _namesBuilder = ProjectionNamesBuilder.CreateForTest("projection");
             }
 
-            [Test]
+            [Fact]
             public void it_can_be_created()
             {
                 new ResultEventEmitter(_namesBuilder);
             }
 
-            [Test, ExpectedException(typeof (ArgumentNullException))]
+            [Fact]
             public void null_names_builder_throws_argument_null_exception()
             {
-                new ResultEventEmitter(null);
+                Assert.Throws<ArgumentNullException>(() => { new ResultEventEmitter(null); });
             }
         }
 
-        [TestFixture]
+        
         public class when_result_updated
         {
             private ProjectionNamesBuilder _namesBuilder;
@@ -43,8 +42,7 @@ namespace EventStore.Projections.Core.Tests.Services.result_emitter
             private EmittedEventEnvelope[] _emittedEvents;
             private string _result;
 
-            [SetUp]
-            public void setup()
+            public when_result_updated()
             {
                 Given();
                 When();
@@ -65,33 +63,33 @@ namespace EventStore.Projections.Core.Tests.Services.result_emitter
                 _emittedEvents = _re.ResultUpdated(_partition, _result, _resultAt);
             }
 
-            [Test]
+            [Fact]
             public void emits_result_event()
             {
                 Assert.NotNull(_emittedEvents);
-                Assert.AreEqual(2, _emittedEvents.Length);
+                Assert.Equal(2, _emittedEvents.Length);
                 var @event = _emittedEvents[0];
                 var link = _emittedEvents[1].Event;
 
-                Assert.AreEqual("Result", @event.Event.EventType);
-                Assert.AreEqual(_result, @event.Event.Data);
-                Assert.AreEqual("$projections-projection-partition-result", @event.Event.StreamId);
-                Assert.AreEqual(_resultAt, @event.Event.CausedByTag);
-                Assert.IsNull(@event.Event.ExpectedTag);
+                Assert.Equal("Result", @event.Event.EventType);
+                Assert.Equal(_result, @event.Event.Data);
+                Assert.Equal("$projections-projection-partition-result", @event.Event.StreamId);
+                Assert.Equal(_resultAt, @event.Event.CausedByTag);
+                Assert.Null(@event.Event.ExpectedTag);
 
-                Assert.AreEqual("$>", link.EventType);
+                Assert.Equal("$>", link.EventType);
                 ((EmittedLinkTo) link).SetTargetEventNumber(1);
-                Assert.AreEqual("1@$projections-projection-partition-result", link.Data);
-                Assert.AreEqual("$projections-projection-result", link.StreamId);
-                Assert.AreEqual(_resultAt, link.CausedByTag);
-                Assert.IsNull(link.ExpectedTag);
+                Assert.Equal("1@$projections-projection-partition-result", link.Data);
+                Assert.Equal("$projections-projection-result", link.StreamId);
+                Assert.Equal(_resultAt, link.CausedByTag);
+                Assert.Null(link.ExpectedTag);
 
             }
 
 
         }
 
-        [TestFixture]
+        
         public class when_result_removed
         {
             private ProjectionNamesBuilder _namesBuilder;
@@ -101,8 +99,7 @@ namespace EventStore.Projections.Core.Tests.Services.result_emitter
             private CheckpointTag _resultAt;
             private EmittedEventEnvelope[] _emittedEvents;
 
-            [SetUp]
-            public void setup()
+            public when_result_removed()
             {
                 Given();
                 When();
@@ -122,26 +119,26 @@ namespace EventStore.Projections.Core.Tests.Services.result_emitter
                 _emittedEvents = _re.ResultUpdated(_partition, null, _resultAt);
             }
 
-            [Test]
+            [Fact]
             public void emits_result_event()
             {
                 Assert.NotNull(_emittedEvents);
-                Assert.AreEqual(2, _emittedEvents.Length);
+                Assert.Equal(2, _emittedEvents.Length);
                 var @event = _emittedEvents[0];
                 var link = _emittedEvents[1].Event;
 
-                Assert.AreEqual("ResultRemoved", @event.Event.EventType);
-                Assert.IsNull(@event.Event.Data);
-                Assert.AreEqual("$projections-projection-partition-result", @event.Event.StreamId);
-                Assert.AreEqual(_resultAt, @event.Event.CausedByTag);
-                Assert.IsNull(@event.Event.ExpectedTag);
+                Assert.Equal("ResultRemoved", @event.Event.EventType);
+                Assert.Null(@event.Event.Data);
+                Assert.Equal("$projections-projection-partition-result", @event.Event.StreamId);
+                Assert.Equal(_resultAt, @event.Event.CausedByTag);
+                Assert.Null(@event.Event.ExpectedTag);
 
-                Assert.AreEqual("$>", link.EventType);
+                Assert.Equal("$>", link.EventType);
                 ((EmittedLinkTo)link).SetTargetEventNumber(1);
-                Assert.AreEqual("1@$projections-projection-partition-result", link.Data);
-                Assert.AreEqual("$projections-projection-result", link.StreamId);
-                Assert.AreEqual(_resultAt, link.CausedByTag);
-                Assert.IsNull(link.ExpectedTag);
+                Assert.Equal("1@$projections-projection-partition-result", link.Data);
+                Assert.Equal("$projections-projection-result", link.StreamId);
+                Assert.Equal(_resultAt, link.CausedByTag);
+                Assert.Null(link.ExpectedTag);
 
 
             }
@@ -149,7 +146,7 @@ namespace EventStore.Projections.Core.Tests.Services.result_emitter
 
         }
 
-        [TestFixture]
+        
         public class when_result_updated_on_root_partition
         {
             private ProjectionNamesBuilder _namesBuilder;
@@ -160,8 +157,7 @@ namespace EventStore.Projections.Core.Tests.Services.result_emitter
             private EmittedEventEnvelope[] _emittedEvents;
             private string _result;
 
-            [SetUp]
-            public void setup()
+            public when_result_updated_on_root_partition()
             {
                 Given();
                 When();
@@ -182,18 +178,18 @@ namespace EventStore.Projections.Core.Tests.Services.result_emitter
                 _emittedEvents = _re.ResultUpdated(_partition, _result, _resultAt);
             }
 
-            [Test]
+            [Fact]
             public void emits_result_event()
             {
                 Assert.NotNull(_emittedEvents);
-                Assert.AreEqual(1, _emittedEvents.Length);
+                Assert.Equal(1, _emittedEvents.Length);
                 var @event = _emittedEvents[0].Event;
 
-                Assert.AreEqual("Result", @event.EventType);
-                Assert.AreEqual(_result, @event.Data);
-                Assert.AreEqual("$projections-projection-result", @event.StreamId);
-                Assert.AreEqual(_resultAt, @event.CausedByTag);
-                Assert.IsNull(@event.ExpectedTag);
+                Assert.Equal("Result", @event.EventType);
+                Assert.Equal(_result, @event.Data);
+                Assert.Equal("$projections-projection-result", @event.StreamId);
+                Assert.Equal(_resultAt, @event.CausedByTag);
+                Assert.Null(@event.ExpectedTag);
 
 
             }

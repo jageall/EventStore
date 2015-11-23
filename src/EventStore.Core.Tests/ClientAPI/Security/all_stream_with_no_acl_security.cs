@@ -1,22 +1,20 @@
 ﻿using EventStore.ClientAPI;
 using EventStore.ClientAPI.Exceptions;
 using EventStore.ClientAPI.SystemData;
-using NUnit.Framework;
+using Xunit;
 
 namespace EventStore.Core.Tests.ClientAPI.Security
 {
-    [TestFixture, Category("LongRunning"), Category("Network")]
     public class all_stream_with_no_acl_security : AuthenticationTestBase
     {
-        [TestFixtureSetUp]
-        public override void TestFixtureSetUp()
+        protected override void AdditionalFixtureSetup()
         {
-            base.TestFixtureSetUp();
-
             Connection.SetStreamMetadataAsync("$all", ExpectedVersion.Any, StreamMetadata.Build(), new UserCredentials("adm", "admpa$$")).Wait();
         }
 
-        [Test, Category("LongRunning"), Category("Network")]
+        [Fact]
+        [Trait("Category", "LongRunning")]
+        [Trait("Category", "Network")]
         public void write_to_all_is_never_allowed()
         {
             Expect<AccessDeniedException>(() => WriteStream("$all", null, null));
@@ -24,7 +22,9 @@ namespace EventStore.Core.Tests.ClientAPI.Security
             Expect<AccessDeniedException>(() => WriteStream("$all", "adm", "admpa$$"));
         }
 
-        [Test, Category("LongRunning"), Category("Network")]
+        [Fact]
+        [Trait("Category", "LongRunning")]
+        [Trait("Category", "Network")]
         public void delete_of_all_is_never_allowed()
         {
             Expect<AccessDeniedException>(() => DeleteStream("$all", null, null));
@@ -33,7 +33,9 @@ namespace EventStore.Core.Tests.ClientAPI.Security
         }
 
 
-        [Test, Category("LongRunning"), Category("Network")]
+        [Fact]
+        [Trait("Category", "LongRunning")]
+        [Trait("Category", "Network")]
         public void reading_and_subscribing_is_not_allowed_when_no_credentials_are_passed()
         {
             Expect<AccessDeniedException>(() => ReadEvent("$all", null, null));
@@ -43,7 +45,9 @@ namespace EventStore.Core.Tests.ClientAPI.Security
             Expect<AccessDeniedException>(() => SubscribeToStream("$all", null, null));
         }
 
-        [Test, Category("LongRunning"), Category("Network")]
+        [Fact]
+        [Trait("Category", "LongRunning")]
+        [Trait("Category", "Network")]
         public void reading_and_subscribing_is_not_allowed_for_usual_user()
         {
             Expect<AccessDeniedException>(() => ReadEvent("$all", "user1", "pa$$1"));
@@ -53,7 +57,9 @@ namespace EventStore.Core.Tests.ClientAPI.Security
             Expect<AccessDeniedException>(() => SubscribeToStream("$all", "user1", "pa$$1"));
         }
 
-        [Test, Category("LongRunning"), Category("Network")]
+        [Fact]
+        [Trait("Category", "LongRunning")]
+        [Trait("Category", "Network")]
         public void reading_and_subscribing_is_allowed_for_admin_user()
         {
             ExpectNoException(() => ReadEvent("$all", "adm", "admpa$$"));
@@ -64,19 +70,25 @@ namespace EventStore.Core.Tests.ClientAPI.Security
         }
 
 
-        [Test, Category("LongRunning"), Category("Network")]
+        [Fact]
+        [Trait("Category", "LongRunning")]
+        [Trait("Category", "Network")]
         public void meta_write_is_not_allowed_when_no_credentials_are_passed()
         {
             Expect<AccessDeniedException>(() => WriteMeta("$all", null, null, null));
         }
 
-        [Test, Category("LongRunning"), Category("Network")]
+        [Fact]
+        [Trait("Category", "LongRunning")]
+        [Trait("Category", "Network")]
         public void meta_write_is_not_allowed_for_usual_user()
         {
             Expect<AccessDeniedException>(() => WriteMeta("$all", "user1", "pa$$1", null));
         }
 
-        [Test, Category("LongRunning"), Category("Network")]
+        [Fact]
+        [Trait("Category", "LongRunning")]
+        [Trait("Category", "Network")]
         public void meta_write_is_allowed_for_admin_user()
         {
             ExpectNoException(() => WriteMeta("$all", "adm", "admpa$$", null));

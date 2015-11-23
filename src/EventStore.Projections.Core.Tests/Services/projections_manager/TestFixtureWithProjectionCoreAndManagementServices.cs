@@ -16,7 +16,7 @@ using EventStore.Projections.Core.Messaging;
 using EventStore.Projections.Core.Services;
 using EventStore.Projections.Core.Services.Management;
 using EventStore.Projections.Core.Services.Processing;
-using NUnit.Framework;
+using Xunit;
 using TestFixtureWithExistingEvents = EventStore.Projections.Core.Tests.Services.core_projection.TestFixtureWithExistingEvents;
 
 namespace EventStore.Projections.Core.Tests.Services.projections_manager
@@ -49,8 +49,7 @@ namespace EventStore.Projections.Core.Tests.Services.projections_manager
             return new ManualQueue(_bus, _timeProvider);
         }
 
-        [SetUp]
-        public void Setup()
+        public TestFixtureWithProjectionCoreAndManagementServices()
         {
             //TODO: this became an integration test - proper ProjectionCoreService and ProjectionManager testing is required as well
             _bus.Subscribe(_consumer);

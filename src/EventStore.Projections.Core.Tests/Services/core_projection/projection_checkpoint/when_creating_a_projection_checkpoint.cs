@@ -5,51 +5,52 @@ using EventStore.Core.Messaging;
 using EventStore.Core.Tests.Fakes;
 using EventStore.Projections.Core.Services;
 using EventStore.Projections.Core.Services.Processing;
-using NUnit.Framework;
+using Xunit;
 
 namespace EventStore.Projections.Core.Tests.Services.core_projection.projection_checkpoint
 {
-    [TestFixture]
+    
     public class when_creating_a_projection_checkpoint
     {
         private FakePublisher _fakePublisher;
         private TestCheckpointManagerMessageHandler _readyHandler;
         private IODispatcher _ioDispatcher;
 
-
-        [SetUp]
-        public void setup()
+        public when_creating_a_projection_checkpoint()
         {
             _readyHandler = new TestCheckpointManagerMessageHandler();
             _fakePublisher = new FakePublisher();
             _ioDispatcher = new IODispatcher(_fakePublisher, new PublishEnvelope(_fakePublisher));
         }
 
-        [Test, ExpectedException(typeof (ArgumentNullException))]
+        [Fact]
         public void null_io_dispatcher_throws_argument_null_exception()
         {
+            Assert.Throws<ArgumentNullException>(() =>
             new ProjectionCheckpoint(
                 null, new ProjectionVersion(1, 0, 0), null, _readyHandler,
-                CheckpointTag.FromPosition(0, 100, 50), new TransactionFilePositionTagger(0), 250);
+                CheckpointTag.FromPosition(0, 100, 50), new TransactionFilePositionTagger(0), 250));
         }
 
-        [Test, ExpectedException(typeof (ArgumentNullException))]
+        [Fact]
         public void null_ready_handler_throws_argument_null_exception()
         {
+            Assert.Throws<ArgumentNullException>(() =>
             new ProjectionCheckpoint(
                 _ioDispatcher, new ProjectionVersion(1, 0, 0), null, null,
-                CheckpointTag.FromPosition(0, 100, 50), new TransactionFilePositionTagger(0), 250);
+                CheckpointTag.FromPosition(0, 100, 50), new TransactionFilePositionTagger(0), 250));
         }
 
-        [Test, ExpectedException(typeof (ArgumentException))]
+        [Fact]
         public void commit_position_less_than_or_equal_to_prepare_position_throws_argument_exception()
         {
+            Assert.Throws<ArgumentException>(() =>
             new ProjectionCheckpoint(
                 _ioDispatcher, new ProjectionVersion(1, 0, 0), null, _readyHandler,
-                CheckpointTag.FromPosition(0, 100, 101), new TransactionFilePositionTagger(0), 250);
+                CheckpointTag.FromPosition(0, 100, 101), new TransactionFilePositionTagger(0), 250));
         }
 
-        [Test]
+        [Fact]
         public void it_can_be_created()
         {
             new ProjectionCheckpoint(

@@ -2,22 +2,18 @@ using System;
 using System.IO;
 using EventStore.Core.Exceptions;
 using EventStore.Core.Index;
-using NUnit.Framework;
+using Xunit;
 
 namespace EventStore.Core.Tests.Index
 {
-    [TestFixture]
     public class when_a_ptable_is_corrupt_on_disk: SpecificationWithDirectory
     {
         private string _filename;
         private PTable _table;
         private string _copiedfilename;
 
-        [SetUp]
-        public override void SetUp()
+        public when_a_ptable_is_corrupt_on_disk()
         {
-            base.SetUp();
-
             _filename = GetTempFilePath();
             _copiedfilename = GetTempFilePath();
             var mtable = new HashListMemTable(maxSize: 10);
@@ -34,20 +30,19 @@ namespace EventStore.Core.Tests.Index
             _table = PTable.FromFile(_copiedfilename, 16);
         }
 
-        [TearDown]
-        public override void TearDown()
+        public override void Dispose()
         {
             _table.MarkForDestruction();
             _table.WaitForDisposal(1000);
 
-            base.TearDown();
+            base.Dispose();
         }
 
-        [Test]
+        [Fact]
         public void the_hash_is_invalid()
         {
             var exc = Assert.Throws<CorruptIndexException>(() => _table.VerifyFileHash());
-            Assert.IsInstanceOf<HashValidationException>(exc.InnerException);
+            Assert.IsType<HashValidationException>(exc.InnerException);
         }
     }
 }

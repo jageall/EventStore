@@ -2,12 +2,12 @@ using System;
 using System.Text;
 using EventStore.Core.Data;
 using EventStore.Projections.Core.Messages;
-using NUnit.Framework;
+using Xunit;
 using ResolvedEvent = EventStore.Projections.Core.Services.Processing.ResolvedEvent;
 
 namespace EventStore.Projections.Core.Tests.Services.core_projection
 {
-    [TestFixture]
+    
     public class when_the_state_handler_does_emit_multiple_interleaved_events_into_the_same_stream_the_projection_should :
         TestFixtureWithCoreProjectionStarted
     {

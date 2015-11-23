@@ -4,12 +4,11 @@ using System.Linq;
 using EventStore.Core.Index;
 using EventStore.Core.Tests.Fakes;
 using EventStore.Core.TransactionLog;
-using NUnit.Framework;
+using Xunit;
 
 namespace EventStore.Core.Tests.Index
 {
-    [TestFixture]
-    public class adding_item_to_empty_index_map: SpecificationWithDirectoryPerTestFixture
+    public class adding_item_to_empty_index_map: IUseFixture<MergeFileFixture>
     {
         private string _filename;
         private IndexMap _map;
@@ -17,14 +16,11 @@ namespace EventStore.Core.Tests.Index
         private string _mergeFile;
         private MergeResult _result;
 
-        [TestFixtureSetUp]
-        public override void TestFixtureSetUp()
+        public void SetFixture(MergeFileFixture data)
         {
-            base.TestFixtureSetUp();
-
-            _filename = GetTempFilePath();
-            _tablename = GetTempFilePath();
-            _mergeFile = GetFilePathFor("mergefile");
+            _filename = data.Filename;
+            _tablename = data.GetTempFilePath();
+            _mergeFile = data.GetFilePathFor("mergefile");
 
             _map = IndexMap.FromFile(_filename);
             var memtable = new HashListMemTable(maxSize: 10);
@@ -34,52 +30,42 @@ namespace EventStore.Core.Tests.Index
             table.MarkForDestruction();
         }
 
-        [TestFixtureTearDown]
-        public override void TestFixtureTearDown()
-        {
-            File.Delete(_filename);
-            File.Delete(_mergeFile);
-            File.Delete(_tablename);
-
-            base.TestFixtureTearDown();
-        }
-
-        [Test]
+        [Fact]
         public void the_prepare_checkpoint_is_taken_from_the_latest_added_table()
         {
-            Assert.AreEqual(7, _result.MergedMap.PrepareCheckpoint);
+            Assert.Equal(7, _result.MergedMap.PrepareCheckpoint);
         }
 
-        [Test]
+        [Fact]
         public void the_commit_checkpoint_is_taken_from_the_latest_added_table()
         {
-            Assert.AreEqual(11, _result.MergedMap.CommitCheckpoint);
+            Assert.Equal(11, _result.MergedMap.CommitCheckpoint);
         }
 
-        [Test]
+        [Fact]
         public void there_are_no_items_to_delete()
         {
-            Assert.AreEqual(0, _result.ToDelete.Count);
+            Assert.Equal(0, _result.ToDelete.Count);
         }
 
-        [Test]
+        [Fact]
         public void the_merged_map_has_a_single_file()
         {
-            Assert.AreEqual(1, _result.MergedMap.GetAllFilenames().Count());
-            Assert.AreEqual(_tablename, _result.MergedMap.GetAllFilenames().ToList()[0]);
+            Assert.Equal(1, _result.MergedMap.GetAllFilenames().Count());
+            Assert.Equal(_tablename, _result.MergedMap.GetAllFilenames().ToList()[0]);
         }
 
-        [Test]
+        [Fact]
         public void the_original_map_did_not_change()
         {
-            Assert.AreEqual(0, _map.InOrder().Count());
-            Assert.AreEqual(0, _map.GetAllFilenames().Count());
+            Assert.Equal(0, _map.InOrder().Count());
+            Assert.Equal(0, _map.GetAllFilenames().Count());
         }
 
-        [Test]
+        [Fact]
         public void a_merged_file_was_not_created()
         {
-            Assert.IsFalse(File.Exists(_mergeFile));
+            Assert.False(File.Exists(_mergeFile));
         }
     }
 }

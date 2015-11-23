@@ -3,11 +3,10 @@ using System.Threading;
 using EventStore.ClientAPI;
 using EventStore.ClientAPI.Exceptions;
 using EventStore.Core.Tests.Helpers;
-using NUnit.Framework;
+using Xunit;
 
 namespace EventStore.Core.Tests.ClientAPI
 {
-    [TestFixture, Category("LongRunning")]
     public class deleting_existing_persistent_subscription_group_with_permissions : SpecificationWithMiniNode
     {
         private readonly PersistentSubscriptionSettings _settings = PersistentSubscriptionSettings.Create()
@@ -21,14 +20,14 @@ namespace EventStore.Core.Tests.ClientAPI
                 DefaultData.AdminCredentials).Wait();
         }
 
-        [Test]
+        [Fact]
+        [Trait("Category", "LongRunning")]
         public void the_delete_of_group_succeeds()
         {
              Assert.DoesNotThrow(() => _conn.DeletePersistentSubscriptionAsync(_stream, "groupname123", DefaultData.AdminCredentials).Wait());
         }
     }
 
-    [TestFixture, Category("LongRunning")]
     public class deleting_existing_persistent_subscription_with_subscriber : SpecificationWithMiniNode
     {
         private readonly PersistentSubscriptionSettings _settings = PersistentSubscriptionSettings.Create()
@@ -52,15 +51,14 @@ namespace EventStore.Core.Tests.ClientAPI
             _conn.DeletePersistentSubscriptionAsync(_stream, "groupname123", DefaultData.AdminCredentials).Wait();
         }
 
-        [Test]
+        [Fact]
+        [Trait("Category", "LongRunning")]
         public void the_subscription_is_dropped()
         {
-            Assert.IsTrue(_called.WaitOne(TimeSpan.FromSeconds(5)));
+            Assert.True(_called.WaitOne(TimeSpan.FromSeconds(5)));
         }
     }
 
-
-    [TestFixture, Category("LongRunning")]
     public class deleting_persistent_subscription_group_that_doesnt_exist : SpecificationWithMiniNode
     {
         private readonly string _stream = Guid.NewGuid().ToString();
@@ -69,9 +67,11 @@ namespace EventStore.Core.Tests.ClientAPI
         {
         }
 
-        [Test]
+        [Fact]
+        [Trait("Category", "LongRunning")]
         public void the_delete_fails_with_argument_exception()
         {
+            //TODO JAG fix this test to use Assert.Throws
             try
             {
                 _conn.DeletePersistentSubscriptionAsync(_stream, Guid.NewGuid().ToString(), DefaultData.AdminCredentials).Wait();
@@ -79,15 +79,13 @@ namespace EventStore.Core.Tests.ClientAPI
             }
             catch (Exception ex)
             {
-                Assert.IsInstanceOf(typeof(AggregateException), ex);
+                Assert.IsType<AggregateException>(ex);
                 var inner = ex.InnerException;
-                Assert.IsInstanceOf(typeof(InvalidOperationException), inner);
+                Assert.IsType<InvalidOperationException>(inner);
             }
         }
     }
 
-
-    [TestFixture, Category("LongRunning")]
     public class deleting_persistent_subscription_group_without_permissions : SpecificationWithMiniNode
     {
         private readonly string _stream = Guid.NewGuid().ToString();
@@ -96,7 +94,8 @@ namespace EventStore.Core.Tests.ClientAPI
         {
         }
 
-        [Test]
+        [Fact]
+        [Trait("Category", "LongRunning")]
         public void the_delete_fails_with_access_denied()
         {
             try
@@ -106,9 +105,9 @@ namespace EventStore.Core.Tests.ClientAPI
             }
             catch (Exception ex)
             {
-                Assert.IsInstanceOf(typeof(AggregateException), ex);
+                Assert.IsType<AggregateException>(ex);
                 var inner = ex.InnerException;
-                Assert.IsInstanceOf(typeof(AccessDeniedException), inner);
+                Assert.IsType<AccessDeniedException>(inner);
             }
         }
     }
@@ -127,11 +126,11 @@ namespace EventStore.Core.Tests.ClientAPI
                 DefaultData.AdminCredentials).Wait();
         }
 
-        [Test]
+        [Fact]
         public void the_delete_of_group_succeeds()
         {
             var result = _conn.DeletePersistentSubscriptionForAllAsync("groupname123", DefaultData.AdminCredentials).Result;
-            Assert.AreEqual(PersistentSubscriptionDeleteStatus.Success, result.Status);
+            Assert.Equal(PersistentSubscriptionDeleteStatus.Success, result.Status);
         }
     }
 
@@ -142,7 +141,7 @@ namespace EventStore.Core.Tests.ClientAPI
         {
         }
 
-        [Test]
+        [Fact]
         public void the_delete_fails_with_argument_exception()
         {
             try
@@ -152,9 +151,9 @@ namespace EventStore.Core.Tests.ClientAPI
             }
             catch (Exception ex)
             {
-                Assert.IsInstanceOf(typeof(AggregateException), ex);
+                Assert.IsType(typeof(AggregateException), ex);
                 var inner = ex.InnerException;
-                Assert.IsInstanceOf(typeof(InvalidOperationException), inner);
+                Assert.IsType(typeof(InvalidOperationException), inner);
             }
         }
     }
@@ -167,7 +166,7 @@ namespace EventStore.Core.Tests.ClientAPI
         {
         }
 
-        [Test]
+        [Fact]
         public void the_delete_fails_with_access_denied()
         {
             try
@@ -177,9 +176,9 @@ namespace EventStore.Core.Tests.ClientAPI
             }
             catch (Exception ex)
             {
-                Assert.IsInstanceOf(typeof(AggregateException), ex);
+                Assert.IsType(typeof(AggregateException), ex);
                 var inner = ex.InnerException;
-                Assert.IsInstanceOf(typeof(AccessDeniedException), inner);
+                Assert.IsType(typeof(AccessDeniedException), inner);
             }
         }
     }

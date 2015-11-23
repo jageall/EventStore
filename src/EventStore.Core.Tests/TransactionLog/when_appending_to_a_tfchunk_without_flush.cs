@@ -2,54 +2,63 @@ using System;
 using EventStore.Core.TransactionLog;
 using EventStore.Core.TransactionLog.Chunks.TFChunk;
 using EventStore.Core.TransactionLog.LogRecords;
-using NUnit.Framework;
+using Xunit;
 
 namespace EventStore.Core.Tests.TransactionLog
 {
-    [TestFixture]
-    public class when_appending_to_a_tfchunk_without_flush: SpecificationWithFilePerTestFixture
+    public class when_appending_to_a_tfchunk_without_flush : IUseFixture<when_appending_to_a_tfchunk_without_flush.FixtureData>
     {
-        private TFChunk _chunk;
-        private readonly Guid _corrId = Guid.NewGuid();
-        private readonly Guid _eventId = Guid.NewGuid();
-        private RecordWriteResult _result;
         private PrepareLogRecord _record;
+        private RecordWriteResult _result;
 
-        [TestFixtureSetUp]
-        public override void TestFixtureSetUp()
+        public class FixtureData : SpecificationWithFilePerTestFixture
         {
-            base.TestFixtureSetUp();
-            _record = new PrepareLogRecord(0, _corrId, _eventId, 0, 0, "test", 1, new DateTime(2000, 1, 1, 12, 0, 0),
-                                           PrepareFlags.None, "Foo", new byte[12], new byte[15]);
-            _chunk = TFChunk.CreateNew(Filename, 4096, 0, 0, false);
-            _result = _chunk.TryAppend(_record);
+
+            private TFChunk _chunk;
+            private readonly Guid _corrId = Guid.NewGuid();
+            private readonly Guid _eventId = Guid.NewGuid();
+            public RecordWriteResult _result;
+            public PrepareLogRecord _record;
+
+            public FixtureData()
+            {
+                _record = new PrepareLogRecord(0, _corrId, _eventId, 0, 0, "test", 1, new DateTime(2000, 1, 1, 12, 0, 0),
+                    PrepareFlags.None, "Foo", new byte[12], new byte[15]);
+                _chunk = TFChunk.CreateNew(Filename, 4096, 0, 0, false);
+                _result = _chunk.TryAppend(_record);
+            }
+
+            public override void Dispose()
+            {
+                _chunk.Dispose();
+                base.Dispose();
+            }
         }
 
-        [TestFixtureTearDown]
-        public override void TestFixtureTearDown()
+        public void SetFixture(FixtureData data)
         {
-            _chunk.Dispose();
-            base.TestFixtureTearDown();
+            _result = data._result;
+            _record = data._record;
         }
 
-        [Test]
+        [Fact]
         public void the_record_is_appended()
         {
-            Assert.IsTrue(_result.Success);
+            Assert.True(_result.Success);
         }
 
-        [Test]
+        [Fact]
         public void the_old_position_is_returned()
         {
             //position without header.
-            Assert.AreEqual(0, _result.OldPosition);
+            Assert.Equal(0, _result.OldPosition);
         }
 
-        [Test]
+        [Fact]
         public void the_updated_position_is_returned()
         {
             //position without header.
-            Assert.AreEqual(_record.GetSizeWithLengthPrefixAndSuffix(), _result.NewPosition);
+            Assert.Equal(_record.GetSizeWithLengthPrefixAndSuffix(), _result.NewPosition);
         }
     }
 }

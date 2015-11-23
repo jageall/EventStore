@@ -3,7 +3,7 @@ namespace EventStore.Core.Tests.Services.GossipService
     class gossip_service_should
     {
 
-        //[Test]
+        //[Fact]
         //public void UpdateListOfKnownBoxesAndSendMergedInformationBackWhenRequestForKnownBoxesReceived()
         //{
         //    var now = DateTime.UtcNow;
@@ -32,7 +32,7 @@ namespace EventStore.Core.Tests.Services.GossipService
         //    CollectionAssert.AreEquivalent(expectedBoxes, responseWithUpdatedListofKnownBoxes.Boxes);
         //}
 
-        //[Test]
+        //[Fact]
         //public void UpdateListOfKnownBoxesWhenResponseForAnnouncementReceived()
         //{
         //    var now = DateTime.UtcNow;
@@ -60,7 +60,7 @@ namespace EventStore.Core.Tests.Services.GossipService
         //    CollectionAssert.AreEquivalent(expectedBoxes, Announcements.BoxData.KnownBoxes);
         //}
 
-        //[Test]
+        //[Fact]
         //public void UpdateListOfKnownBoxesWhenBoxesInformationResponseMessageReceived()
         //{
         //    var currentlyKnownBoxes = new List<BoxInfo>

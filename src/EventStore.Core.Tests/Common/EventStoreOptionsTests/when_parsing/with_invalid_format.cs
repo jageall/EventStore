@@ -1,7 +1,7 @@
 ﻿using EventStore.Common.Options;
 using EventStore.Core.Util;
 using EventStore.Rags;
-using NUnit.Framework;
+using Xunit;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,22 +10,21 @@ using System.Threading.Tasks;
 
 namespace EventStore.Core.Tests.Common.EventStoreOptionsTests.when_parsing
 {
-    [TestFixture]
     public class with_invalid_format
     {
-        [Test]
+        [Fact]
         public void with_command_line_argument()
         {
             var args = new string[] { "-httpPort", "invalid_format" };
             Assert.Throws<OptionException>(() => { EventStoreOptions.Parse<TestArgs>(args, Opts.EnvPrefix); });
         }
-        [Test]
+        [Fact]
         public void with_config()
         {
             var args = new string[] { "-config", "TestConfigs/invalid_format_config.yaml" };
             Assert.Throws<OptionException>(() => { EventStoreOptions.Parse<TestArgs>(args, Opts.EnvPrefix); });
         }
-        [Test]
+        [Fact]
         public void with_environment_variable()
         {
             Environment.SetEnvironmentVariable(Opts.EnvPrefix + "HTTP_PORT", "invalid_format");

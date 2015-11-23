@@ -2,108 +2,118 @@ using System;
 using EventStore.Core.TransactionLog;
 using EventStore.Core.TransactionLog.Chunks.TFChunk;
 using EventStore.Core.TransactionLog.LogRecords;
-using NUnit.Framework;
+using Xunit;
 
 namespace EventStore.Core.Tests.TransactionLog
 {
-    [TestFixture]
-    public class when_appending_to_a_tfchunk_and_flushing: SpecificationWithFilePerTestFixture
+    public class when_appending_to_a_tfchunk_and_flushing : IUseFixture<when_appending_to_a_tfchunk_and_flushing.FixtureData>
     {
-        private TFChunk _chunk;
-        private readonly Guid _corrId = Guid.NewGuid();
-        private readonly Guid _eventId = Guid.NewGuid();
         private RecordWriteResult _result;
         private PrepareLogRecord _record;
+        private TFChunk _chunk;
 
-        [TestFixtureSetUp]
-        public override void TestFixtureSetUp()
+        public class FixtureData : SpecificationWithFilePerTestFixture
         {
-            base.TestFixtureSetUp();
-            _record = new PrepareLogRecord(0, _corrId, _eventId, 0, 0, "test", 1, new DateTime(2000, 1, 1, 12, 0, 0),
-                                           PrepareFlags.None, "Foo", new byte[12], new byte[15]);
-            _chunk = TFChunk.CreateNew(Filename, 4096, 0, 0, false);
-            _result = _chunk.TryAppend(_record);
-            _chunk.Flush();
+            public readonly TFChunk _chunk;
+            private readonly Guid _corrId = Guid.NewGuid();
+            private readonly Guid _eventId = Guid.NewGuid();
+            public RecordWriteResult _result;
+            public readonly PrepareLogRecord _record;
+
+            public FixtureData()
+            {
+                _record = new PrepareLogRecord(0, _corrId, _eventId, 0, 0, "test", 1, new DateTime(2000, 1, 1, 12, 0, 0),
+                    PrepareFlags.None, "Foo", new byte[12], new byte[15]);
+                _chunk = TFChunk.CreateNew(Filename, 4096, 0, 0, false);
+                _result = _chunk.TryAppend(_record);
+                _chunk.Flush();
+            }
+
+            public override void Dispose()
+            {
+                _chunk.Dispose();
+                base.Dispose();
+            }
         }
 
-        [TestFixtureTearDown]
-        public override void TestFixtureTearDown()
+        public void SetFixture(FixtureData data)
         {
-            _chunk.Dispose();
-            base.TestFixtureTearDown();
+            _result = data._result;
+            _record = data._record;
+            _chunk = data._chunk;
         }
 
-        [Test]
+        [Fact]
         public void the_write_result_is_correct()
         {
-            Assert.IsTrue(_result.Success);
-            Assert.AreEqual(0, _result.OldPosition);
-            Assert.AreEqual(_record.GetSizeWithLengthPrefixAndSuffix(), _result.NewPosition);
+            Assert.True(_result.Success);
+            Assert.Equal(0, _result.OldPosition);
+            Assert.Equal(_record.GetSizeWithLengthPrefixAndSuffix(), _result.NewPosition);
         }
 
-        [Test]
+        [Fact]
         public void the_record_is_appended()
         {
-            Assert.IsTrue(_result.Success);
+            Assert.True(_result.Success);
         }
 
-        [Test]
+        [Fact]
         public void correct_old_position_is_returned()
         {
             //position without header (logical position).
-            Assert.AreEqual(0, _result.OldPosition);
+            Assert.Equal(0, _result.OldPosition);
         }
 
-        [Test]
+        [Fact]
         public void the_updated_position_is_returned()
         {
             //position without header (logical position).
-            Assert.AreEqual(_record.GetSizeWithLengthPrefixAndSuffix(), _result.NewPosition);
+            Assert.Equal(_record.GetSizeWithLengthPrefixAndSuffix(), _result.NewPosition);
         }
 
-        [Test]
+        [Fact]
         public void the_record_can_be_read_at_exact_position()
         {
             var res = _chunk.TryReadAt(0);
-            Assert.IsTrue(res.Success);
-            Assert.AreEqual(_record, res.LogRecord);
-            Assert.AreEqual(_result.OldPosition, res.LogRecord.LogPosition);
+            Assert.True(res.Success);
+            Assert.Equal(_record, res.LogRecord);
+            Assert.Equal(_result.OldPosition, res.LogRecord.LogPosition);
         }
 
-        [Test]
+        [Fact]
         public void the_record_can_be_read_as_first_one()
         {
             var res = _chunk.TryReadFirst();
-            Assert.IsTrue(res.Success);
-            Assert.AreEqual(_record, res.LogRecord);
-            Assert.AreEqual(_record.GetSizeWithLengthPrefixAndSuffix(), res.NextPosition);
+            Assert.True(res.Success);
+            Assert.Equal(_record, res.LogRecord);
+            Assert.Equal(_record.GetSizeWithLengthPrefixAndSuffix(), res.NextPosition);
         }
 
-        [Test]
+        [Fact]
         public void the_record_can_be_read_as_closest_forward_to_pos_zero()
         {
             var res = _chunk.TryReadClosestForward(0);
-            Assert.IsTrue(res.Success);
-            Assert.AreEqual(_record, res.LogRecord);
-            Assert.AreEqual(_record.GetSizeWithLengthPrefixAndSuffix(), res.NextPosition);
+            Assert.True(res.Success);
+            Assert.Equal(_record, res.LogRecord);
+            Assert.Equal(_record.GetSizeWithLengthPrefixAndSuffix(), res.NextPosition);
         }
 
-        [Test]
+        [Fact]
         public void the_record_can_be_read_as_closest_backward_from_end()
         {
             var res = _chunk.TryReadClosestBackward(_record.GetSizeWithLengthPrefixAndSuffix());
-            Assert.IsTrue(res.Success);
-            Assert.AreEqual(_record, res.LogRecord);
-            Assert.AreEqual(0, res.NextPosition);
+            Assert.True(res.Success);
+            Assert.Equal(_record, res.LogRecord);
+            Assert.Equal(0, res.NextPosition);
         }
 
-        [Test]
+        [Fact]
         public void the_record_can_be_read_as_last_one()
         {
             var res = _chunk.TryReadLast();
-            Assert.IsTrue(res.Success);
-            Assert.AreEqual(_record, res.LogRecord);
-            Assert.AreEqual(0, res.NextPosition);
+            Assert.True(res.Success);
+            Assert.Equal(_record, res.LogRecord);
+            Assert.Equal(0, res.NextPosition);
         }
     }
 }

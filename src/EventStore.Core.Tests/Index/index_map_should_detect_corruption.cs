@@ -5,22 +5,18 @@ using EventStore.Core.Exceptions;
 using EventStore.Core.Index;
 using EventStore.Core.Tests.Fakes;
 using EventStore.Core.TransactionLog;
-using NUnit.Framework;
+using Xunit;
 
 namespace EventStore.Core.Tests.Index
 {
-    [TestFixture]
     public class index_map_should_detect_corruption: SpecificationWithDirectory
     {
         private string _indexMapFileName;
         private string _ptableFileName;
         private PTable _ptable;
 
-        [SetUp]
-        public override void SetUp()
+        public index_map_should_detect_corruption()
         {
-            base.SetUp();
-
             _indexMapFileName = GetFilePathFor("index.map");
             _ptableFileName = GetFilePathFor("ptable");
 
@@ -34,15 +30,14 @@ namespace EventStore.Core.Tests.Index
             indexMap.SaveToFile(_indexMapFileName);
         }
 
-        [TearDown]
-        public override void TearDown()
+        public override void Dispose()
         {
             if (_ptable != null)
                 _ptable.MarkForDestruction();
-            base.TearDown();
+            base.Dispose();
         }
 
-        [Test]
+        [Fact]
         public void when_ptable_file_is_deleted()
         {
             _ptable.MarkForDestruction();
@@ -52,7 +47,7 @@ namespace EventStore.Core.Tests.Index
             Assert.Throws<CorruptIndexException>(() => IndexMap.FromFile(_indexMapFileName, 2));
         }
 
-        [Test]
+        [Fact]
         public void when_indexmap_file_does_not_have_md5_checksum()
         {
             var lines = File.ReadAllLines(_indexMapFileName);
@@ -61,7 +56,7 @@ namespace EventStore.Core.Tests.Index
             Assert.Throws<CorruptIndexException>(() => IndexMap.FromFile(_indexMapFileName, 2));
         }
 
-        [Test]
+        [Fact]
         public void when_indexmap_file_does_not_have_latest_commit_position()
         {
             var lines = File.ReadAllLines(_indexMapFileName);
@@ -70,7 +65,7 @@ namespace EventStore.Core.Tests.Index
             Assert.Throws<CorruptIndexException>(() => IndexMap.FromFile(_indexMapFileName, 2));
         }
 
-        [Test]
+        [Fact]
         public void when_indexmap_file_exists_but_is_empty()
         {
             File.WriteAllText(_indexMapFileName, "");
@@ -78,7 +73,7 @@ namespace EventStore.Core.Tests.Index
             Assert.Throws<CorruptIndexException>(() => IndexMap.FromFile(_indexMapFileName, 2));
         }
 
-        [Test]
+        [Fact]
         public void when_indexmap_file_is_garbage()
         {
             File.WriteAllText(_indexMapFileName, "alkfjasd;lkf\nasdfasdf\n");
@@ -86,7 +81,7 @@ namespace EventStore.Core.Tests.Index
             Assert.Throws<CorruptIndexException>(() => IndexMap.FromFile(_indexMapFileName, 2));
         }
 
-        [Test]
+        [Fact]
         public void when_checkpoints_pair_is_corrupted()
         {
             using (var fs = File.Open(_indexMapFileName, FileMode.Open))
@@ -101,7 +96,7 @@ namespace EventStore.Core.Tests.Index
             Assert.Throws<CorruptIndexException>(() => IndexMap.FromFile(_indexMapFileName, 2));
         }
 
-        [Test]
+        [Fact]
         public void when_ptable_line_is_missing_one_number()
         {
             var lines = File.ReadAllLines(_indexMapFileName);
@@ -110,7 +105,7 @@ namespace EventStore.Core.Tests.Index
             Assert.Throws<CorruptIndexException>(() => IndexMap.FromFile(_indexMapFileName, 2));
         }
 
-        [Test]
+        [Fact]
         public void when_ptable_line_constists_only_of_filename()
         {
             var lines = File.ReadAllLines(_indexMapFileName);
@@ -119,7 +114,7 @@ namespace EventStore.Core.Tests.Index
             Assert.Throws<CorruptIndexException>(() => IndexMap.FromFile(_indexMapFileName, 2));
         }
 
-        [Test]
+        [Fact]
         public void when_ptable_line_is_missing_filename()
         {
             var lines = File.ReadAllLines(_indexMapFileName);
@@ -128,7 +123,7 @@ namespace EventStore.Core.Tests.Index
             Assert.Throws<CorruptIndexException>(() => IndexMap.FromFile(_indexMapFileName, 2));
         }
 
-        [Test]
+        [Fact]
         public void when_indexmap_md5_checksum_is_corrupted()
         {
             using (var fs = File.Open(_indexMapFileName, FileMode.Open))
@@ -142,7 +137,7 @@ namespace EventStore.Core.Tests.Index
             Assert.Throws<CorruptIndexException>(() => IndexMap.FromFile(_indexMapFileName, 2));
         }
 
-        [Test]
+        [Fact]
         public void when_ptable_hash_is_corrupted()
         {
             _ptable.Dispose();
@@ -160,7 +155,7 @@ namespace EventStore.Core.Tests.Index
             Assert.Throws<CorruptIndexException>(() => IndexMap.FromFile(_indexMapFileName, 2));
         }
 
-        [Test]
+        [Fact]
         public void when_ptable_type_is_corrupted()
         {
             _ptable.Dispose();
@@ -175,7 +170,7 @@ namespace EventStore.Core.Tests.Index
             Assert.Throws<CorruptIndexException>(() => IndexMap.FromFile(_indexMapFileName, 2));
         }
 
-        [Test]
+        [Fact]
         public void when_ptable_header_is_corrupted()
         {
             _ptable.Dispose();
@@ -193,7 +188,7 @@ namespace EventStore.Core.Tests.Index
             Assert.Throws<CorruptIndexException>(() => IndexMap.FromFile(_indexMapFileName, 2));
         }
 
-        [Test]
+        [Fact]
         public void when_ptable_data_is_corrupted()
         {
             _ptable.Dispose();

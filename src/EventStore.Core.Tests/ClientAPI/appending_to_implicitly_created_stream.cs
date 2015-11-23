@@ -4,30 +4,18 @@ using EventStore.ClientAPI;
 using EventStore.ClientAPI.Exceptions;
 using EventStore.Core.Tests.ClientAPI.Helpers;
 using EventStore.Core.Tests.Helpers;
-using NUnit.Framework;
+using Xunit;
 
 namespace EventStore.Core.Tests.ClientAPI
 {
-    [TestFixture, Category("LongRunning")]
-    public class appending_to_implicitly_created_stream : SpecificationWithDirectoryPerTestFixture
+    public class appending_to_implicitly_created_stream : SpecificationWithDirectoryPerTestFixture, IUseFixture<MiniNodeFixture>
     {
         private MiniNode _node;
 
-        [TestFixtureSetUp]
-        public override void TestFixtureSetUp()
+        public void SetFixture(MiniNodeFixture data)
         {
-            base.TestFixtureSetUp();
-            _node = new MiniNode(PathName);
-            _node.Start();
+            _node = data.Node;
         }
-
-        [TestFixtureTearDown]
-        public override void TestFixtureTearDown()
-        {
-            _node.Shutdown();
-            base.TestFixtureTearDown();
-        }
-
 
         protected virtual IEventStoreConnection BuildConnection(MiniNode node)
         {
@@ -41,8 +29,8 @@ namespace EventStore.Core.Tests.ClientAPI
          * S_0em1_1em1_E - START bucket, two events in bucket, END bucket
         */
 
-        [Test]
-        [Category("Network")]
+        [Fact, Trait("Category", "LongRunning")]
+        [Trait("Category", "Network")]
         public void sequence_0em1_1e0_2e1_3e2_4e3_5e4_0em1_idempotent()
         {
             const string stream = "appending_to_implicitly_created_stream_sequence_0em1_1e0_2e1_3e2_4e3_5e4_0em1_idempotent";
@@ -56,12 +44,12 @@ namespace EventStore.Core.Tests.ClientAPI
                 Assert.DoesNotThrow(() => writer.Append(events).Then(events.First(), -1));
 
                 var total = EventsStream.Count(store, stream);
-                Assert.That(total, Is.EqualTo(events.Length));
+                Assert.Equal(events.Length, total);
             }
         }
 
-        [Test]
-        [Category("Network")]
+        [Fact, Trait("Category", "LongRunning")]
+        [Trait("Category", "Network")]
         public void sequence_0em1_1e0_2e1_3e2_4e3_4e4_0any_idempotent()
         {
             const string stream = "appending_to_implicitly_created_stream_sequence_0em1_1e0_2e1_3e2_4e3_4e4_0any_idempotent";
@@ -75,12 +63,12 @@ namespace EventStore.Core.Tests.ClientAPI
                 Assert.DoesNotThrow(() => writer.Append(events).Then(events.First(), ExpectedVersion.Any));
 
                 var total = EventsStream.Count(store, stream);
-                Assert.That(total, Is.EqualTo(events.Length));
+                Assert.Equal(events.Length, total);
             }
         }
 
-        [Test]
-        [Category("Network")]
+        [Fact, Trait("Category", "LongRunning")]
+        [Trait("Category", "Network")]
         public void sequence_0em1_1e0_2e1_3e2_4e3_5e4_0e5_non_idempotent()
         {
             const string stream = "appending_to_implicitly_created_stream_sequence_0em1_1e0_2e1_3e2_4e3_5e4_0e5_non_idempotent";
@@ -94,12 +82,12 @@ namespace EventStore.Core.Tests.ClientAPI
                 Assert.DoesNotThrow(() => writer.Append(events).Then(events.First(), 5));
 
                 var total = EventsStream.Count(store, stream);
-                Assert.That(total, Is.EqualTo(events.Length + 1));
+                Assert.Equal(events.Length +1, total);
             }
         }
 
-        [Test]
-        [Category("Network")]
+        [Fact, Trait("Category", "LongRunning")]
+        [Trait("Category", "Network")]
         public void sequence_0em1_1e0_2e1_3e2_4e3_5e4_0e6_wev()
         {
             const string stream = "appending_to_implicitly_created_stream_sequence_0em1_1e0_2e1_3e2_4e3_5e4_0e6_wev";
@@ -111,13 +99,13 @@ namespace EventStore.Core.Tests.ClientAPI
                 var writer = new StreamWriter(store, stream, -1);
 
                 var first6 = writer.Append(events);
-                Assert.That(() => first6.Then(events.First(), 6), 
-                            Throws.Exception.TypeOf<AggregateException>().With.InnerException.TypeOf<WrongExpectedVersionException>());
+                var thrown = Assert.Throws<AggregateException>(() => first6.Then(events.First(), 6));
+                Assert.IsType<WrongExpectedVersionException>(thrown.InnerException);
             }
         }
 
-        [Test]
-        [Category("Network")]
+        [Fact, Trait("Category", "LongRunning")]
+        [Trait("Category", "Network")]
         public void sequence_0em1_1e0_2e1_3e2_4e3_5e4_0e4_wev()
         {
             const string stream = "appending_to_implicitly_created_stream_sequence_0em1_1e0_2e1_3e2_4e3_5e4_0e4_wev";
@@ -129,13 +117,14 @@ namespace EventStore.Core.Tests.ClientAPI
                 var writer = new StreamWriter(store, stream, -1);
 
                 var first6 = writer.Append(events);
-                Assert.That(() => first6.Then(events.First(), 4), 
-                            Throws.Exception.TypeOf<AggregateException>().With.InnerException.TypeOf<WrongExpectedVersionException>());
+                
+                var thrown = Assert.Throws<AggregateException>(() => first6.Then(events.First(), 4));
+                Assert.IsType<WrongExpectedVersionException>(thrown.InnerException);
             }
         }
 
-        [Test]
-        [Category("Network")]
+        [Fact, Trait("Category", "LongRunning")]
+        [Trait("Category", "Network")]
         public void sequence_0em1_0e0_non_idempotent()
         {
             const string stream = "appending_to_implicitly_created_stream_sequence_0em1_0e0_non_idempotent";
@@ -149,12 +138,12 @@ namespace EventStore.Core.Tests.ClientAPI
                 Assert.DoesNotThrow(() => writer.Append(events).Then(events.First(), 0));
 
                 var total = EventsStream.Count(store, stream);
-                Assert.That(total, Is.EqualTo(events.Length + 1));
+                Assert.Equal(events.Length + 1, total);
             }
         }
 
-        [Test]
-        [Category("Network")]
+        [Fact, Trait("Category", "LongRunning")]
+        [Trait("Category", "Network")]
         public void sequence_0em1_0any_idempotent()
         {
             const string stream = "appending_to_implicitly_created_stream_sequence_0em1_0any_idempotent";
@@ -168,12 +157,12 @@ namespace EventStore.Core.Tests.ClientAPI
                 Assert.DoesNotThrow(() => writer.Append(events).Then(events.First(), ExpectedVersion.Any));
 
                 var total = EventsStream.Count(store, stream);
-                Assert.That(total, Is.EqualTo(events.Length));
+                Assert.Equal(events.Length, total);
             }
         }
 
-        [Test]
-        [Category("Network")]
+        [Fact, Trait("Category", "LongRunning")]
+        [Trait("Category", "Network")]
         public void sequence_0em1_0em1_idempotent()
         {
             const string stream = "appending_to_implicitly_created_stream_sequence_0em1_0em1_idempotent";
@@ -187,12 +176,12 @@ namespace EventStore.Core.Tests.ClientAPI
                 Assert.DoesNotThrow(() => writer.Append(events).Then(events.First(), -1));
 
                 var total = EventsStream.Count(store, stream);
-                Assert.That(total, Is.EqualTo(events.Length));
+                Assert.Equal(events.Length, total);
             }
         }
 
-        [Test]
-        [Category("Network")]
+        [Fact, Trait("Category", "LongRunning")]
+        [Trait("Category", "Network")]
         public void sequence_0em1_1e0_2e1_1any_1any_idempotent()
         {
             const string stream = "appending_to_implicitly_created_stream_sequence_0em1_1e0_2e1_1any_1any_idempotent";
@@ -206,12 +195,12 @@ namespace EventStore.Core.Tests.ClientAPI
                 Assert.DoesNotThrow(() => writer.Append(events).Then(events[1], ExpectedVersion.Any).Then(events[1], ExpectedVersion.Any));
 
                 var total = EventsStream.Count(store, stream);
-                Assert.That(total, Is.EqualTo(events.Length));
+                Assert.Equal(events.Length, total);
             }
         }
 
-        [Test]
-        [Category("Network")]
+        [Fact, Trait("Category", "LongRunning")]
+        [Trait("Category", "Network")]
         public void sequence_S_0em1_1em1_E_S_0em1_E_idempotent()
         {
             const string stream = "appending_to_implicitly_created_stream_sequence_S_0em1_1em1_E_S_0em1_E_idempotent";
@@ -227,12 +216,12 @@ namespace EventStore.Core.Tests.ClientAPI
                 Assert.DoesNotThrow(app2.Wait);
 
                 var total = EventsStream.Count(store, stream);
-                Assert.That(total, Is.EqualTo(events.Length));
+                Assert.Equal(events.Length, total);
             }
         }
 
-        [Test]
-        [Category("Network")]
+        [Fact, Trait("Category", "LongRunning")]
+        [Trait("Category", "Network")]
         public void sequence_S_0em1_1em1_E_S_0any_E_idempotent()
         {
             const string stream = "appending_to_implicitly_created_stream_sequence_S_0em1_1em1_E_S_0any_E_idempotent";
@@ -248,12 +237,12 @@ namespace EventStore.Core.Tests.ClientAPI
                 Assert.DoesNotThrow(app2.Wait);
 
                 var total = EventsStream.Count(store, stream);
-                Assert.That(total, Is.EqualTo(events.Length));
+                Assert.Equal(events.Length, total);
             }
         }
 
-        [Test]
-        [Category("Network")]
+        [Fact, Trait("Category", "LongRunning")]
+        [Trait("Category", "Network")]
         public void sequence_S_0em1_1em1_E_S_1e0_E_idempotent()
         {
             const string stream = "appending_to_implicitly_created_stream_sequence_S_0em1_1em1_E_S_1e0_E_idempotent";
@@ -269,12 +258,12 @@ namespace EventStore.Core.Tests.ClientAPI
                 Assert.DoesNotThrow(app2.Wait);
 
                 var total = EventsStream.Count(store, stream);
-                Assert.That(total, Is.EqualTo(events.Length));
+                Assert.Equal(events.Length, total);
             }
         }
 
-        [Test]
-        [Category("Network")]
+        [Fact, Trait("Category", "LongRunning")]
+        [Trait("Category", "Network")]
         public void sequence_S_0em1_1em1_E_S_1any_E_idempotent()
         {
             const string stream = "appending_to_implicitly_created_stream_sequence_S_0em1_1em1_E_S_1any_E_idempotent";
@@ -290,12 +279,12 @@ namespace EventStore.Core.Tests.ClientAPI
                 Assert.DoesNotThrow(app2.Wait);
 
                 var total = EventsStream.Count(store, stream);
-                Assert.That(total, Is.EqualTo(events.Length));
+                Assert.Equal(events.Length, total);
             }
         }
 
-        [Test]
-        [Category("Network")]
+        [Fact, Trait("Category", "LongRunning")]
+        [Trait("Category", "Network")]
         public void sequence_S_0em1_1em1_E_S_0em1_1em1_2em1_E_idempotancy_fail()
         {
             const string stream = "appending_to_implicitly_created_stream_sequence_S_0em1_1em1_E_S_0em1_1em1_2em1_E_idempotancy_fail";
@@ -308,8 +297,8 @@ namespace EventStore.Core.Tests.ClientAPI
                 Assert.DoesNotThrow(append.Wait);
 
                 var app2 = store.AppendToStreamAsync(stream, -1, events.Concat(new[] { TestEvent.NewTestEvent(Guid.NewGuid()) }));
-                Assert.That(() => app2.Wait(), 
-                            Throws.Exception.TypeOf<AggregateException>().With.InnerException.TypeOf<WrongExpectedVersionException>());
+                var thrown = Assert.Throws<AggregateException>(() => app2.Wait());
+                Assert.IsType<WrongExpectedVersionException>(thrown.InnerException);
             }
         }
     }

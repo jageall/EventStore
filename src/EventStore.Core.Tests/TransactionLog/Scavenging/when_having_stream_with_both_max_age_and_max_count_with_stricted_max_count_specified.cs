@@ -4,11 +4,10 @@ using EventStore.Core.Data;
 using EventStore.Core.Services.Storage.ReaderIndex;
 using EventStore.Core.Tests.TransactionLog.Scavenging.Helpers;
 using EventStore.Core.TransactionLog.LogRecords;
-using NUnit.Framework;
+using Xunit;
 
 namespace EventStore.Core.Tests.TransactionLog.Scavenging
 {
-    [TestFixture]
     public class when_having_stream_with_both_max_age_and_max_count_with_stricter_max_count_specified : ScavengeTestScenario
     {
         protected override DbResult CreateDb(TFChunkDbCreationHelper dbCreator)
@@ -41,7 +40,7 @@ namespace EventStore.Core.Tests.TransactionLog.Scavenging
             };
         }
 
-        [Test]
+        [Fact]
         public void expired_prepares_are_scavenged()
         {
             CheckRecords();

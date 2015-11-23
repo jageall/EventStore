@@ -6,17 +6,16 @@ using EventStore.Core.Cluster;
 using EventStore.Core.Data;
 using EventStore.Core.Messages;
 using EventStore.Core.Tests.Infrastructure;
-using NUnit.Framework;
+using Xunit;
+using Xunit.Extensions;
 
 namespace EventStore.Core.Tests.Services.ElectionsService.Randomized
 {
-    [TestFixture]
     public class elections_service_5_nodes_with_1_known_when_started_and_set_full_imediately
     {
         private RandomizedElectionsAndGossipTestCase _randomCase;
 
-        [SetUp]
-        public void SetUp()
+        public elections_service_5_nodes_with_1_known_when_started_and_set_full_imediately()
         {
             _randomCase = new RandomizedElectionsAndGossipTestCase(ElectionParams.MaxIterationCount,
                                                                    instancesCnt: 5,
@@ -60,8 +59,12 @@ namespace EventStore.Core.Tests.Services.ElectionsService.Randomized
             return null;
         }
 
-        [Test, Category("LongRunning"), Category("Network"), Explicit]
-        public void should_complete_successfully([Range(0, ElectionParams.TestRunCount - 1)]int run)
+        [Theory]
+        [Trait("Category", "LongRunning")]
+        [Trait("Category", "Network")]
+        [Trait("Category", "Explicit")]
+        [PropertyData("TestRuns", PropertyType = typeof(ElectionParams))]
+        public void should_complete_successfully(int run)
         {
             var success = _randomCase.Run();
             if (!success)
@@ -74,8 +77,11 @@ namespace EventStore.Core.Tests.Services.ElectionsService.Randomized
             Assert.True(success);
         }
 
-        [Test, Category("LongRunning"), Category("Network")]
-        public void should_complete_successfully2([Range(0, 9)]int run)
+        [Theory]
+        [Trait("Category", "LongRunning")]
+        [Trait("Category", "Network")]
+        [PropertyData("TenRuns", PropertyType = typeof(ElectionParams))]
+        public void should_complete_successfully2(int run)
         {
             var success = _randomCase.Run();
             if (!success)

@@ -1,18 +1,17 @@
 using System;
 using EventStore.Core.Data;
 using EventStore.Projections.Core.Services.Processing;
-using NUnit.Framework;
+using Xunit;
 
 namespace EventStore.Projections.Core.Tests.Services.position_tagging.transaction_file_position_tagger
 {
-    [TestFixture]
+    
     public class when_updating_transaction_file_postion_tracker
     {
         private PositionTagger _tagger;
         private PositionTracker _positionTracker;
 
-        [SetUp]
-        public void When()
+        public when_updating_transaction_file_postion_tracker()
         {
             // given
             _tagger = new TransactionFilePositionTagger(0);
@@ -21,17 +20,17 @@ namespace EventStore.Projections.Core.Tests.Services.position_tagging.transactio
             _positionTracker.UpdateByCheckpointTagInitial(newTag);
         }
 
-        [Test]
+        [Fact]
         public void checkpoint_tag_is_for_correct_position()
         {
-            Assert.AreEqual(new TFPos(100, 50), _positionTracker.LastTag.Position);
+            Assert.Equal(new TFPos(100, 50), _positionTracker.LastTag.Position);
         }
 
-        [Test, ExpectedException(typeof (InvalidOperationException))]
+        [Fact]
         public void cannot_update_to_the_same_postion()
         {
             var newTag = CheckpointTag.FromPosition(0, 100, 50);
-            _positionTracker.UpdateByCheckpointTagForward(newTag);
+            Assert.Throws<InvalidOperationException>(() => { _positionTracker.UpdateByCheckpointTagForward(newTag); });
         }
     }
 }

@@ -1,25 +1,23 @@
 ﻿using EventStore.ClientAPI;
 using EventStore.ClientAPI.SystemData;
 using EventStore.Core.Services;
-using NUnit.Framework;
+using Xunit;
 
 namespace EventStore.Core.Tests.ClientAPI.Security
 {
-    [TestFixture, Category("LongRunning"), Category("Network")]
     public class overriden_system_stream_security_for_all : AuthenticationTestBase
     {
-        [TestFixtureSetUp]
-        public override void TestFixtureSetUp()
-        {
-            base.TestFixtureSetUp();
-            
+        protected override void AdditionalFixtureSetup()
+        {    
             var settings = new SystemSettings(
                 userStreamAcl: null,
                 systemStreamAcl: new StreamAcl(SystemRoles.All, SystemRoles.All, SystemRoles.All, SystemRoles.All, SystemRoles.All));
             Connection.SetSystemSettingsAsync(settings, new UserCredentials("adm", "admpa$$")).Wait();
         }
 
-        [Test, Category("LongRunning"), Category("Network")]
+        [Fact]
+        [Trait("Category", "LongRunning")]
+        [Trait("Category", "Network")]
         public void operations_on_system_stream_succeeds_for_user()
         {
             const string stream = "$sys-authorized-user";
@@ -43,7 +41,9 @@ namespace EventStore.Core.Tests.ClientAPI.Security
             ExpectNoException(() => DeleteStream(stream, "user1", "pa$$1"));
         }
 
-        [Test, Category("LongRunning"), Category("Network")]
+        [Fact]
+        [Trait("Category", "LongRunning")]
+        [Trait("Category", "Network")]
         public void operations_on_system_stream_fail_for_anonymous_user()
         {
             const string stream = "$sys-anonymous-user";
@@ -67,7 +67,9 @@ namespace EventStore.Core.Tests.ClientAPI.Security
             ExpectNoException(() => DeleteStream(stream, null, null));
         }
 
-        [Test, Category("LongRunning"), Category("Network")]
+        [Fact]
+        [Trait("Category", "LongRunning")]
+        [Trait("Category", "Network")]
         public void operations_on_system_stream_succeed_for_admin()
         {
             const string stream = "$sys-admin";

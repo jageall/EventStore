@@ -3,11 +3,11 @@ using System.IO;
 using System.Threading;
 using EventStore.Common.Utils;
 using EventStore.Projections.Core.v8;
-using NUnit.Framework;
+using Xunit;
 
 namespace EventStore.Projections.Core.Tests.Services.v8
 {
-    [TestFixture]
+    
     public class v8_internals
     {
 
@@ -16,7 +16,8 @@ namespace EventStore.Projections.Core.Tests.Services.v8
         private Js1.CommandHandlerRegisteredDelegate _commandHandlerRegisteredCallback;
         private Js1.ReverseCommandHandlerDelegate _reverseCommandHandlerDelegate;
 
-        [Test, Explicit, Category("v8"), Category("Manual"), ExpectedException(typeof(Js1Exception))]
+        [Fact]
+        [Trait("Category", "Explicit"), Trait("Category", "v8"), Trait("Category", "Manual")]
         public void long_execution_of_non_v8_code_does_not_crash()
         {
             _cancelCallbackFactory = (timeout, action) => ThreadPool.QueueUserWorkItem(state =>
@@ -38,24 +39,27 @@ namespace EventStore.Projections.Core.Tests.Services.v8
 
             var preludeSource = getModuleSource("1Prelude");
             var prelude = new PreludeScript(preludeSource.Item1, preludeSource.Item2, getModuleSource, _cancelCallbackFactory, logger);
-            try
+            Assert.Throws<Js1Exception>(() =>
             {
-                //var cancelToken = 123;
-                prelude.ScheduleTerminateExecution();
-                Thread.Sleep(500);
-                _commandHandlerRegisteredCallback = (name, handle) => { };
-                _reverseCommandHandlerDelegate = (name, body) => { };
-                Js1.CompileQuery(
-                    prelude.GetHandle(), "log(1);", "fn", _commandHandlerRegisteredCallback,
-                    _reverseCommandHandlerDelegate);
+                try
+                {
+                    //var cancelToken = 123;
+                    prelude.ScheduleTerminateExecution();
+                    Thread.Sleep(500);
+                    _commandHandlerRegisteredCallback = (name, handle) => { };
+                    _reverseCommandHandlerDelegate = (name, body) => { };
+                    Js1.CompileQuery(
+                        prelude.GetHandle(), "log(1);", "fn", _commandHandlerRegisteredCallback,
+                        _reverseCommandHandlerDelegate);
 
-                prelude.CancelTerminateExecution();
-            }
-            catch
-            {
-                prelude.Dispose(); // clean up unmanaged resources if failed to create
-                throw;
-            }
+                    prelude.CancelTerminateExecution();
+                }
+                catch
+                {
+                    prelude.Dispose(); // clean up unmanaged resources if failed to create
+                    throw;
+                }
+            });
 
         }
 

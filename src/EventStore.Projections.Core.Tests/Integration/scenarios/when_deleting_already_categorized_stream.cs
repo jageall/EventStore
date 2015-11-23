@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using EventStore.Core.Data;
 using EventStore.Core.Messages;
 using EventStore.Core.Services;
-using NUnit.Framework;
+using Xunit;
 
 namespace EventStore.Projections.Core.Tests.Integration.scenarios
 {
-    [TestFixture]
+    
     public class when_deleting_already_categorized_stream : specification_with_a_v8_query_posted
     {
         protected override void GivenEvents()
@@ -75,7 +75,7 @@ fromCategory('chat').when({
             return "";
         }
 
-        [Test, Explicit]
+        [Fact][Trait("Category", "Explicit")]
         public void just()
         {
             DumpStream("$$chat-2");

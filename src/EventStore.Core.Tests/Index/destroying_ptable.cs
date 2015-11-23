@@ -1,16 +1,14 @@
 using System.IO;
 using EventStore.Core.Index;
-using NUnit.Framework;
+using Xunit;
 
 namespace EventStore.Core.Tests.Index
 {
-    [TestFixture]
     public class destroying_ptable: SpecificationWithFile
     {
         private PTable _table;
 
-        [SetUp]
-        public void Setup()
+        public destroying_ptable()
         {
             var mtable = new HashListMemTable(maxSize: 10);
             mtable.Add(0x0101, 0x0001, 0x0001);
@@ -19,24 +17,24 @@ namespace EventStore.Core.Tests.Index
             _table.MarkForDestruction();
         }
 
-        [Test]
+        [Fact]
         public void the_file_is_deleted()
         {
             _table.WaitForDisposal(1000);
-            Assert.IsFalse(File.Exists(Filename));
+            Assert.False(File.Exists(Filename));
         }
 
-        [Test]
+        [Fact]
         public void wait_for_destruction_returns()
         {
             Assert.DoesNotThrow(() => _table.WaitForDisposal(1000));
         }
 
-        [TearDown]
-        public void Teardown()
+        public override void Dispose()
         {
             _table.WaitForDisposal(1000);
             File.Delete(Filename);
+            base.Dispose();
         }
     }
 }

@@ -12,7 +12,7 @@ using EventStore.Core.Services;
 using EventStore.Core.Tests.Bus.Helpers;
 using EventStore.Core.TransactionLog.LogRecords;
 using Newtonsoft.Json.Linq;
-using NUnit.Framework;
+using Xunit;
 
 namespace EventStore.Core.Tests.Helpers
 {
@@ -167,8 +167,7 @@ namespace EventStore.Core.Tests.Helpers
                 OneWriteCompletes();
         }
 
-        [SetUp]
-        public void setup1()
+        public TestFixtureWithExistingEvents()
         {
             _writesQueue = new Queue<ClientMessage.WriteEvents>();
             _listEventsHandler = new TestHandler<ClientMessage.ReadStreamEventsBackward>();
@@ -530,22 +529,22 @@ namespace EventStore.Core.Tests.Helpers
         {
             message = message ?? string.Format("Invalid last event in the '{0}' stream. ", streamId);
             List<EventRecord> events;
-            Assert.That(_streams.TryGetValue(streamId, out events), message + "The stream does not exist.");
+            Assert.True(_streams.TryGetValue(streamId, out events), message + "The stream does not exist.");
             events = events.Take(events.Count - skip).ToList();
-            Assert.IsNotEmpty(events, message + "The stream is empty.");
+            Assert.False(events.IsEmpty(), message + "The stream is empty.");
             var last = events[events.Count - 1];
-            Assert.AreEqual(data,Encoding.UTF8.GetString(last.Data));
+            Assert.Equal(data,Encoding.UTF8.GetString(last.Data));
         }
 
         public void AssertLastEventJson<T>(string streamId, T json, string message = null, int skip = 0)
         {
             message = message ?? string.Format("Invalid last event in the '{0}' stream. ", streamId);
             List<EventRecord> events;
-            Assert.That(_streams.TryGetValue(streamId, out events), message + "The stream does not exist.");
+            Assert.True(_streams.TryGetValue(streamId, out events), message + "The stream does not exist.");
             events = events.Take(events.Count - skip).ToList();
-            Assert.IsNotEmpty(events, message + "The stream is empty.");
+            Assert.False(events.IsEmpty(), message + "The stream is empty.");
             var last = events[events.Count - 1];
-            Assert.IsTrue((last.Flags & PrepareFlags.IsJson) != 0);
+            Assert.True((last.Flags & PrepareFlags.IsJson) != 0);
             HelperExtensions.AssertJson(json, last.Data.ParseJson<JObject>());
         }
 
@@ -553,23 +552,23 @@ namespace EventStore.Core.Tests.Helpers
         {
             message = message ?? string.Format("Invalid last event in the '{0}' stream. ", streamId);
             List<EventRecord> events;
-            Assert.That(_streams.TryGetValue(streamId, out events), message + "The stream does not exist.");
+            Assert.True(_streams.TryGetValue(streamId, out events), message + "The stream does not exist.");
             events = events.Take(events.Count - skip).ToList();
-            Assert.IsNotEmpty(events, message + "The stream is empty.");
+            Assert.False(events.IsEmpty(), message + "The stream is empty.");
             var last = events[events.Count - 1];
-            Assert.AreEqual(eventType, last.EventType);
+            Assert.Equal(eventType, last.EventType);
         }
 
         public void AssertStreamTail(string streamId, params string[] data)
         {
             var message = string.Format("Invalid events in the '{0}' stream. ", streamId);
             List<EventRecord> events;
-            Assert.That(_streams.TryGetValue(streamId, out events), message + "The stream does not exist.");
+            Assert.True(_streams.TryGetValue(streamId, out events), message + "The stream does not exist.");
             var eventsText = events.Skip(events.Count - data.Length).Select(v => Encoding.UTF8.GetString(v.Data)).ToList();
             if (data.Length > 0)
-                Assert.IsNotEmpty(events, message + "The stream is empty.");
+                Assert.False(events.IsEmpty(), message + "The stream is empty.");
 
-            Assert.That(
+            Assert.True(
                 data.SequenceEqual(eventsText),
                 string.Format(
                     "{0} does end with: {1} the tail is: {2}", streamId, data.Aggregate("", (a, v) => a + " " + v),
@@ -580,7 +579,7 @@ namespace EventStore.Core.Tests.Helpers
         {
             var message = string.Format("Invalid events in the '{0}' stream. ", streamId);
             List<EventRecord> events;
-            Assert.That(_streams.TryGetValue(streamId, out events), message + "The stream does not exist.");
+            Assert.True(_streams.TryGetValue(streamId, out events), message + "The stream does not exist.");
             var eventsText =
                 events.Skip(events.Count - data.Length)
                     .Select(v => new {Text = Encoding.UTF8.GetString(v.Data), EventType = v.EventType})
@@ -591,9 +590,9 @@ namespace EventStore.Core.Tests.Helpers
                                 : v.EventType + ":" + v.Text)
                     .ToList();
             if (data.Length > 0)
-                Assert.IsNotEmpty(events, message + "The stream is empty.");
+                Assert.False(events.IsEmpty(), message + "The stream is empty.");
 
-            Assert.That(
+            Assert.True(
                 data.SequenceEqual(eventsText),
                 string.Format(
                     "{0} does not end with: {1}. the tail is: {2}", streamId, data.Aggregate("", (a, v) => a + " " + v),
@@ -612,14 +611,14 @@ namespace EventStore.Core.Tests.Helpers
         {
             var message = string.Format("Invalid events in the '{0}' stream. ", streamId);
             List<EventRecord> events;
-            Assert.That(_streams.TryGetValue(streamId, out events), message + "The stream does not exist.");
+            Assert.True(_streams.TryGetValue(streamId, out events), message + "The stream does not exist.");
             if (data.Length > 0)
-                Assert.IsNotEmpty(events, message + "The stream is empty.");
+                Assert.False(events.IsEmpty(), message + "The stream is empty.");
 
             var eventsData = new HashSet<string>(events.Select(v => Encoding.UTF8.GetString(v.Data)));
             var missing = data.Where(v => !eventsData.Contains(v)).ToArray();
 
-            Assert.That(missing.Length == 0, string.Format("{0} does not contain: {1}", streamId, missing.Aggregate("", (a, v) => a + " " + v)));
+            Assert.True(missing.Length == 0, string.Format("{0} does not contain: {1}", streamId, missing.Aggregate("", (a, v) => a + " " + v)));
         }
 
         public void AssertEvent(string streamId, int eventNumber, string data)
@@ -635,7 +634,7 @@ namespace EventStore.Core.Tests.Helpers
         public void AssertEmptyOrNoStream(string streamId)
         {
             List<EventRecord> events;
-            Assert.That(
+            Assert.True(
                 !_streams.TryGetValue(streamId, out events) || events.Count == 0,
                 string.Format("The stream {0} should not exist.", streamId));
         }

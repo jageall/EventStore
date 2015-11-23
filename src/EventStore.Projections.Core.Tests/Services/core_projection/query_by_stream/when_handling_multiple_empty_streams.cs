@@ -1,11 +1,11 @@
 using System;
 using EventStore.Projections.Core.Messages;
 using EventStore.Projections.Core.Services.Processing;
-using NUnit.Framework;
+using Xunit;
 
 namespace EventStore.Projections.Core.Tests.Services.core_projection.query_by_stream
 {
-    [TestFixture]
+    
     public class when_handling_multiple_empty_streams : specification_with_from_catalog_query
     {
         protected override void When()
@@ -26,11 +26,11 @@ namespace EventStore.Projections.Core.Tests.Services.core_projection.query_by_st
                     _subscriptionId, CheckpointTag.FromByStreamPosition(0, "catalog", 1, null, -1, long.MinValue), 2));
         }
 
-        [Test]
+        [Fact]
         public void does_not_write_empty_state_for_each_partition()
         {
-            Assert.AreEqual(0, _writeEventHandler.HandledMessages.OfEventType("Result").Count);
-            Assert.AreEqual(0, _writeEventHandler.HandledMessages.OfEventType("ResultRemoved").Count);
+            Assert.Equal(0, _writeEventHandler.HandledMessages.OfEventType("Result").Count);
+            Assert.Equal(0, _writeEventHandler.HandledMessages.OfEventType("ResultRemoved").Count);
         }
 
     }

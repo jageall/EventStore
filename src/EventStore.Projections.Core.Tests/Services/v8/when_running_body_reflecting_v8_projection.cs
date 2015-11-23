@@ -2,11 +2,11 @@ using System;
 using EventStore.Projections.Core.Services;
 using EventStore.Projections.Core.Services.Processing;
 using EventStore.Projections.Core.Tests.Services.projections_manager;
-using NUnit.Framework;
+using Xunit;
 
 namespace EventStore.Projections.Core.Tests.Services.v8
 {
-    [TestFixture]
+    
     public class when_running_body_reflecting_v8_projection : TestFixtureWithJsProjection
     {
         protected override void Given()
@@ -22,7 +22,7 @@ namespace EventStore.Projections.Core.Tests.Services.v8
             ";
         }
 
-        [Test, Category("v8")]
+        [Fact][Trait("Category", "v8")]
         public void process_event_should_reflect_event()
         {
             string state;
@@ -30,10 +30,10 @@ namespace EventStore.Projections.Core.Tests.Services.v8
             _stateHandler.ProcessEvent(
                 "", CheckpointTag.FromPosition(0, 20, 10), "stream1", "type1", "category", Guid.NewGuid(), 0, "metadata",
                 @"{""a"":""b""}", out state, out emittedEvents);
-            Assert.AreEqual(@"{""a"":""b""}", state);
+            Assert.Equal(@"{""a"":""b""}", state);
         }
 
-        [Test, Category("v8")]
+        [Fact][Trait("Category", "v8")]
         public void process_event_should_not_reflect_non_json_events_even_if_valid_json()
         {
             string state;
@@ -41,7 +41,7 @@ namespace EventStore.Projections.Core.Tests.Services.v8
             _stateHandler.ProcessEvent(
                 "", CheckpointTag.FromPosition(0, 20, 10), "stream1", "type1", "category", Guid.NewGuid(), 0, "metadata",
                 @"{""a"":""b""}", out state, out emittedEvents, isJson: false);
-            Assert.AreEqual(@"{}", state);
+            Assert.Equal(@"{}", state);
         }
 
     }

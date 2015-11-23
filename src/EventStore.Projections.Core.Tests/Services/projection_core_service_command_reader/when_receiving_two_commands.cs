@@ -2,11 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using EventStore.Projections.Core.Messages;
-using NUnit.Framework;
+using Xunit;
 
 namespace EventStore.Projections.Core.Tests.Services.projection_core_service_command_reader
 {
-    [TestFixture]
+    
     public class when_receiving_two_commands : specification_with_projection_core_service_command_reader_started
     {
         private Guid _projectionId;
@@ -32,11 +32,11 @@ namespace EventStore.Projections.Core.Tests.Services.projection_core_service_com
                     true);
         }
 
-        [Test]
+        [Fact]
         public void publishes_projection_start_message()
         {
             var startProjectionCommands = HandledMessages.OfType<CoreProjectionManagementMessage.Start>().ToArray();
-            Assert.AreEqual(2, startProjectionCommands.Length);
+            Assert.Equal(2, startProjectionCommands.Length);
         }
     }
 }

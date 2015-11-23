@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Net;
 using EventStore.Core.Services;
-using NUnit.Framework;
+using Xunit;
 using Newtonsoft.Json.Linq;
 
 namespace EventStore.Core.Tests.Http.BasicAuthentication
@@ -12,15 +12,9 @@ namespace EventStore.Core.Tests.Http.BasicAuthentication
         {
             protected readonly ICredentials _admin = new NetworkCredential(
                 SystemUsers.Admin, SystemUsers.DefaultAdminPassword);
-
-            protected override bool GivenSkipInitializeStandardUsersCheck()
-            {
-                return false;
-            }
         }
 
-        [TestFixture, Category("LongRunning")]
-        class when_requesting_an_unprotected_resource : with_admin_user
+        public class when_requesting_an_unprotected_resource : with_admin_user
         {
             protected override void Given()
             {
@@ -31,21 +25,22 @@ namespace EventStore.Core.Tests.Http.BasicAuthentication
                 GetJson<JObject>("/test-anonymous");
             }
 
-            [Test]
+            [Fact]
+            [Trait("Category", "LongRunning")]
             public void returns_ok_status_code()
             {
-                Assert.AreEqual(HttpStatusCode.OK, _lastResponse.StatusCode);
+                Assert.Equal(HttpStatusCode.OK, LastResponse.StatusCode);
             }
 
-            [Test]
+            [Fact]
+            [Trait("Category", "LongRunning")]
             public void does_not_return_www_authenticate_header()
             {
-                Assert.Null(_lastResponse.Headers[HttpResponseHeader.WwwAuthenticate]);
+                Assert.Null(LastResponse.Headers[HttpResponseHeader.WwwAuthenticate]);
             }
         }
 
-        [TestFixture, Category("LongRunning")]
-        class when_requesting_a_protected_resource : with_admin_user
+        public class when_requesting_a_protected_resource : with_admin_user
         {
             protected override void Given()
             {
@@ -56,27 +51,28 @@ namespace EventStore.Core.Tests.Http.BasicAuthentication
                 GetJson<JObject>("/test1");
             }
 
-            [Test]
+            [Fact]
+            [Trait("Category", "LongRunning")]
             public void returns_unauthorized_status_code()
             {
-                Assert.AreEqual(HttpStatusCode.Unauthorized, _lastResponse.StatusCode);
+                Assert.Equal(HttpStatusCode.Unauthorized, LastResponse.StatusCode);
             }
 
-            [Test]
+            [Fact]
+            [Trait("Category", "LongRunning")]
             public void returns_www_authenticate_header()
             {
-                Assert.NotNull(_lastResponse.Headers[HttpResponseHeader.WwwAuthenticate]);
+                Assert.NotNull(LastResponse.Headers[HttpResponseHeader.WwwAuthenticate]);
             }
         }
 
-        [TestFixture, Category("LongRunning")]
-        class when_requesting_a_protected_resource_with_credentials_provided : with_admin_user
+        public class when_requesting_a_protected_resource_with_credentials_provided : with_admin_user
         {
             protected override void Given()
             {
                 var response = MakeJsonPost(
                     "/users/", new {LoginName = "test1", FullName = "User Full Name", Password = "Pa55w0rd!"}, _admin);
-                Assert.AreEqual(HttpStatusCode.Created, response.StatusCode);
+                Assert.Equal(HttpStatusCode.Created, response.StatusCode);
             }
 
             protected override void When()
@@ -84,21 +80,21 @@ namespace EventStore.Core.Tests.Http.BasicAuthentication
                 GetJson<JObject>("/test1", credentials: new NetworkCredential("test1", "Pa55w0rd!"));
             }
 
-            [Test]
+            [Fact]
+            [Trait("Category", "LongRunning")]
             public void returns_ok_status_code()
             {
-                Assert.AreEqual(HttpStatusCode.OK, _lastResponse.StatusCode);
+                Assert.Equal(HttpStatusCode.OK, LastResponse.StatusCode);
             }
         }
 
-        [TestFixture, Category("LongRunning")]
-        class when_requesting_a_protected_resource_with_invalid_credentials_provided : with_admin_user
+        public class when_requesting_a_protected_resource_with_invalid_credentials_provided : with_admin_user
         {
             protected override void Given()
             {
                 var response = MakeJsonPost(
                     "/users/", new {LoginName = "test1", FullName = "User Full Name", Password = "Pa55w0rd!"}, _admin);
-                Assert.AreEqual(HttpStatusCode.Created, response.StatusCode);
+                Assert.Equal(HttpStatusCode.Created, response.StatusCode);
             }
 
             protected override void When()
@@ -106,23 +102,24 @@ namespace EventStore.Core.Tests.Http.BasicAuthentication
                 GetJson<JObject>("/test1", credentials: new NetworkCredential("test1", "InvalidPassword!"));
             }
 
-            [Test]
+            [Fact]
+            [Trait("Category", "LongRunning")]
             public void returns_unauthorized_status_code()
             {
-                Assert.AreEqual(HttpStatusCode.Unauthorized, _lastResponse.StatusCode);
+                Assert.Equal(HttpStatusCode.Unauthorized, LastResponse.StatusCode);
             }
         }
 
-        [TestFixture, Category("LongRunning")]
-        class when_requesting_a_protected_resource_with_credentials_of_disabled_user_account : with_admin_user
+
+        public class when_requesting_a_protected_resource_with_credentials_of_disabled_user_account : with_admin_user
         {
             protected override void Given()
             {
                 var response = MakeJsonPost(
                     "/users/", new {LoginName = "test1", FullName = "User Full Name", Password = "Pa55w0rd!"}, _admin);
-                Assert.AreEqual(HttpStatusCode.Created, response.StatusCode);
+                Assert.Equal(HttpStatusCode.Created, response.StatusCode);
                 response = MakePost("/users/test1/command/disable", _admin);
-                Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+                Assert.Equal(HttpStatusCode.OK, response.StatusCode);
             }
 
             protected override void When()
@@ -130,24 +127,24 @@ namespace EventStore.Core.Tests.Http.BasicAuthentication
                 GetJson<JObject>("/test1", credentials: new NetworkCredential("test1", "Pa55w0rd!"));
             }
 
-            [Test]
+            [Fact]
+            [Trait("Category", "LongRunning")]
             public void returns_unauthorized_status_code()
             {
-                Assert.AreEqual(HttpStatusCode.Unauthorized, _lastResponse.StatusCode);
+                Assert.Equal(HttpStatusCode.Unauthorized, LastResponse.StatusCode);
             }
         }
 
-        [TestFixture, Category("LongRunning")]
-        class when_requesting_a_protected_resource_with_credentials_of_deleted_user_account : with_admin_user
+        public class when_requesting_a_protected_resource_with_credentials_of_deleted_user_account : with_admin_user
         {
             protected override void Given()
             {
                 var response = MakeRawJsonPost(
                     "/users/", new {LoginName = "test1", FullName = "User Full Name", Password = "Pa55w0rd!"}, _admin);
-                Assert.AreEqual(HttpStatusCode.Created, response.StatusCode);
+                Assert.Equal(HttpStatusCode.Created, response.StatusCode);
                 Console.WriteLine("done with json post");
                 response = MakeDelete("/users/test1", _admin);
-                Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+                Assert.Equal(HttpStatusCode.OK, response.StatusCode);
             }
 
             protected override void When()
@@ -155,10 +152,11 @@ namespace EventStore.Core.Tests.Http.BasicAuthentication
                 GetJson<JObject>("/test1", credentials: new NetworkCredential("test1", "Pa55w0rd!"));
             }
 
-            [Test]
+            [Fact]
+            [Trait("Category", "LongRunning")]
             public void returns_unauthorized_status_code()
             {
-                Assert.AreEqual(HttpStatusCode.Unauthorized, _lastResponse.StatusCode);
+                Assert.Equal(HttpStatusCode.Unauthorized, LastResponse.StatusCode);
             }
         }
     }

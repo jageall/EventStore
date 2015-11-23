@@ -7,11 +7,11 @@ using EventStore.Projections.Core.Messages;
 using EventStore.Projections.Core.Services;
 using EventStore.Projections.Core.Services.Management;
 using EventStore.Projections.Core.Tests.Services.core_projection;
-using NUnit.Framework;
+using Xunit;
 
 namespace EventStore.Projections.Core.Tests.Services.projections_manager.managed_projection
 {
-    [TestFixture]
+    
     public class when_loading_a_managed_projection_state : TestFixtureWithExistingEvents
     {
         private new ITimeProvider _timeProvider;
@@ -45,70 +45,79 @@ namespace EventStore.Projections.Core.Tests.Services.projections_manager.managed
                         new PublishEnvelope(_bus)));
         }
 
-        [Test, ExpectedException(typeof (ArgumentNullException))]
+        [Fact]
         public void null_handler_type_throws_argument_null_exception()
         {
             ProjectionManagementMessage.Command.Post message = new ProjectionManagementMessage.Command.Post(
                 new NoopEnvelope(), ProjectionMode.OneTime, "name", ProjectionManagementMessage.RunAs.Anonymous,
                 (string)null, @"log(1);", enabled: true, checkpointsEnabled: false, emitEnabled: false);
-            _mp.InitializeNew(
-                new ManagedProjection.PersistedState
-                {
-                    Enabled = message.Enabled,
-                    HandlerType = message.HandlerType,
-                    Query = message.Query,
-                    Mode = message.Mode,
-                    EmitEnabled = message.EmitEnabled,
-                    CheckpointsDisabled = !message.CheckpointsEnabled,
-                    Epoch = -1,
-                    Version = -1,
-                    RunAs = message.EnableRunAs ? SerializedRunAs.SerializePrincipal(message.RunAs) : null,
-                },
-                null);
+            Assert.Throws<ArgumentNullException>(() =>
+            {
+                _mp.InitializeNew(
+                    new ManagedProjection.PersistedState
+                    {
+                        Enabled = message.Enabled,
+                        HandlerType = message.HandlerType,
+                        Query = message.Query,
+                        Mode = message.Mode,
+                        EmitEnabled = message.EmitEnabled,
+                        CheckpointsDisabled = !message.CheckpointsEnabled,
+                        Epoch = -1,
+                        Version = -1,
+                        RunAs = message.EnableRunAs ? SerializedRunAs.SerializePrincipal(message.RunAs) : null,
+                    },
+                    null);
+            });
         }
 
-        [Test, ExpectedException(typeof (ArgumentException))]
+        [Fact]
         public void empty_handler_type_throws_argument_null_exception()
         {
             ProjectionManagementMessage.Command.Post message = new ProjectionManagementMessage.Command.Post(
                 new NoopEnvelope(), ProjectionMode.OneTime, "name", ProjectionManagementMessage.RunAs.Anonymous, "",
                 @"log(1);", enabled: true, checkpointsEnabled: false, emitEnabled: false);
-            _mp.InitializeNew(
-                new ManagedProjection.PersistedState
-                {
-                    Enabled = message.Enabled,
-                    HandlerType = message.HandlerType,
-                    Query = message.Query,
-                    Mode = message.Mode,
-                    EmitEnabled = message.EmitEnabled,
-                    CheckpointsDisabled = !message.CheckpointsEnabled,
-                    Epoch = -1,
-                    Version = -1,
-                    RunAs = message.EnableRunAs ? SerializedRunAs.SerializePrincipal(message.RunAs) : null,
-                },
-                null);
+            Assert.Throws<ArgumentException>(() =>
+            {
+                _mp.InitializeNew(
+                    new ManagedProjection.PersistedState
+                    {
+                        Enabled = message.Enabled,
+                        HandlerType = message.HandlerType,
+                        Query = message.Query,
+                        Mode = message.Mode,
+                        EmitEnabled = message.EmitEnabled,
+                        CheckpointsDisabled = !message.CheckpointsEnabled,
+                        Epoch = -1,
+                        Version = -1,
+                        RunAs = message.EnableRunAs ? SerializedRunAs.SerializePrincipal(message.RunAs) : null,
+                    },
+                    null);
+            });
         }
 
-        [Test, ExpectedException(typeof (ArgumentNullException))]
+        [Fact]
         public void null_query_throws_argument_null_exception()
         {
             ProjectionManagementMessage.Command.Post message = new ProjectionManagementMessage.Command.Post(
                 new NoopEnvelope(), ProjectionMode.OneTime, "name", ProjectionManagementMessage.RunAs.Anonymous,
                 "JS", query: null, enabled: true, checkpointsEnabled: false, emitEnabled: false);
-            _mp.InitializeNew(
-                new ManagedProjection.PersistedState
-                {
-                    Enabled = message.Enabled,
-                    HandlerType = message.HandlerType,
-                    Query = message.Query,
-                    Mode = message.Mode,
-                    EmitEnabled = message.EmitEnabled,
-                    CheckpointsDisabled = !message.CheckpointsEnabled,
-                    Epoch = -1,
-                    Version = -1,
-                    RunAs = message.EnableRunAs ? SerializedRunAs.SerializePrincipal(message.RunAs) : null,
-                },
-                null);
+            Assert.Throws<ArgumentNullException>(() =>
+            {
+                _mp.InitializeNew(
+                    new ManagedProjection.PersistedState
+                    {
+                        Enabled = message.Enabled,
+                        HandlerType = message.HandlerType,
+                        Query = message.Query,
+                        Mode = message.Mode,
+                        EmitEnabled = message.EmitEnabled,
+                        CheckpointsDisabled = !message.CheckpointsEnabled,
+                        Epoch = -1,
+                        Version = -1,
+                        RunAs = message.EnableRunAs ? SerializedRunAs.SerializePrincipal(message.RunAs) : null,
+                    },
+                    null);
+            });
         }
     }
 }

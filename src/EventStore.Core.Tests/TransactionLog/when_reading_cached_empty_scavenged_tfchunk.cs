@@ -1,57 +1,63 @@
 using EventStore.Core.TransactionLog.Chunks.TFChunk;
-using NUnit.Framework;
+using Xunit;
 
 namespace EventStore.Core.Tests.TransactionLog
 {
-    [TestFixture]
-    public class when_reading_cached_empty_scavenged_tfchunk: SpecificationWithFilePerTestFixture
+    public class when_reading_cached_empty_scavenged_tfchunk : IUseFixture<when_reading_cached_empty_scavenged_tfchunk.FixtureData>
     {
         private TFChunk _chunk;
-
-        [TestFixtureSetUp]
-        public override void TestFixtureSetUp()
+        
+        public class FixtureData : SpecificationWithFilePerTestFixture
         {
-            base.TestFixtureSetUp();
-            _chunk = TFChunk.CreateNew(Filename, 4096, 0, 0, isScavenged: true);
-            _chunk.CompleteScavenge(new PosMap[0]);
-            _chunk.CacheInMemory();
+            public readonly TFChunk _chunk;
+
+            public FixtureData()
+            {
+                _chunk = TFChunk.CreateNew(Filename, 4096, 0, 0, isScavenged: true);
+                _chunk.CompleteScavenge(new PosMap[0]);
+                _chunk.CacheInMemory();
+            }
+
+            public override void Dispose()
+            {
+                _chunk.Dispose();
+                base.Dispose();
+            }
         }
 
-        [TestFixtureTearDown]
-        public override void TestFixtureTearDown()
+        public void SetFixture(FixtureData data)
         {
-            _chunk.Dispose();
-            base.TestFixtureTearDown();
+            _chunk = data._chunk;
         }
 
-        [Test]
+        [Fact]
         public void no_record_at_exact_position_can_be_read()
         {
-            Assert.IsFalse(_chunk.TryReadAt(0).Success);
+            Assert.False(_chunk.TryReadAt(0).Success);
         }
 
-        [Test]
+        [Fact]
         public void no_record_can_be_read_as_first_record()
         {
-            Assert.IsFalse(_chunk.TryReadFirst().Success);
+            Assert.False(_chunk.TryReadFirst().Success);
         }
         
-        [Test]
+        [Fact]
         public void no_record_can_be_read_as_closest_forward_record()
         {
-            Assert.IsFalse(_chunk.TryReadClosestForward(0).Success);
+            Assert.False(_chunk.TryReadClosestForward(0).Success);
         }
 
-        [Test]
+        [Fact]
         public void no_record_can_be_read_as_closest_backward_record()
         {
-            Assert.IsFalse(_chunk.TryReadClosestBackward(0).Success);
+            Assert.False(_chunk.TryReadClosestBackward(0).Success);
         }
 
-        [Test]
+        [Fact]
         public void no_record_can_be_read_as_last_record()
         {
-            Assert.IsFalse(_chunk.TryReadLast().Success);
+            Assert.False(_chunk.TryReadLast().Success);
         }
     }
 }

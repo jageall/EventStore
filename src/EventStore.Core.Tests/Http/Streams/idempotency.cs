@@ -3,7 +3,7 @@ using System.Text;
 using System.Net;
 using EventStore.Core.Tests.Helpers;
 using EventStore.Transport.Http;
-using NUnit.Framework;
+using Xunit;
 using Newtonsoft.Json.Linq;
 using HttpStatusCode = System.Net.HttpStatusCode;
 
@@ -11,30 +11,35 @@ namespace EventStore.Core.Tests.Http.Streams
 {
     namespace idempotency
     {
-        abstract class HttpBehaviorSpecificationOfSuccessfulCreateEvent : HttpBehaviorSpecification
+        public abstract class HttpBehaviorSpecificationOfSuccessfulCreateEvent : HttpBehaviorSpecification
         {
             protected HttpWebResponse _response;
-            [Test]
+
+            [Fact]
+            [Trait("Category", "LongRunning")]
             public void returns_created_status_code()
             {
-                Assert.AreEqual(HttpStatusCode.Created, _response.StatusCode);
+                Assert.Equal(HttpStatusCode.Created, _response.StatusCode);
             }
 
-            [Test]
+            [Fact]
+            [Trait("Category", "LongRunning")]
             public void returns_a_location_header()
             {
-                Assert.IsNotEmpty(_response.Headers[HttpResponseHeader.Location]);
+                Assert.NotEmpty(_response.Headers[HttpResponseHeader.Location]);
             }
 
-            [Test]
+            [Fact]
+            [Trait("Category", "LongRunning")]
             public void returns_a_location_header_ending_with_zero()
             {
                 var location = _response.Headers[HttpResponseHeader.Location];
                 var tail = location.Substring(location.Length - "/0".Length);
-                Assert.AreEqual("/0", tail);
+                Assert.Equal("/0", tail);
             }
 
-            [Test]
+            [Fact]
+            [Trait("Category", "LongRunning")]
             public void returns_a_location_header_that_can_be_read_as_json()
             {
                 var json = GetJson<JObject>(_response.Headers[HttpResponseHeader.Location]);
@@ -42,22 +47,29 @@ namespace EventStore.Core.Tests.Http.Streams
             }
         }
 
-        [TestFixture]
-        class when_posting_to_idempotent_guid_id_then_as_array : HttpBehaviorSpecificationOfSuccessfulCreateEvent
+        public class when_posting_to_idempotent_guid_id_then_as_array : HttpBehaviorSpecificationOfSuccessfulCreateEvent
         {
             private Guid _eventId;
 
             protected override void Given()
             {
-                _eventId = Guid.NewGuid();
+                var eventId = _eventId = Guid.NewGuid();
                 PostEvent();
+                Fixture.AddStashedValueAssignment(this, instance =>
+                {
+                    instance._eventId = eventId;
+                });
             }
 
             protected override void When()
             {
-                _response = MakeArrayEventsPost(
+                var response = MakeArrayEventsPost(
                     TestStream,
                     new[] { new { EventId = _eventId, EventType = "event-type", Data = new { A = "1" } } });
+                Fixture.AddStashedValueAssignment(this, instance =>
+                {
+                    instance._response = response;
+                });
             }
 
             private void PostEvent() {
@@ -72,15 +84,18 @@ namespace EventStore.Core.Tests.Http.Streams
             }
         }
 
-        [TestFixture]
-        class when_posting_to_idempotent_guid_id_twice : HttpBehaviorSpecificationOfSuccessfulCreateEvent
+        public class when_posting_to_idempotent_guid_id_twice : HttpBehaviorSpecificationOfSuccessfulCreateEvent
         {
             private Guid _eventId;
 
             protected override void Given()
             {
-                _eventId = Guid.NewGuid();
+                var eventId = _eventId = Guid.NewGuid();
                 PostEvent();
+                Fixture.AddStashedValueAssignment(this, instance =>
+                {
+                    instance._eventId = eventId;
+                });
             }
 
             protected override void When()
@@ -96,21 +111,28 @@ namespace EventStore.Core.Tests.Http.Streams
                 var bytes = Encoding.UTF8.GetBytes(data);
                 request.ContentLength = data.Length;
                 request.GetRequestStream().Write(bytes, 0, data.Length);
-                _response = GetRequestResponse(request);
+                var response = GetRequestResponse(request);
+                Fixture.AddStashedValueAssignment(this, instance =>
+                {
+                    instance._response = response;
+                });
             }
         }
 
 
-        [TestFixture]
-        class when_posting_to_idempotent_guid_id_three_times : HttpBehaviorSpecificationOfSuccessfulCreateEvent
+        public class when_posting_to_idempotent_guid_id_three_times : HttpBehaviorSpecificationOfSuccessfulCreateEvent
         {
             private Guid _eventId;
 
             protected override void Given()
             {
-                _eventId = Guid.NewGuid();
+                var eventId = _eventId = Guid.NewGuid();
                 PostEvent();
                 PostEvent();
+                Fixture.AddStashedValueAssignment(this, instance =>
+                {
+                    instance._eventId = eventId;
+                });
             }
 
             protected override void When()
@@ -126,27 +148,38 @@ namespace EventStore.Core.Tests.Http.Streams
                 var bytes = Encoding.UTF8.GetBytes(data);
                 request.ContentLength = data.Length;
                 request.GetRequestStream().Write(bytes, 0, data.Length);
-                _response = GetRequestResponse(request);
+                var response = GetRequestResponse(request);
+                Fixture.AddStashedValueAssignment(this, instance =>
+                {
+                    instance._response = response;
+                });
             }
         }
 
 
-        [TestFixture, Category("LongRunning")]
-        class when_posting_an_event_once_raw_once_with_array : HttpBehaviorSpecificationOfSuccessfulCreateEvent
+        public class when_posting_an_event_once_raw_once_with_array : HttpBehaviorSpecificationOfSuccessfulCreateEvent
         {
             private Guid _eventId;
 
             protected override void Given()
             {
-                _eventId = Guid.NewGuid();
+                var eventId = _eventId = Guid.NewGuid();
                 PostEvent();
+                Fixture.AddStashedValueAssignment(this, instance =>
+                {
+                    instance._eventId = eventId;
+                });
             }
 
             protected override void When()
             {
-                _response = MakeArrayEventsPost(
+                var response = MakeArrayEventsPost(
                     TestStream,
                     new[] { new { EventId = _eventId, EventType = "event-type", Data = new { A = "1" } } });
+                Fixture.AddStashedValueAssignment(this, instance =>
+                {
+                    instance._response = response;
+                });
             }
 
             private void PostEvent() {
@@ -163,15 +196,18 @@ namespace EventStore.Core.Tests.Http.Streams
         }
 
 
-        [TestFixture, Category("LongRunning")]
-        class when_posting_an_event_twice_raw : HttpBehaviorSpecificationOfSuccessfulCreateEvent
+        public class when_posting_an_event_twice_raw : HttpBehaviorSpecificationOfSuccessfulCreateEvent
         {
             private Guid _eventId;
 
             protected override void Given()
             {
-                _eventId = Guid.NewGuid();
+                var eventId = _eventId = Guid.NewGuid();
                 PostEvent();
+                Fixture.AddStashedValueAssignment(this, instance =>
+                {
+                    instance._eventId = eventId;
+                });
             }
 
             protected override void When()
@@ -188,21 +224,28 @@ namespace EventStore.Core.Tests.Http.Streams
                 var bytes = Encoding.UTF8.GetBytes(data);
                 request.ContentLength = data.Length;
                 request.GetRequestStream().Write(bytes, 0, data.Length);
-                _response = GetRequestResponse(request);
+                var response = GetRequestResponse(request);
+                Fixture.AddStashedValueAssignment(this, instance =>
+                {
+                    instance._response = response;
+                });
             }
 
         }
 
-        [TestFixture, Category("LongRunning")]
-        class when_posting_an_event_three_times_raw : HttpBehaviorSpecificationOfSuccessfulCreateEvent
+        public class when_posting_an_event_three_times_raw : HttpBehaviorSpecificationOfSuccessfulCreateEvent
         {
             private Guid _eventId;
 
             protected override void Given()
             {
-                _eventId = Guid.NewGuid();
+                var eventId = _eventId = Guid.NewGuid();
                 PostEvent();
                 PostEvent();
+                Fixture.AddStashedValueAssignment(this, instance =>
+                {
+                    instance._eventId = eventId;
+                });
             }
 
             protected override void When()
@@ -219,58 +262,76 @@ namespace EventStore.Core.Tests.Http.Streams
                 var bytes = Encoding.UTF8.GetBytes(data);
                 request.ContentLength = data.Length;
                 request.GetRequestStream().Write(bytes, 0, data.Length);
-                _response = GetRequestResponse(request);
+                var response = GetRequestResponse(request);
+                Fixture.AddStashedValueAssignment(this, instance =>
+                {
+                    instance._response = response;
+                });
             }
 
         }
 
-        [TestFixture, Category("LongRunning")]
-        class when_posting_an_event_twice_array : HttpBehaviorSpecificationOfSuccessfulCreateEvent
+        public class when_posting_an_event_twice_array : HttpBehaviorSpecificationOfSuccessfulCreateEvent
         {
             private Guid _eventId;
 
             protected override void Given()
             {
-                _eventId = Guid.NewGuid();
+                var eventId = _eventId = Guid.NewGuid();
                 var response1 = MakeArrayEventsPost(
                     TestStream,
                     new[] { new { EventId = _eventId, EventType = "event-type", Data = new { A = "1" } } });
-                Assert.AreEqual(HttpStatusCode.Created, response1.StatusCode);
+                Assert.Equal(HttpStatusCode.Created, response1.StatusCode);
+                Fixture.AddStashedValueAssignment(this, instance =>
+                {
+                    instance._eventId = eventId;
+                });
             }
 
             protected override void When()
             {
-                _response = MakeArrayEventsPost(
+                var response = MakeArrayEventsPost(
                     TestStream,
                     new[] { new { EventId = _eventId, EventType = "event-type", Data = new { A = "1" } } });
+                Fixture.AddStashedValueAssignment(this, instance =>
+                {
+                    instance._response = response;
+                });
             }
 
         }
 
 
-        [TestFixture, Category("LongRunning")]
-        class when_posting_an_event_three_times_as_array : HttpBehaviorSpecificationOfSuccessfulCreateEvent
+        public class when_posting_an_event_three_times_as_array : HttpBehaviorSpecificationOfSuccessfulCreateEvent
         {
             private Guid _eventId;
 
             protected override void Given()
             {
-                _eventId = Guid.NewGuid();
+                var eventId = _eventId = Guid.NewGuid();
                 var response1 = MakeArrayEventsPost(
                     TestStream,
                     new[] { new { EventId = _eventId, EventType = "event-type", Data = new { A = "1" } } });
-                Assert.AreEqual(HttpStatusCode.Created, response1.StatusCode);
+                Assert.Equal(HttpStatusCode.Created, response1.StatusCode);
                 var response2 = MakeArrayEventsPost(
                     TestStream,
                     new[] { new { EventId = _eventId, EventType = "event-type", Data = new { A = "1" } } });
-                Assert.AreEqual(HttpStatusCode.Created, response2.StatusCode);
+                Assert.Equal(HttpStatusCode.Created, response2.StatusCode);
+                Fixture.AddStashedValueAssignment(this, instance =>
+                {
+                    instance._eventId = eventId;
+                });
             }
 
             protected override void When()
             {
-                _response = MakeArrayEventsPost(
+                var response = MakeArrayEventsPost(
                     TestStream,
                     new[] { new { EventId = _eventId, EventType = "event-type", Data = new { A = "1" } } });
+                Fixture.AddStashedValueAssignment(this, instance =>
+                {
+                    instance._response = response;
+                });
             }
 
         }

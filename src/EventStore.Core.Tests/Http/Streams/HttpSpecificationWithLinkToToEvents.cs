@@ -16,10 +16,10 @@ namespace EventStore.Core.Tests.Http.Streams
         protected override void Given()
         {
             var creds = DefaultData.AdminCredentials;
-            LinkedStreamName = Guid.NewGuid().ToString();
-            StreamName = Guid.NewGuid().ToString();
-            Stream2Name = Guid.NewGuid().ToString();
-            using (var conn = TestConnection.Create(_node.TcpEndPoint))
+            var linkedStreamName = LinkedStreamName = Guid.NewGuid().ToString();
+            var streamName = StreamName = Guid.NewGuid().ToString();
+            var stream2Name = Stream2Name = Guid.NewGuid().ToString();
+            using (var conn = TestConnection.Create(Node.TcpEndPoint))
             {
                 conn.ConnectAsync().Wait();
                 conn.AppendToStreamAsync(StreamName, ExpectedVersion.Any, creds,
@@ -39,6 +39,12 @@ namespace EventStore.Core.Tests.Http.Streams
                         Encoding.UTF8.GetBytes("1@" + StreamName), new byte[0])).Wait();
 
             }
+            Fixture.AddStashedValueAssignment(this, instance =>
+            {
+                instance.LinkedStreamName = linkedStreamName;
+                instance.StreamName = streamName;
+                instance.Stream2Name = stream2Name;
+            });
         }
     }
 }

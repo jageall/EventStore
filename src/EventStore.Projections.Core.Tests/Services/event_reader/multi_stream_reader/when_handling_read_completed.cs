@@ -9,13 +9,13 @@ using EventStore.Core.TransactionLog.LogRecords;
 using EventStore.Projections.Core.Messages;
 using EventStore.Projections.Core.Services.Processing;
 using EventStore.Projections.Core.Tests.Services.core_projection;
-using NUnit.Framework;
+using Xunit;
 using ReadStreamResult = EventStore.Core.Data.ReadStreamResult;
 using ResolvedEvent = EventStore.Core.Data.ResolvedEvent;
 
 namespace EventStore.Projections.Core.Tests.Services.event_reader.multi_stream_reader
 {
-    [TestFixture]
+    
     public class when_handling_read_completed : TestFixtureWithExistingEvents
     {
         private MultiStreamEventReader _edp;
@@ -31,8 +31,7 @@ namespace EventStore.Projections.Core.Tests.Services.event_reader.multi_stream_r
         private string[] _abStreams;
         private Dictionary<string, int> _ab12Tag;
 
-        [SetUp]
-        public new void When()
+        public when_handling_read_completed()
         {
             _ab12Tag = new Dictionary<string, int> { { "a", 1 }, { "b", 2 } };
             _abStreams = new[] { "a", "b" };
@@ -62,51 +61,54 @@ namespace EventStore.Projections.Core.Tests.Services.event_reader.multi_stream_r
                     }, null, false, "", 3, 4, false, 200));
         }
 
-        [Test, ExpectedException(typeof (InvalidOperationException))]
+        [Fact]
         public void cannot_be_resumed()
         {
-            _edp.Resume();
+            Assert.Throws<InvalidOperationException>(() => { _edp.Resume(); });
         }
 
-        [Test]
+        [Fact]
         public void cannot_be_paused()
         {
             _edp.Pause();
         }
 
-        [Test]
+        [Fact]
         public void does_not_publish_committed_event_received_messages()
         {
-            Assert.AreEqual(
+            Assert.Equal(
                 0, _consumer.HandledMessages.OfType<ReaderSubscriptionMessage.CommittedEventDistributed>().Count());
         }
 
-        [Test]
+        [Fact]
         public void publishes_read_events_from_beginning_with_correct_next_event_number()
         {
             // do not publish new read requests until we consume already available events
-            Assert.AreEqual(2, _consumer.HandledMessages.OfType<ClientMessage.ReadStreamEventsForward>().Count());
-            Assert.AreEqual(
+            Assert.Equal(2, _consumer.HandledMessages.OfType<ClientMessage.ReadStreamEventsForward>().Count());
+            Assert.Equal(
                 1,
                 _consumer.HandledMessages.OfType<ClientMessage.ReadStreamEventsForward>()
                          .Last(v => v.EventStreamId == "a")
                          .FromEventNumber);
         }
 
-        [Test, ExpectedException(typeof (InvalidOperationException))]
+        [Fact]
         public void cannot_handle_repeated_read_events_completed()
         {
-            _edp.Handle(
-                new ClientMessage.ReadStreamEventsForwardCompleted(
-                    _distibutionPointCorrelationId, "a", 100, 100, ReadStreamResult.Success, 
-                    new[]
-                    {
-                        ResolvedEvent.ForUnresolvedEvent( 
-                            new EventRecord(
-                        2, 50, Guid.NewGuid(), Guid.NewGuid(), 50, 0, "a", ExpectedVersion.Any, DateTime.UtcNow,
-                        PrepareFlags.SingleWrite | PrepareFlags.TransactionBegin | PrepareFlags.TransactionEnd,
-                        "event_type", new byte[0], new byte[0]))
-                    }, null, false, "", 3, 4, false, 100));
+            Assert.Throws<InvalidOperationException>(() =>
+            {
+                _edp.Handle(
+                    new ClientMessage.ReadStreamEventsForwardCompleted(
+                        _distibutionPointCorrelationId, "a", 100, 100, ReadStreamResult.Success, 
+                        new[]
+                        {
+                            ResolvedEvent.ForUnresolvedEvent( 
+                                new EventRecord(
+                                    2, 50, Guid.NewGuid(), Guid.NewGuid(), 50, 0, "a", ExpectedVersion.Any, DateTime.UtcNow,
+                                    PrepareFlags.SingleWrite | PrepareFlags.TransactionBegin | PrepareFlags.TransactionEnd,
+                                    "event_type", new byte[0], new byte[0]))
+                        }, null, false, "", 3, 4, false, 100));
+            });
         }
 
     }

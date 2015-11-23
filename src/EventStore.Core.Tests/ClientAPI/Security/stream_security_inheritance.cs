@@ -2,18 +2,14 @@
 using EventStore.ClientAPI.Exceptions;
 using EventStore.ClientAPI.SystemData;
 using EventStore.Core.Services;
-using NUnit.Framework;
+using Xunit;
 
 namespace EventStore.Core.Tests.ClientAPI.Security
 {
-    [TestFixture, Category("LongRunning"), Category("Network")]
     public class stream_security_inheritance: AuthenticationTestBase
     {
-        [TestFixtureSetUp]
-        public override void TestFixtureSetUp()
+        protected override void AdditionalFixtureSetup()
         {
-            base.TestFixtureSetUp();
-
             var settings = new SystemSettings(userStreamAcl: new StreamAcl(null, "user1", null, null, null),
                                               systemStreamAcl: new StreamAcl(null, "user1", null, null, null));
             Connection.SetSystemSettingsAsync(settings, new UserCredentials("adm", "admpa$$")).Wait();
@@ -44,7 +40,7 @@ namespace EventStore.Core.Tests.ClientAPI.Security
                                          StreamMetadata.Build().SetWriteRole(SystemRoles.All), new UserCredentials("adm", "admpa$$")).Wait();
         }
 
-        [Test, Category("LongRunning"), Category("Network")]
+        [Fact][Trait("Category", "LongRunning")][Trait("Category", "Network")]
         public void acl_inheritance_is_working_properly_on_user_streams()
         {
             Expect<AccessDeniedException>(() => WriteStream("user-no-acl", null, null));
@@ -84,7 +80,7 @@ namespace EventStore.Core.Tests.ClientAPI.Security
             ExpectNoException(() => ReadEvent("user-r-restricted", "adm", "admpa$$"));
         }
 
-        [Test, Category("LongRunning"), Category("Network")]
+        [Fact][Trait("Category", "LongRunning")][Trait("Category", "Network")]
         public void acl_inheritance_is_working_properly_on_system_streams()
         {
             Expect<AccessDeniedException>(() => WriteStream("$sys-no-acl", null, null));

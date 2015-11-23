@@ -28,11 +28,11 @@
 
 using System;
 using System.Collections.Generic;
-using NUnit.Framework;
+using Xunit;
 
 namespace EventStore.Projections.Core.Tests.Services.projection_core_service_command_reader
 {
-    [TestFixture]
+    
     public class when_receiving_a_command : specification_with_projection_core_service_command_reader_started
     {
         protected override IEnumerable<WhenStep> When()
@@ -46,10 +46,10 @@ namespace EventStore.Projections.Core.Tests.Services.projection_core_service_com
                     true);
         }
 
-        [Test]
+        [Fact]
         public void it_works()
         {
-            Assert.IsNotEmpty(_serviceId);
+            Assert.NotEmpty(_serviceId);
         }
     }
 }

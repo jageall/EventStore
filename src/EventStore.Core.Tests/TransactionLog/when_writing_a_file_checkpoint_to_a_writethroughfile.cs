@@ -1,28 +1,30 @@
 using System;
 using System.Threading;
 using EventStore.Core.TransactionLog.Checkpoint;
-using NUnit.Framework;
+using Xunit;
 
 namespace EventStore.Core.Tests.TransactionLog
 {
-    [TestFixture, Platform("WIN")] 
     public class when_writing_a_file_checkpoint_to_a_writethroughfile : SpecificationWithFile
     {
-        [Test]
+        [Fact]
+        [Trait("Platform", "WIN")]
         public void a_null_file_throws_argumentnullexception()
         {
             Assert.Throws<ArgumentNullException>(() => new FileCheckpoint(null));
         }
 
-        [Test]
+        [Fact]
+        [Trait("Platform", "WIN")]
         public void name_is_set()
         {
             var checksum = new WriteThroughFileCheckpoint("filename", "test");
-            Assert.AreEqual("test", checksum.Name);
+            Assert.Equal("test", checksum.Name);
             checksum.Close();
         }
 
-        [Test]
+        [Fact]
+        [Trait("Platform", "WIN")]
         public void reading_off_same_instance_gives_most_up_to_date_info()
         {
             var checkSum = new WriteThroughFileCheckpoint(Filename);
@@ -30,10 +32,11 @@ namespace EventStore.Core.Tests.TransactionLog
             checkSum.Flush();
             var read = checkSum.Read();
             checkSum.Close();
-            Assert.AreEqual(0xDEAD, read);
+            Assert.Equal(0xDEAD, read);
         }
 
-        [Test]
+        [Fact]
+        [Trait("Platform", "WIN")]
         public void can_read_existing_checksum()
         {
             var checksum = new WriteThroughFileCheckpoint(Filename);
@@ -42,28 +45,30 @@ namespace EventStore.Core.Tests.TransactionLog
             checksum = new WriteThroughFileCheckpoint(Filename);
             var val = checksum.Read();
             checksum.Close();
-            Assert.AreEqual(0xDEAD, val);
+            Assert.Equal(0xDEAD, val);
         }
-        [Test]
+        [Fact]
+        [Trait("Platform", "WIN")]
         public void the_new_value_is_not_accessible_if_not_flushed_even_with_delay()
         {
             var checkSum = new WriteThroughFileCheckpoint(Filename);
             var readChecksum = new WriteThroughFileCheckpoint(Filename);
             checkSum.Write(1011);
             Thread.Sleep(200);
-            Assert.AreEqual(0, readChecksum.Read());
+            Assert.Equal(0, readChecksum.Read());
             checkSum.Close();
             readChecksum.Close();
         }
 
-        [Test]
+        [Fact]
+        [Trait("Platform", "WIN")]
         public void the_new_value_is_accessible_after_flush()
         {
             var checkSum = new WriteThroughFileCheckpoint(Filename);
             var readChecksum = new WriteThroughFileCheckpoint(Filename);
             checkSum.Write(1011);
             checkSum.Flush();
-            Assert.AreEqual(1011, readChecksum.Read());
+            Assert.Equal(1011, readChecksum.Read());
             checkSum.Close();
             readChecksum.Close();
         }

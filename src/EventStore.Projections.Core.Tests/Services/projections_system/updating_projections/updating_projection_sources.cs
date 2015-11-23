@@ -5,7 +5,7 @@ using EventStore.Projections.Core.Messages;
 using EventStore.Projections.Core.Services;
 using System.Linq;
 using EventStore.Projections.Core.Services.Processing;
-using NUnit.Framework;
+using Xunit;
 using EventStore.Common.Utils;
 using Newtonsoft.Json.Linq;
 
@@ -73,21 +73,21 @@ namespace EventStore.Projections.Core.Tests.Services.projections_system.updating
 
             }
 
-            [Test]
+            [Fact]
             public void status_is_running()
             {
                 Assert.NotNull(_statistics);
-                Assert.AreEqual("Running", _statistics.Status);
+                Assert.Equal("Running", _statistics.Status);
             }
 
-            [Test]
+            [Fact]
             public void query_test_is_updated()
             {
                 Assert.NotNull(_query);
-                Assert.AreEqual(GivenUpdatedSource(), _query.Query);
+                Assert.Equal(GivenUpdatedSource(), _query.Query);
             }
 
-            [Test]
+            [Fact]
             public void projection_state_can_be_retrieved()
             {
                 Assert.NotNull(_state);
@@ -96,7 +96,7 @@ namespace EventStore.Projections.Core.Tests.Services.projections_system.updating
             }
         }
 
-        [TestFixture]
+        
         public class when_adding_an_event_type : with_updated_projection
         {
             protected override string GivenOriginalSource()
@@ -122,23 +122,23 @@ namespace EventStore.Projections.Core.Tests.Services.projections_system.updating
                 ";
             }
 
-            [Test]
+            [Fact]
             public void correct_event_sequence_has_been_processed()
             {
                 HelperExtensions.AssertJson(new {d = new[] {1, 5, 6}}, _stateData);
             }
 
-            [Test]
+            [Fact]
             public void projection_position_is_correct()
             {
                 var pos = GetTfPos("stream5", 0);
-                Assert.AreEqual(
+                Assert.Equal(
                     CheckpointTag.FromEventTypeIndexPositions(0, pos, new Dictionary<string, int> {{"type1", 1}, {"type3", 1}}), _state.Position);
             }
 
         }
 
-        [TestFixture]
+        
         public class when_replacing_an_event_type : with_updated_projection
         {
             protected override string GivenOriginalSource()
@@ -166,22 +166,22 @@ namespace EventStore.Projections.Core.Tests.Services.projections_system.updating
 
             }
 
-            [Test]
+            [Fact]
             public void correct_event_sequence_has_been_processed()
             {
                 HelperExtensions.AssertJson(new {d = new[] {1, 2, 3, 5, 6, 10}}, _stateData);
             }
 
-            [Test]
+            [Fact]
             public void projection_position_is_correct()
             {
                 var pos = GetTfPos("stream5", 0);
-                Assert.AreEqual(
+                Assert.Equal(
                     CheckpointTag.FromEventTypeIndexPositions(0, pos, new Dictionary<string, int> {{"type1", 1}, {"type3", 1}}), _state.Position);
             }
         }
 
-        [TestFixture]
+        
         public class when_replacing_any_with_an_event_type : with_updated_projection
         {
             protected override string GivenOriginalSource()
@@ -206,22 +206,22 @@ namespace EventStore.Projections.Core.Tests.Services.projections_system.updating
                 ";
             }
 
-            [Test]
+            [Fact]
             public void correct_event_sequence_has_been_processed()
             {
                 HelperExtensions.AssertJson(new {d = new[] {1, 2, 3, 4, 5, 6}}, _stateData);
             }
 
-            [Test]
+            [Fact]
             public void projection_position_is_correct()
             {
                 var pos = GetTfPos("stream2", 1);
-                Assert.That(
+                Assert.True(
                     CheckpointTag.FromEventTypeIndexPositions(0, pos, new Dictionary<string, int> {{"type3", 1}}) <= _state.Position);
             }
         }
 
-        [TestFixture]
+        
         public class when_replacing_specific_event_types_with_any : with_updated_projection
         {
             protected override string GivenOriginalSource()
@@ -247,21 +247,21 @@ namespace EventStore.Projections.Core.Tests.Services.projections_system.updating
                 ";
             }
 
-            [Test]
+            [Fact]
             public void correct_event_sequence_has_been_processed()
             {
                 HelperExtensions.AssertJson(new {d = new[] {1, 2, 3, 5, 6, 7, 8, 9, 10}}, _stateData);
             }
 
-            [Test]
+            [Fact]
             public void projection_position_is_correct()
             {
                 var pos = GetTfPos("stream5", 0);
-                Assert.AreEqual(CheckpointTag.FromPosition(0, pos.CommitPosition, pos.PreparePosition), _state.Position);
+                Assert.Equal(CheckpointTag.FromPosition(0, pos.CommitPosition, pos.PreparePosition), _state.Position);
             }
         }
 
-        [TestFixture]
+        
         public class when_replacing_stream_with_multiple_streams : with_updated_projection
         {
             protected override string GivenOriginalSource()
@@ -286,22 +286,22 @@ namespace EventStore.Projections.Core.Tests.Services.projections_system.updating
                 ";
             }
 
-            [Test, Ignore("No position with stream tag yet")]
+            [Fact(Skip = "No position with stream tag yet")]
             public void correct_event_sequence_has_been_processed()
             {
                 HelperExtensions.AssertJson(new {d = new[] {1, 2, 6}}, _stateData);
             }
 
-            [Test]
+            [Fact]
             public void projection_position_is_correct()
             {
-                Assert.AreEqual(
+                Assert.Equal(
                     CheckpointTag.FromStreamPositions(0, new Dictionary<string, int> {{"stream1", 1}, {"stream2", 1}}),
                     _state.Position);
             }
         }
 
-        [TestFixture]
+        
         public class when_replacing_multiple_streams_with_one_of_them : with_updated_projection
         {
             protected override string GivenOriginalSource()
@@ -326,20 +326,20 @@ namespace EventStore.Projections.Core.Tests.Services.projections_system.updating
                 ";
             }
 
-            [Test]
+            [Fact]
             public void correct_event_sequence_has_been_processed()
             {
                 HelperExtensions.AssertJson(new {d = new[] {1, 2, 3, 6}}, _stateData);
             }
 
-            [Test]
+            [Fact]
             public void projection_position_is_correct()
             {
-                Assert.AreEqual(CheckpointTag.FromStreamPosition(0, "stream2", 1), _state.Position);
+                Assert.Equal(CheckpointTag.FromStreamPosition(0, "stream2", 1), _state.Position);
             }
         }
 
-        [TestFixture]
+        
         public class when_replacing_a_stream_in_multiple_streams : with_updated_projection
         {
             protected override string GivenOriginalSource()
@@ -364,16 +364,16 @@ namespace EventStore.Projections.Core.Tests.Services.projections_system.updating
                 ";
             }
 
-            [Test, Ignore("No position in multi-stream tag")]
+            [Fact(Skip = "No position in multi-stream tag")]
             public void correct_event_sequence_has_been_processed()
             {
                 HelperExtensions.AssertJson(new {d = new[] {1, 2, 3, 6, 7, 8}}, _stateData);
             }
 
-            [Test]
+            [Fact]
             public void projection_position_is_correct()
             {
-                Assert.AreEqual(
+                Assert.Equal(
                     CheckpointTag.FromStreamPositions(0, new Dictionary<string, int> {{"stream2", 1}, {"stream3", 3}}),
                     _state.Position);
             }

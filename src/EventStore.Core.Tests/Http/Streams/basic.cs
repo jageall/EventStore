@@ -1,11 +1,12 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Net;
 using System.Text;
 using EventStore.Core.Tests.ClientAPI;
 using EventStore.Core.Tests.Helpers;
 using EventStore.Core.Tests.Http.Users;
 using EventStore.Transport.Http;
-using NUnit.Framework;
+using Xunit;
 using Newtonsoft.Json.Linq;
 using HttpStatusCode = System.Net.HttpStatusCode;
 
@@ -13,7 +14,6 @@ namespace EventStore.Core.Tests.Http.Streams
 {
     namespace basic
     {
-        [TestFixture]
         public class when_posting_an_event_as_raw_json_without_eventtype : HttpBehaviorSpecification
         {
             private HttpWebResponse _response;
@@ -29,14 +29,13 @@ namespace EventStore.Core.Tests.Http.Streams
                     new {A="1", B="3", C="5"});
             }
 
-            [Test]
+            [Fact]
             public void returns_created_status_code()
             {
-                Assert.AreEqual(HttpStatusCode.BadRequest, _response.StatusCode);
+                Assert.Equal(HttpStatusCode.BadRequest, _response.StatusCode);
             }
         }
 
-        [TestFixture]
         public class when_posting_an_event_to_idempotent_uri_as_events_array : HttpBehaviorSpecification
         {
             private HttpWebResponse _response;
@@ -52,14 +51,13 @@ namespace EventStore.Core.Tests.Http.Streams
                     new[] {new {EventId = Guid.NewGuid(), EventType = "event-type", Data = new {A = "1"}}});
             }
 
-            [Test]
+            [Fact]
             public void returns_bad_request_status_code()
             {
-                Assert.AreEqual(HttpStatusCode.UnsupportedMediaType, _response.StatusCode);
+                Assert.Equal(HttpStatusCode.UnsupportedMediaType, _response.StatusCode);
             }
         }
 
-        [TestFixture]
         public class when_posting_an_event_as_json_to_idempotent_uri_without_event_type : HttpBehaviorSpecification
         {
             private HttpWebResponse _response;
@@ -70,20 +68,23 @@ namespace EventStore.Core.Tests.Http.Streams
 
             protected override void When()
             {
-                _response = MakeJsonPost(
+                var response = MakeJsonPost(
                     TestStream + "/incoming/" + Guid.NewGuid().ToString(),
                     new {A="1", B="3", C="5"});
+                Fixture.AddStashedValueAssignment(this, instance =>
+                {
+                    instance._response = response;
+                });
             }
 
-            [Test]
+            [Fact]
             public void returns_bad_request_status_code()
             {
-                Assert.AreEqual(HttpStatusCode.BadRequest, _response.StatusCode);
+                Assert.Equal(HttpStatusCode.BadRequest, _response.StatusCode);
             }
         }
 
 
-        [TestFixture]
         public class when_posting_an_event_in_json_to_idempotent_uri_without_event_id : HttpBehaviorSpecification
         {
             private HttpWebResponse _response;
@@ -101,22 +102,26 @@ namespace EventStore.Core.Tests.Http.Streams
                 var bytes = Encoding.UTF8.GetBytes(data);
                 request.ContentLength = data.Length;
                 request.GetRequestStream().Write(bytes, 0, data.Length);
-                _response = GetRequestResponse(request);
+                var response = GetRequestResponse(request);
+                Fixture.AddStashedValueAssignment(this, instance =>
+                {
+                    instance._response = response;
+                });
             }
 
-            [Test]
+            [Fact]
             public void returns_created_status_code()
             {
-                Assert.AreEqual(HttpStatusCode.Created, _response.StatusCode);
+                Assert.Equal(HttpStatusCode.Created, _response.StatusCode);
             }
 
-            [Test]
+            [Fact]
             public void returns_a_location_header()
             {
-                Assert.IsNotNullOrEmpty(_response.Headers[HttpResponseHeader.Location]);
+                Assert.NotEmpty(_response.Headers[HttpResponseHeader.Location]);;
             }
 
-            [Test]
+            [Fact]
             public void returns_a_location_header_that_can_be_read_as_json()
             {
                 var json = GetJson<JObject>(_response.Headers[HttpResponseHeader.Location]);
@@ -124,7 +129,6 @@ namespace EventStore.Core.Tests.Http.Streams
             }
         }
 
-        [TestFixture]
         public class when_posting_an_event_as_raw_json_without_eventid : HttpBehaviorSpecification
         {
             private HttpWebResponse _response;
@@ -142,30 +146,33 @@ namespace EventStore.Core.Tests.Http.Streams
                 var bytes = Encoding.UTF8.GetBytes(data);
                 request.ContentLength = data.Length;
                 request.GetRequestStream().Write(bytes, 0, data.Length);
-                _response = GetRequestResponse(request);
+                var response = GetRequestResponse(request);
+                Fixture.AddStashedValueAssignment(this, instance =>
+                {
+                    instance._response = response;
+                });
             }
 
-            [Test]
+            [Fact]
             public void returns_redirectkeepverb_status_code()
             {
-                Assert.AreEqual(HttpStatusCode.RedirectKeepVerb, _response.StatusCode);
+                Assert.Equal(HttpStatusCode.RedirectKeepVerb, _response.StatusCode);
             }
 
-            [Test]
+            [Fact]
             public void returns_a_location_header()
             {
-                Assert.IsNotNullOrEmpty(_response.Headers[HttpResponseHeader.Location]);
+                Assert.NotEmpty(_response.Headers[HttpResponseHeader.Location]);
             }
 
-            [Test]
+            [Fact]
             public void returns_a_to_incoming()
             {
-                Assert.IsTrue(_response.Headers[HttpResponseHeader.Location].Contains("/incoming/"));
+                Assert.True(_response.Headers[HttpResponseHeader.Location].Contains("/incoming/"));
                 //HelperExtensions.AssertJson(new {A = "1"}, json);
             }
         }
 
-        [TestFixture]
         public class when_posting_an_event_as_array_with_no_event_type : HttpBehaviorSpecification
         {
             private HttpWebResponse _response;
@@ -176,20 +183,22 @@ namespace EventStore.Core.Tests.Http.Streams
 
             protected override void When()
             {
-                _response = MakeArrayEventsPost(
+                var response = MakeArrayEventsPost(
                     TestStream,
                     new[] {new {EventId = Guid.NewGuid(), Data = new {A = "1"}}});
+                Fixture.AddStashedValueAssignment(this, instance =>
+                {
+                    instance._response = response;
+                });
             }
 
-            [Test]
+            [Fact]
             public void returns_bad_request_status_code()
             {
-                Assert.AreEqual(HttpStatusCode.BadRequest, _response.StatusCode);
+                Assert.Equal(HttpStatusCode.BadRequest, _response.StatusCode);
             }
         }
 
-
-        [TestFixture]
         public class when_posting_an_event_as_array : HttpBehaviorSpecification
         {
             private HttpWebResponse _response;
@@ -200,24 +209,29 @@ namespace EventStore.Core.Tests.Http.Streams
 
             protected override void When()
             {
-                _response = MakeArrayEventsPost(
+                var response = MakeArrayEventsPost(
                     TestStream,
                     new[] {new {EventId = Guid.NewGuid(), EventType = "event-type", Data = new {A = "1"}}});
+                
+                Fixture.AddStashedValueAssignment(this, instance =>
+                {
+                    instance._response = response;
+                });
             }
 
-            [Test]
+            [Fact]
             public void returns_created_status_code()
             {
-                Assert.AreEqual(HttpStatusCode.Created, _response.StatusCode);
+                Assert.Equal(HttpStatusCode.Created, _response.StatusCode);
             }
 
-            [Test]
+            [Fact]
             public void returns_a_location_header()
             {
-                Assert.IsNotEmpty(_response.Headers[HttpResponseHeader.Location]);
+                Assert.NotEmpty(_response.Headers[HttpResponseHeader.Location]);
             }
 
-            [Test]
+            [Fact]
             public void returns_a_location_header_that_can_be_read_as_json()
             {
                 var json = GetJson<JObject>(_response.Headers[HttpResponseHeader.Location]);
@@ -225,7 +239,6 @@ namespace EventStore.Core.Tests.Http.Streams
             }
         }
 
-        [TestFixture, Category("LongRunning")]
         public class when_posting_an_event_as_array_to_stream_with_slash : HttpBehaviorSpecification
         {
             private HttpWebResponse _response;
@@ -240,35 +253,42 @@ namespace EventStore.Core.Tests.Http.Streams
                 request.AllowAutoRedirect = false;
                 request.GetRequestStream()
                     .WriteJson(new[] {new {EventId = Guid.NewGuid(), EventType = "event-type", Data = new {A = "1"}}});
-                _response = (HttpWebResponse) request.GetResponse();
+                var response = (HttpWebResponse) request.GetResponse();
+                Fixture.AddStashedValueAssignment(this, instance =>
+                {
+                    instance._response = response;
+                });
             }
 
-            [Test]
+            [Fact]
+            [Trait("Category", "LongRunning")]
             public void returns_permanent_redirect()
             {
-                Assert.AreEqual(HttpStatusCode.RedirectKeepVerb, _response.StatusCode);
+                Assert.Equal(HttpStatusCode.RedirectKeepVerb, _response.StatusCode);
             }
 
-            [Test]
+            [Fact]
+            [Trait("Category", "LongRunning")]
             public void redirect_is_cacheable()
             {
-                Assert.AreEqual("max-age=31536000, public",_response.Headers[HttpResponseHeader.CacheControl]);
+                Assert.Equal("max-age=31536000, public",_response.Headers[HttpResponseHeader.CacheControl]);
             }
 
-            [Test]
+            [Fact]
+            [Trait("Category", "LongRunning")]
             public void returns_a_location_header()
             {
-                Assert.IsNotEmpty(_response.Headers[HttpResponseHeader.Location]);
+                Assert.NotEmpty(_response.Headers[HttpResponseHeader.Location]);
             }
 
-            [Test]
+            [Fact]
+            [Trait("Category", "LongRunning")]
             public void returns_a_location_header_that_is_to_stream_without_slash()
             {
-                Assert.AreEqual(MakeUrl(TestStream), _response.Headers[HttpResponseHeader.Location]);
+                Assert.Equal(MakeUrlString(TestStream), _response.Headers[HttpResponseHeader.Location]);
             }
         }
 
-        [TestFixture, Category("LongRunning")]
         public class when_deleting_to_stream_with_slash : HttpBehaviorSpecification
         {
             private HttpWebResponse _response;
@@ -281,29 +301,32 @@ namespace EventStore.Core.Tests.Http.Streams
             {
                 var request = CreateRequest(TestStream + "/", "", "DELETE", "application/json", null);
                 request.AllowAutoRedirect = false;
-                _response = (HttpWebResponse)request.GetResponse();
+                var response = (HttpWebResponse)request.GetResponse();
+                Fixture.AddStashedValueAssignment(this, instance => instance._response = response);
             }
 
-            [Test]
+            [Fact]
+            [Trait("Category", "LongRunning")]
             public void returns_permanent_redirect()
             {
-                Assert.AreEqual(HttpStatusCode.RedirectKeepVerb, _response.StatusCode);
+                Assert.Equal(HttpStatusCode.RedirectKeepVerb, _response.StatusCode);
             }
 
-            [Test]
+            [Fact]
+            [Trait("Category", "LongRunning")]
             public void returns_a_location_header()
             {
-                Assert.IsNotEmpty(_response.Headers[HttpResponseHeader.Location]);
+                Assert.NotEmpty(_response.Headers[HttpResponseHeader.Location]);
             }
 
-            [Test]
+            [Fact]
+            [Trait("Category", "LongRunning")]
             public void returns_a_location_header_that_is_to_stream_without_slash()
             {
-                Assert.AreEqual(MakeUrl(TestStream), _response.Headers[HttpResponseHeader.Location]);
+                Assert.Equal(MakeUrlString(TestStream), _response.Headers[HttpResponseHeader.Location]);
             }
         }
 
-        [TestFixture, Category("LongRunning")]
         public class when_getting_from_stream_with_slash : HttpBehaviorSpecification
         {
             private HttpWebResponse _response;
@@ -316,29 +339,33 @@ namespace EventStore.Core.Tests.Http.Streams
             {
                 var request = CreateRequest(TestStream + "/", "", "GET", "application/json", null);
                 request.AllowAutoRedirect = false;
-                _response = (HttpWebResponse)request.GetResponse();
+                var response = (HttpWebResponse)request.GetResponse();
+
+                Fixture.AddStashedValueAssignment(this, instance => instance._response = response);
             }
 
-            [Test]
+            [Fact]
+            [Trait("Category", "LongRunning")]
             public void returns_permanent_redirect()
             {
-                Assert.AreEqual(HttpStatusCode.RedirectKeepVerb, _response.StatusCode);
+                Assert.Equal(HttpStatusCode.RedirectKeepVerb, _response.StatusCode);
             }
 
-            [Test]
+            [Fact]
+            [Trait("Category", "LongRunning")]
             public void returns_a_location_header()
             {
-                Assert.IsNotEmpty(_response.Headers[HttpResponseHeader.Location]);
+                Assert.NotEmpty(_response.Headers[HttpResponseHeader.Location]);
             }
 
-            [Test]
+            [Fact]
+            [Trait("Category", "LongRunning")]
             public void returns_a_location_header_that_is_to_stream_without_slash()
             {
-                Assert.AreEqual(MakeUrl(TestStream), _response.Headers[HttpResponseHeader.Location]);
+                Assert.Equal(MakeUrlString(TestStream), _response.Headers[HttpResponseHeader.Location]);
             }
         }
 
-        [TestFixture, Category("LongRunning")]
         public class when_getting_from_all_stream_with_slash : HttpBehaviorSpecification
         {
             private HttpWebResponse _response;
@@ -352,33 +379,33 @@ namespace EventStore.Core.Tests.Http.Streams
                 var request = CreateRequest("/streams/$all/", "", "GET", "application/json", null);
                 request.Credentials = DefaultData.AdminNetworkCredentials;
                 request.AllowAutoRedirect = false;
-                _response = (HttpWebResponse)request.GetResponse();
+                var response = (HttpWebResponse)request.GetResponse();
+
+                Fixture.AddStashedValueAssignment(this, instance => instance._response = response);
             }
 
-            [Test]
+            [Fact]
+            [Trait("Category", "LongRunning")]
             public void returns_permanent_redirect()
             {
-                Assert.AreEqual(HttpStatusCode.RedirectKeepVerb, _response.StatusCode);
+                Assert.Equal(HttpStatusCode.RedirectKeepVerb, _response.StatusCode);
             }
 
-            [Test]
+            [Fact]
+            [Trait("Category", "LongRunning")]
             public void returns_a_location_header()
             {
-                Assert.IsNotEmpty(_response.Headers[HttpResponseHeader.Location]);
+                Assert.NotEmpty(_response.Headers[HttpResponseHeader.Location]);
             }
 
-            [Test]
+            [Fact]
+            [Trait("Category", "LongRunning")]
             public void returns_a_location_header_that_is_to_stream_without_slash()
             {
-                Assert.AreEqual(MakeUrl("/streams/$all"), _response.Headers[HttpResponseHeader.Location]);
+                Assert.Equal(MakeUrlString("/streams/$all"), _response.Headers[HttpResponseHeader.Location]);
             }
         }
 
-#if __MonoCS__
-        [TestFixture, Category("LongRunning"), Ignore("https://bugzilla.xamarin.com/show_bug.cgi?id=16960")]
-#else
-        [TestFixture, Category("LongRunning")]
-#endif
         public class when_getting_from_encoded_all_stream_with_slash : HttpBehaviorSpecification
         {
             private HttpWebResponse _response;
@@ -392,29 +419,36 @@ namespace EventStore.Core.Tests.Http.Streams
                 var request = CreateRequest("/streams/%24all/", "", "GET", "application/json", null);
                 request.Credentials = DefaultData.AdminNetworkCredentials;
                 request.AllowAutoRedirect = false;
-                _response = (HttpWebResponse)request.GetResponse();
+                var response = (HttpWebResponse)request.GetResponse();
+
+                Fixture.AddStashedValueAssignment(this, instance => instance._response = response);
             }
 
-            [Test]
+            [Fact]
+            [Trait("Category", "LongRunning")]
+            [Trait("Platform", "WIN")]
             public void returns_permanent_redirect()
             {
-                Assert.AreEqual(HttpStatusCode.RedirectKeepVerb, _response.StatusCode);
+                Assert.Equal(HttpStatusCode.RedirectKeepVerb, _response.StatusCode);
             }
 
-            [Test]
+            [Fact]
+            [Trait("Category", "LongRunning")]
+            [Trait("Platform", "WIN")]
             public void returns_a_location_header()
             {
-                Assert.IsNotEmpty(_response.Headers[HttpResponseHeader.Location]);
+                Assert.NotEmpty(_response.Headers[HttpResponseHeader.Location]);
             }
 
-            [Test]
+            [Fact]
+            [Trait("Category", "LongRunning")]
+            [Trait("Platform", "WIN")]
             public void returns_a_location_header_that_is_to_stream_without_slash()
             {
-                Assert.AreEqual(MakeUrl("/streams/$all").ToString(), _response.Headers[HttpResponseHeader.Location]);
+                Assert.Equal(MakeUrl("/streams/$all").ToString(), _response.Headers[HttpResponseHeader.Location]);
             }
         }
 
-        [TestFixture, Category("LongRunning")]
         public class when_posting_an_event_as_array_to_metadata_stream_with_slash : HttpBehaviorSpecification
         {
             private HttpWebResponse _response;
@@ -429,30 +463,33 @@ namespace EventStore.Core.Tests.Http.Streams
                 request.AllowAutoRedirect = false;
                 request.GetRequestStream()
                     .WriteJson(new[] {new {EventId = Guid.NewGuid(), EventType = "event-type", Data = new {A = "1"}}});
-                _response = (HttpWebResponse)request.GetResponse();
+                var response = (HttpWebResponse)request.GetResponse();
+
+                Fixture.AddStashedValueAssignment(this, instance => instance._response = response);
             }
 
-            [Test]
+            [Fact]
+            [Trait("Category", "LongRunning")]
             public void returns_permanent_redirect()
             {
-                Assert.AreEqual(HttpStatusCode.RedirectKeepVerb, _response.StatusCode);
+                Assert.Equal(HttpStatusCode.RedirectKeepVerb, _response.StatusCode);
             }
 
-            [Test]
+            [Fact]
+            [Trait("Category", "LongRunning")]
             public void returns_a_location_header()
             {
-                Assert.IsNotEmpty(_response.Headers[HttpResponseHeader.Location]);
+                Assert.NotEmpty(_response.Headers[HttpResponseHeader.Location]);
             }
 
-            [Test]
+            [Fact]
+            [Trait("Category", "LongRunning")]
             public void returns_a_location_header_that_is_to_stream_without_slash()
             {
-                Assert.AreEqual(MakeUrl(TestStream + "/metadata"), _response.Headers[HttpResponseHeader.Location]);
+                Assert.Equal(MakeUrlString(TestStream + "/metadata"), _response.Headers[HttpResponseHeader.Location]);
             }
         }
 
-
-        [TestFixture, Category("LongRunning")]
         public class when_getting_from_metadata_stream_with_slash : HttpBehaviorSpecification
         {
             private HttpWebResponse _response;
@@ -466,30 +503,33 @@ namespace EventStore.Core.Tests.Http.Streams
                 var request = CreateRequest(TestStream + "/metadata/", "", "GET", "application/json", null);
                 request.Credentials = DefaultData.AdminNetworkCredentials;
                 request.AllowAutoRedirect = false;
-                _response = (HttpWebResponse)request.GetResponse();
+                var response = (HttpWebResponse)request.GetResponse();
+
+                Fixture.AddStashedValueAssignment(this, instance => instance._response = response);
             }
 
-            [Test]
+            [Fact]
+            [Trait("Category", "LongRunning")]
             public void returns_permanent_redirect()
             {
-                Assert.AreEqual(HttpStatusCode.RedirectKeepVerb, _response.StatusCode);
+                Assert.Equal(HttpStatusCode.RedirectKeepVerb, _response.StatusCode);
             }
 
-            [Test]
+            [Fact]
+            [Trait("Category", "LongRunning")]
             public void returns_a_location_header()
             {
-                Assert.IsNotEmpty(_response.Headers[HttpResponseHeader.Location]);
+                Assert.NotEmpty(_response.Headers[HttpResponseHeader.Location]);
             }
 
-            [Test]
+            [Fact]
+            [Trait("Category", "LongRunning")]
             public void returns_a_location_header_that_is_to_stream_without_slash()
             {
-                Assert.AreEqual(MakeUrl(TestStream + "/metadata"), _response.Headers[HttpResponseHeader.Location]);
+                Assert.Equal(MakeUrlString(TestStream + "/metadata"), _response.Headers[HttpResponseHeader.Location]);
             }
         }
 
-
-        [TestFixture, Category("LongRunning")]
         public class when_posting_an_event_without_EventId_as_array : HttpBehaviorSpecification
         {
             private HttpWebResponse _response;
@@ -500,19 +540,21 @@ namespace EventStore.Core.Tests.Http.Streams
 
             protected override void When()
             {
-                _response = MakeJsonPost(
+                var response = MakeJsonPost(
                     TestStream,
                     new[] { new { EventType = "event-type", Data = new { A = "1" } } });
+
+                Fixture.AddStashedValueAssignment(this, instance => instance._response = response);
             }
 
-            [Test]
+            [Fact]
+            [Trait("Category", "LongRunning")]
             public void returns_bad_request_status_code()
             {
-                Assert.AreEqual(HttpStatusCode.BadRequest, _response.StatusCode);
+                Assert.Equal(HttpStatusCode.BadRequest, _response.StatusCode);
             }
         }
 
-        [TestFixture, Category("LongRunning")]
         public class when_posting_an_event_without_EventType_as_array : HttpBehaviorSpecification
         {
             private HttpWebResponse _response;
@@ -528,14 +570,14 @@ namespace EventStore.Core.Tests.Http.Streams
                     new[] { new { EventId = Guid.NewGuid(), Data = new { A = "1" } } });
             }
 
-            [Test]
+            [Fact]
+            [Trait("Category", "LongRunning")]
             public void returns_bad_request_status_code()
             {
-                Assert.AreEqual(HttpStatusCode.BadRequest, _response.StatusCode);
+                Assert.Equal(HttpStatusCode.BadRequest, _response.StatusCode);
             }
         }
 
-        [TestFixture, Category("LongRunning")]
         public class when_posting_an_event_with_date_time : HttpBehaviorSpecification
         {
             private HttpWebResponse _response;
@@ -546,7 +588,7 @@ namespace EventStore.Core.Tests.Http.Streams
 
             protected override void When()
             {
-                _response = MakeArrayEventsPost(
+                var response = MakeArrayEventsPost(
                     TestStream,
                     new[]
                     {
@@ -557,21 +599,26 @@ namespace EventStore.Core.Tests.Http.Streams
                             Data = new {A = "1987-11-07T00:00:00.000+01:00"}
                         },
                     });
+
+                Fixture.AddStashedValueAssignment(this, instance => instance._response = response);
             }
 
-            [Test]
+            [Fact]
+            [Trait("Category", "LongRunning")]
             public void returns_created_status_code()
             {
-                Assert.AreEqual(HttpStatusCode.Created, _response.StatusCode);
+                Assert.Equal(HttpStatusCode.Created, _response.StatusCode);
             }
 
-            [Test]
+            [Fact]
+            [Trait("Category", "LongRunning")]
             public void returns_a_location_header()
             {
-                Assert.IsNotEmpty(_response.Headers[HttpResponseHeader.Location]);
+                Assert.NotEmpty(_response.Headers[HttpResponseHeader.Location]);
             }
 
-            [Test]
+            [Fact]
+            [Trait("Category", "LongRunning")]
             public void the_json_data_is_not_mangled()
             {
                 var json = GetJson<JObject>(_response.Headers[HttpResponseHeader.Location]);
@@ -579,7 +626,6 @@ namespace EventStore.Core.Tests.Http.Streams
             }
         }
 
-        [TestFixture, Category("LongRunning")]
         public class when_posting_an_events_as_array : HttpBehaviorSpecification
         {
             private HttpWebResponse _response;
@@ -590,28 +636,33 @@ namespace EventStore.Core.Tests.Http.Streams
 
             protected override void When()
             {
-                _response = MakeArrayEventsPost(
+                var response = MakeArrayEventsPost(
                     TestStream,
                     new[]
                         {
                             new {EventId = Guid.NewGuid(), EventType = "event-type", Data = new {A = "1"}},
                             new {EventId = Guid.NewGuid(), EventType = "event-type", Data = new {A = "2"}},
                         });
+
+                Fixture.AddStashedValueAssignment(this, instance => instance._response = response);
             }
 
-            [Test]
+            [Fact]
+            [Trait("Category", "LongRunning")]
             public void returns_created_status_code()
             {
-                Assert.AreEqual(HttpStatusCode.Created, _response.StatusCode);
+                Assert.Equal(HttpStatusCode.Created, _response.StatusCode);
             }
 
-            [Test]
+            [Fact]
+            [Trait("Category", "LongRunning")]
             public void returns_a_location_header()
             {
-                Assert.IsNotEmpty(_response.Headers[HttpResponseHeader.Location]);
+                Assert.NotEmpty(_response.Headers[HttpResponseHeader.Location]);
             }
 
-            [Test]
+            [Fact]
+            [Trait("Category", "LongRunning")]
             public void returns_a_location_header_for_the_first_posted_event()
             {
                 var json = GetJson<JObject>(_response.Headers[HttpResponseHeader.Location]);
@@ -625,31 +676,36 @@ namespace EventStore.Core.Tests.Http.Streams
 
             protected override void Given()
             {
-                _response = MakeArrayEventsPost(
+                var response = MakeArrayEventsPost(
                     TestStream,
                     new[] {new {EventId = Guid.NewGuid(), EventType = "event-type", Data = new {A = "1"}}});
-                Assert.AreEqual(HttpStatusCode.Created, _response.StatusCode);
+                Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+
+                Fixture.AddStashedValueAssignment(this, instance => instance._response = response);
             }
 
         }
 
-        [TestFixture, Category("LongRunning")]
         public class when_requesting_a_single_event_in_the_stream_as_atom_json: HttpBehaviorSpecificationWithSingleEvent
         {
             private JObject _json;
 
             protected override void When()
             {
-                _json = GetJson<JObject>(TestStream + "/0", accept: ContentType.AtomJson);
+                var json = GetJson<JObject>(TestStream + "/0", accept: ContentType.AtomJson);
+
+                Fixture.AddStashedValueAssignment(this, instance => instance._json = json);
             }
 
-            [Test]
+            [Fact]
+            [Trait("Category", "LongRunning")]
             public void request_succeeds()
             {
-                Assert.AreEqual(HttpStatusCode.OK, _lastResponse.StatusCode);
+                Assert.Equal(HttpStatusCode.OK, LastResponse.StatusCode);
             }
 
-            [Test]
+            [Fact]
+            [Trait("Category", "LongRunning")]
             public void returns_correct_body()
             {
                 HelperExtensions.AssertJson(new { Content = new { Data = new {A = "1"}}}, _json);
@@ -657,7 +713,6 @@ namespace EventStore.Core.Tests.Http.Streams
 
         }
 
-        [TestFixture, Category("LongRunning")]
         public class when_requesting_a_single_event_that_is_deleted_linkto : HttpSpecificationWithLinkToToDeletedEvents
         {
             protected override void When()
@@ -665,15 +720,15 @@ namespace EventStore.Core.Tests.Http.Streams
                 Get("/streams/" + LinkedStreamName + "/0", "", "application/json");
             }
 
-            [Test]
+            [Fact]
+            [Trait("Category", "LongRunning")]
             public void the_event_is_gone()
             {
 
-                Assert.AreEqual(HttpStatusCode.NotFound, _lastResponse.StatusCode);
+                Assert.Equal(HttpStatusCode.NotFound, LastResponse.StatusCode);
             }
         }
 
-        [TestFixture, Category("LongRunning")]
         public class when_requesting_a_single_event_that_is_maxcount_deleted_linkto : SpecificationWithLinkToToMaxCountDeletedEvents
         {
             protected override void When()
@@ -681,16 +736,15 @@ namespace EventStore.Core.Tests.Http.Streams
                 Get("/streams/" + LinkedStreamName + "/0", "", "application/json");
             }
 
-            [Test]
+            [Fact]
+            [Trait("Category", "LongRunning")]
             public void the_event_is_gone()
             {
 
-                Assert.AreEqual(HttpStatusCode.NotFound, _lastResponse.StatusCode);
+                Assert.Equal(HttpStatusCode.NotFound, LastResponse.StatusCode);
             }
         }
 
-
-        [TestFixture, Category("LongRunning")]
         public class when_requesting_a_single_event_in_the_stream_as_event_json
             : HttpBehaviorSpecificationWithSingleEvent
         {
@@ -698,16 +752,20 @@ namespace EventStore.Core.Tests.Http.Streams
 
             protected override void When()
             {
-                _json = GetJson<JObject>(TestStream + "/0", accept: ContentType.EventJson);
+                var json = GetJson<JObject>(TestStream + "/0", accept: ContentType.EventJson);
+
+                Fixture.AddStashedValueAssignment(this, instance => instance._json = json);
             }
 
-            [Test]
+            [Fact]
+            [Trait("Category", "LongRunning")]
             public void request_succeeds()
             {
-                Assert.AreEqual(HttpStatusCode.OK, _lastResponse.StatusCode);
+                Assert.Equal(HttpStatusCode.OK, LastResponse.StatusCode);
             }
 
-            [Test]
+            [Fact]
+            [Trait("Category", "LongRunning")]
             public void returns_correct_body()
             {
                 HelperExtensions.AssertJson(new {Data = new {A = "1"}}, _json);
@@ -715,31 +773,32 @@ namespace EventStore.Core.Tests.Http.Streams
 
         }
 
-        [TestFixture, Category("LongRunning")]
         public class when_requesting_a_single_event_in_the_stream_as_json: HttpBehaviorSpecificationWithSingleEvent
         {
             private JObject _json;
 
             protected override void When()
             {
-                _json = GetJson<JObject>(TestStream + "/0", accept: ContentType.Json);
+                var json = GetJson<JObject>(TestStream + "/0", accept: ContentType.Json);
+
+                Fixture.AddStashedValueAssignment(this, instance => instance._json = json);
             }
 
-            [Test]
+            [Fact]
+            [Trait("Category", "LongRunning")]
             public void request_succeeds()
             {
-                Assert.AreEqual(HttpStatusCode.OK, _lastResponse.StatusCode);
+                Assert.Equal(HttpStatusCode.OK, LastResponse.StatusCode);
             }
 
-            [Test]
+            [Fact]
+            [Trait("Category", "LongRunning")]
             public void returns_correct_body()
             {
                 HelperExtensions.AssertJson(new {A = "1"}, _json);
             }
         }
 
-
-        [TestFixture, Category("LongRunning")]
         public class when_requesting_a_single_event_in_the_stream_as_atom_xml: HttpBehaviorSpecificationWithSingleEvent
         {
             //private JObject _json;
@@ -749,15 +808,15 @@ namespace EventStore.Core.Tests.Http.Streams
                 Get(TestStream + "/0", "", accept: ContentType.Atom);
             }
 
-            [Test]
+            [Fact]
+            [Trait("Category", "LongRunning")]
             public void request_succeeds()
             {
-                Assert.AreEqual(HttpStatusCode.OK, _lastResponse.StatusCode);
+                Assert.Equal(HttpStatusCode.OK, LastResponse.StatusCode);
             }
 
         }
 
-        [TestFixture, Category("LongRunning")]
         public class when_requesting_a_single_event_in_the_stream_as_event_xml: HttpBehaviorSpecificationWithSingleEvent
         {
             //private JObject _json;
@@ -767,15 +826,15 @@ namespace EventStore.Core.Tests.Http.Streams
                 Get(TestStream + "/0", "", accept: ContentType.EventXml);
             }
 
-            [Test]
+            [Fact]
+            [Trait("Category", "LongRunning")]
             public void request_succeeds()
             {
-                Assert.AreEqual(HttpStatusCode.OK, _lastResponse.StatusCode);
+                Assert.Equal(HttpStatusCode.OK, LastResponse.StatusCode);
             }
 
         }
 
-        [TestFixture, Category("LongRunning")]
         public class when_requesting_a_single_event_in_the_stream_as_xml: HttpBehaviorSpecificationWithSingleEvent
         {
             //private JObject _json;
@@ -785,10 +844,11 @@ namespace EventStore.Core.Tests.Http.Streams
                 Get(TestStream + "/0", "", accept: ContentType.Xml);
             }
 
-            [Test]
+            [Fact]
+            [Trait("Category", "LongRunning")]
             public void request_succeeds()
             {
-                Assert.AreEqual(HttpStatusCode.OK, _lastResponse.StatusCode);
+                Assert.Equal(HttpStatusCode.OK, LastResponse.StatusCode);
             }
 
         }

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 using EventStore.ClientAPI.SystemData;
-using NUnit.Framework;
+using Xunit;
 
 namespace EventStore.Projections.Core.Tests.ClientAPI
 {
@@ -9,29 +9,32 @@ namespace EventStore.Projections.Core.Tests.ClientAPI
     {
         const string TestProjection = "fromAll().when({$init: function (state, ev) {return {};},ConversationStarted: function (state, ev) {state.lastBatchSent = ev;return state;}});";
 
-        [Test]
+        [DebugBuildFact]
+        [Trait("Category", "ClientAPI")]
         public void list_all_projections_works()
         {
             var x = _manager.ListAllAsync(new UserCredentials("admin", "changeit")).Result;
-            Assert.AreEqual(true, x.Any());
-            Assert.IsTrue(x.Any(p => p.Name == "$streams"));
+            Assert.Equal(true, x.Any());
+            Assert.True(x.Any(p => p.Name == "$streams"));
         }
 
-        [Test]
+        [DebugBuildFact]
+        [Trait("Category", "ClientAPI")]
         public void list_oneTime_projections_works()
         {
             _manager.CreateOneTimeAsync(TestProjection, new UserCredentials("admin", "changeit")).Wait();
             var x = _manager.ListOneTimeAsync(new UserCredentials("admin", "changeit")).Result;
-            Assert.AreEqual(true, x.Any(p => p.Mode == "OneTime"));
+            Assert.Equal(true, x.Any(p => p.Mode == "OneTime"));
         }
 
-        [Test]
+        [DebugBuildFact]
+        [Trait("Category", "ClientAPI")]
         public void list_continuous_projections_works()
         {
             var nameToTest = Guid.NewGuid().ToString();
             _manager.CreateContinuousAsync(nameToTest, TestProjection, new UserCredentials("admin", "changeit")).Wait();
             var x = _manager.ListContinuousAsync(new UserCredentials("admin", "changeit")).Result;
-            Assert.AreEqual(true, x.Any(p => p.Name == nameToTest));
+            Assert.Equal(true, x.Any(p => p.Name == nameToTest));
         }
     }
 }

@@ -1,12 +1,11 @@
 ﻿using EventStore.Core.Index;
-using NUnit.Framework;
+using Xunit;
 
 namespace EventStore.Core.Tests.Index
 {
-    [TestFixture]
     public class when_trying_to_get_latest_entry: SpecificationWithFile
     {
-        [Test]
+        [Fact]
         public void nothing_is_found_on_empty_stream()
         {
             var memTable = new HashListMemTable(maxSize: 10);
@@ -14,11 +13,11 @@ namespace EventStore.Core.Tests.Index
             using (var ptable = PTable.FromMemtable(memTable, Filename))
             {
                 IndexEntry entry;
-                Assert.IsFalse(ptable.TryGetLatestEntry(0x12, out entry));
+                Assert.False(ptable.TryGetLatestEntry(0x12, out entry));
             }
         }
 
-        [Test]
+        [Fact]
         public void single_item_is_latest()
         {
             var memTable = new HashListMemTable(maxSize: 10);
@@ -26,14 +25,14 @@ namespace EventStore.Core.Tests.Index
             using (var ptable = PTable.FromMemtable(memTable, Filename))
             {
                 IndexEntry entry;
-                Assert.IsTrue(ptable.TryGetLatestEntry(0x11, out entry));
-                Assert.AreEqual(0x11, entry.Stream);
-                Assert.AreEqual(0x01, entry.Version);
-                Assert.AreEqual(0xffff, entry.Position);
+                Assert.True(ptable.TryGetLatestEntry(0x11, out entry));
+                Assert.Equal(0x11u, entry.Stream);
+                Assert.Equal(0x01, entry.Version);
+                Assert.Equal(0xffff, entry.Position);
             }
         }
 
-        [Test]
+        [Fact]
         public void correct_entry_is_returned()
         {
             var memTable = new HashListMemTable(maxSize: 10);
@@ -42,14 +41,14 @@ namespace EventStore.Core.Tests.Index
             using (var ptable = PTable.FromMemtable(memTable, Filename))
             {
                 IndexEntry entry;
-                Assert.IsTrue(ptable.TryGetLatestEntry(0x11, out entry));
-                Assert.AreEqual(0x11, entry.Stream);
-                Assert.AreEqual(0x02, entry.Version);
-                Assert.AreEqual(0xfff2, entry.Position);
+                Assert.True(ptable.TryGetLatestEntry(0x11, out entry));
+                Assert.Equal(0x11u, entry.Stream);
+                Assert.Equal(0x02, entry.Version);
+                Assert.Equal(0xfff2, entry.Position);
             }
         }
 
-        [Test]
+        [Fact]
         public void when_duplicated_entries_exist_the_one_with_latest_position_is_returned()
         {
             var memTable = new HashListMemTable(maxSize: 10);
@@ -60,14 +59,14 @@ namespace EventStore.Core.Tests.Index
             using (var ptable = PTable.FromMemtable(memTable, Filename))
             {
                 IndexEntry entry;
-                Assert.IsTrue(ptable.TryGetLatestEntry(0x11, out entry));
-                Assert.AreEqual(0x11, entry.Stream);
-                Assert.AreEqual(0x02, entry.Version);
-                Assert.AreEqual(0xfff4, entry.Position);
+                Assert.True(ptable.TryGetLatestEntry(0x11, out entry));
+                Assert.Equal(0x11u, entry.Stream);
+                Assert.Equal(0x02, entry.Version);
+                Assert.Equal(0xfff4, entry.Position);
             }
         }
 
-        [Test]
+        [Fact]
         public void only_entry_with_largest_position_is_returned_when_triduplicated()
         {
             var memTable = new HashListMemTable(maxSize: 10);
@@ -77,10 +76,10 @@ namespace EventStore.Core.Tests.Index
             using (var ptable = PTable.FromMemtable(memTable, Filename))
             {
                 IndexEntry entry;
-                Assert.IsTrue(ptable.TryGetLatestEntry(0x11, out entry));
-                Assert.AreEqual(0x11, entry.Stream);
-                Assert.AreEqual(0x01, entry.Version);
-                Assert.AreEqual(0xfff5, entry.Position);
+                Assert.True(ptable.TryGetLatestEntry(0x11, out entry));
+                Assert.Equal(0x11u, entry.Stream);
+                Assert.Equal(0x01, entry.Version);
+                Assert.Equal(0xfff5, entry.Position);
             }
         }
     }

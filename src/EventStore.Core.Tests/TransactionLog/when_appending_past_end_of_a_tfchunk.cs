@@ -1,11 +1,10 @@
 using System;
 using EventStore.Core.TransactionLog.Chunks.TFChunk;
 using EventStore.Core.TransactionLog.LogRecords;
-using NUnit.Framework;
+using Xunit;
 
 namespace EventStore.Core.Tests.TransactionLog
 {
-    [TestFixture]
     public class when_appending_past_end_of_a_tfchunk: SpecificationWithFile
     {
         private TFChunk _chunk;
@@ -13,27 +12,24 @@ namespace EventStore.Core.Tests.TransactionLog
         private readonly Guid _eventId = Guid.NewGuid();
         private bool _written;
 
-        [SetUp] 
-        public override void SetUp()
+        public when_appending_past_end_of_a_tfchunk()
         {
-            base.SetUp();
             var record = new PrepareLogRecord(15556, _corrId, _eventId, 15556, 0, "test", 1, new DateTime(2000, 1, 1, 12, 0, 0),
                                               PrepareFlags.None, "Foo", new byte[12], new byte[15]);
             _chunk = TFChunk.CreateNew(Filename, 20, 0, 0, false);
             _written = _chunk.TryAppend(record).Success;
         }
 
-        [TearDown]
-        public override void TearDown()
+        public override void Dispose()
         {
             _chunk.Dispose();
-            base.TearDown();
+            base.Dispose();
         }
 
-        [Test]
+        [Fact]
         public void the_record_is_not_appended()
         {
-            Assert.IsFalse(_written);
+            Assert.False(_written);
         }
     }
 }

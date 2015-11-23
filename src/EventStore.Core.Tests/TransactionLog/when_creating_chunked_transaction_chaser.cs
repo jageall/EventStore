@@ -4,21 +4,20 @@ using EventStore.Core.TransactionLog;
 using EventStore.Core.TransactionLog.Checkpoint;
 using EventStore.Core.TransactionLog.Chunks;
 using EventStore.Core.TransactionLog.FileNamingStrategy;
-using NUnit.Framework;
+using Xunit;
 
 namespace EventStore.Core.Tests.TransactionLog
 {
-    [TestFixture]
     public class when_creating_chunked_transaction_chaser: SpecificationWithDirectory
     {
-        [Test]
+        [Fact]
         public void a_null_file_config_throws_argument_null_exception()
         {
             Assert.Throws<ArgumentNullException>(
                 () => new TFChunkChaser(null, new InMemoryCheckpoint(0), new InMemoryCheckpoint(0)));
         }
 
-        [Test]
+        [Fact]
         public void a_null_writer_checksum_throws_argument_null_exception()
         {
             var db = new TFChunkDb(new TFChunkDbConfig(PathName,
@@ -32,7 +31,7 @@ namespace EventStore.Core.Tests.TransactionLog
             Assert.Throws<ArgumentNullException>(() => new TFChunkChaser(db, null, new InMemoryCheckpoint()));
         }
 
-        [Test]
+        [Fact]
         public void a_null_chaser_checksum_throws_argument_null_exception()
         {
             var db = new TFChunkDb(new TFChunkDbConfig(PathName,

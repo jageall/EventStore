@@ -18,39 +18,39 @@ namespace EventStore.Core.Tests.TransactionLog.Truncation
         {
         }
 
-        public override void TestFixtureSetUp()
+        protected override void AdditionalFixtureSetup()
         {
-            base.TestFixtureSetUp();
+            base.AdditionalFixtureSetup();
 
             ReOpenDb();
         }
 
         private void ReOpenDb()
         {
-            Db = new TFChunkDb(new TFChunkDbConfig(PathName,
-                                                   new VersionedPatternFileNamingStrategy(PathName, "chunk-"),
+            Fixture.Db = new TFChunkDb(new TFChunkDbConfig(Fixture.PathName,
+                                                   new VersionedPatternFileNamingStrategy(Fixture.PathName, "chunk-"),
                                                    10000,
                                                    0,
-                                                   WriterCheckpoint,
-                                                   ChaserCheckpoint,
+                                                   Fixture.WriterCheckpoint,
+                                                   Fixture.ChaserCheckpoint,
                                                    new InMemoryCheckpoint(-1),
                                                    new InMemoryCheckpoint(-1)));
 
-            Db.Open();
+            Fixture.Db.Open();
 
-            var readers = new ObjectPool<ITransactionFileReader>("Readers", 2, 5, () => new TFChunkReader(Db, Db.Config.WriterCheckpoint));
-            TableIndex = new TableIndex(Path.Combine(PathName, "index"),
+            var readers = new ObjectPool<ITransactionFileReader>("Readers", 2, 5, () => new TFChunkReader(Fixture.Db, Fixture.Db.Config.WriterCheckpoint));
+            Fixture.TableIndex = new TableIndex(Path.Combine(Fixture.PathName, "index"),
                                         () => new HashListMemTable(MaxEntriesInMemTable * 2),
                                         () => new TFReaderLease(readers),
                                         MaxEntriesInMemTable);
-            ReadIndex = new ReadIndex(new NoopPublisher(),
+            Fixture.ReadIndex = new ReadIndex(new NoopPublisher(),
                                       readers,
-                                      TableIndex,
+                                      Fixture.TableIndex,
                                       new ByLengthHasher(),
                                       0,
                                       additionalCommitChecks: true,
                                       metastreamMaxCount: MetastreamMaxCount);
-            ReadIndex.Init(ChaserCheckpoint.Read());
+            Fixture.ReadIndex.Init(Fixture.ChaserCheckpoint.Read());
         }
     }
 }

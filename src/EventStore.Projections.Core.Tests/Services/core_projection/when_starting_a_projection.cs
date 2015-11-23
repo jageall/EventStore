@@ -12,13 +12,13 @@ using EventStore.Core.Tests.Bus.Helpers;
 using EventStore.Projections.Core.Messages;
 using EventStore.Projections.Core.Services;
 using EventStore.Projections.Core.Services.Processing;
-using NUnit.Framework;
+using Xunit;
 using ReadStreamResult = EventStore.Core.Data.ReadStreamResult;
 using ResolvedEvent = EventStore.Core.Data.ResolvedEvent;
 
 namespace EventStore.Projections.Core.Tests.Services.core_projection
 {
-    [TestFixture]
+    
     public class when_starting_a_projection
     {
         private const string _projectionStateStream = "$projections-projection-result";
@@ -30,8 +30,7 @@ namespace EventStore.Projections.Core.Tests.Services.core_projection
         private ReaderSubscriptionDispatcher _subscriptionDispatcher;
         private ProjectionConfig _projectionConfig;
 
-        [SetUp]
-        public void setup()
+        public when_starting_a_projection()
         {
             _bus = new InMemoryBus("bus");
             _listEventsHandler = new TestHandler<ClientMessage.ReadStreamEventsBackward>();
@@ -74,19 +73,19 @@ namespace EventStore.Projections.Core.Tests.Services.core_projection
             _coreProjection.Start();
         }
 
-        [Test]
+        [Fact]
         public void should_request_state_snapshot()
         {
-            Assert.IsTrue(_listEventsHandler.HandledMessages.Count == 1);
+            Assert.True(_listEventsHandler.HandledMessages.Count == 1);
         }
 
-        [Test]
+        [Fact]
         public void should_request_state_snapshot_on_correct_stream()
         {
-            Assert.AreEqual(_projectionCheckpointStream, _listEventsHandler.HandledMessages[0].EventStreamId);
+            Assert.Equal(_projectionCheckpointStream, _listEventsHandler.HandledMessages[0].EventStreamId);
         }
 
-        [Test]
+        [Fact]
         public void should_accept_no_event_stream_response()
         {
             _bus.Handle(
@@ -96,7 +95,7 @@ namespace EventStore.Projections.Core.Tests.Services.core_projection
                     new ResolvedEvent[0], null, false, string.Empty, -1, -1, true, 1000));
         }
 
-        [Test]
+        [Fact]
         public void should_accept_events_not_found_response()
         {
             _bus.Handle(

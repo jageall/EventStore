@@ -1,11 +1,10 @@
 ﻿using System.Linq;
 using EventStore.Core.Tests.TransactionLog.Scavenging.Helpers;
 using EventStore.Core.TransactionLog.LogRecords;
-using NUnit.Framework;
+using Xunit;
 
 namespace EventStore.Core.Tests.TransactionLog.Scavenging
 {
-    [TestFixture]
     public class when_stream_is_deleted_and_bulk_transaction_spans_chunks_boundary : ScavengeTestScenario
     {
         protected override DbResult CreateDb(TFChunkDbCreationHelper dbCreator)
@@ -36,7 +35,7 @@ namespace EventStore.Core.Tests.TransactionLog.Scavenging
             };
         }
 
-        [Test]
+        [Fact]
         public void first_prepare_of_transaction_is_preserved()
         {
             CheckRecords();

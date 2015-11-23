@@ -3,24 +3,22 @@ using EventStore.ClientAPI;
 using EventStore.ClientAPI.Exceptions;
 using EventStore.ClientAPI.SystemData;
 using EventStore.Core.Services;
-using NUnit.Framework;
+using Xunit;
 
 namespace EventStore.Core.Tests.ClientAPI.Security
 {
-    [TestFixture, Category("LongRunning"), Category("Network")]
     public class overriden_user_stream_security : AuthenticationTestBase
     {
-        [TestFixtureSetUp]
-        public override void TestFixtureSetUp()
+        protected override void AdditionalFixtureSetup()
         {
-            base.TestFixtureSetUp();
-            
             var settings = new SystemSettings(userStreamAcl: new StreamAcl("user1", "user1", "user1", "user1", "user1"),
                                               systemStreamAcl: null);
             Connection.SetSystemSettingsAsync(settings, new UserCredentials("adm", "admpa$$")).Wait();
         }
 
-        [Test, Category("LongRunning"), Category("Network")]
+        [Fact]
+        [Trait("Category", "LongRunning")]
+        [Trait("Category", "Network")]
         public void operations_on_user_stream_succeeds_for_authorized_user()
         {
             const string stream = "user-authorized-user";
@@ -45,7 +43,9 @@ namespace EventStore.Core.Tests.ClientAPI.Security
             ExpectNoException(() => DeleteStream(stream, "user1", "pa$$1"));
         }
 
-        [Test, Category("LongRunning"), Category("Network")]
+        [Fact]
+        [Trait("Category", "LongRunning")]
+        [Trait("Category", "Network")]
         public void operations_on_user_stream_fail_for_not_authorized_user()
         {
             const string stream = "user-not-authorized";
@@ -70,7 +70,9 @@ namespace EventStore.Core.Tests.ClientAPI.Security
             Expect<AccessDeniedException>(() => DeleteStream(stream, "user2", "pa$$2"));
         }
 
-        [Test, Category("LongRunning"), Category("Network")]
+        [Fact]
+        [Trait("Category", "LongRunning")]
+        [Trait("Category", "Network")]
         public void operations_on_user_stream_fail_for_anonymous_user()
         {
             const string stream = "user-anonymous-user";
@@ -95,7 +97,9 @@ namespace EventStore.Core.Tests.ClientAPI.Security
             Expect<AccessDeniedException>(() => DeleteStream(stream, null, null));
         }
 
-        [Test, Category("LongRunning"), Category("Network")]
+        [Fact]
+        [Trait("Category", "LongRunning")]
+        [Trait("Category", "Network")]
         public void operations_on_user_stream_succeed_for_admin()
         {
             const string stream = "user-admin";

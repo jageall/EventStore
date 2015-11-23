@@ -6,13 +6,13 @@ using EventStore.Core.Services.Storage.ReaderIndex;
 using EventStore.Core.Services.TimerService;
 using EventStore.Projections.Core.Services.Processing;
 using EventStore.Projections.Core.Tests.Services.core_projection;
-using NUnit.Framework;
+using Xunit;
 using ReadStreamResult = EventStore.Core.Data.ReadStreamResult;
 using ResolvedEvent = EventStore.Core.Data.ResolvedEvent;
 
 namespace EventStore.Projections.Core.Tests.Services.event_reader.multi_stream_reader
 {
-    [TestFixture]
+    
     public class when_has_been_created : TestFixtureWithExistingEvents
     {
         private MultiStreamEventReader _edp;
@@ -20,8 +20,7 @@ namespace EventStore.Projections.Core.Tests.Services.event_reader.multi_stream_r
         private string[] _abStreams;
         private Dictionary<string, int> _ab12Tag;
 
-        [SetUp]
-        public new void When()
+        public when_has_been_created()
         {
             _ab12Tag = new Dictionary<string, int> { { "a", 1 }, { "b", 2 } };
             _abStreams = new[] { "a", "b" };
@@ -32,24 +31,27 @@ namespace EventStore.Projections.Core.Tests.Services.event_reader.multi_stream_r
                 new RealTimeProvider());
         }
 
-        [Test]
+        [Fact]
         public void it_can_be_resumed()
         {
             _edp.Resume();
         }
 
-        [Test, ExpectedException(typeof (InvalidOperationException))]
+        [Fact]
         public void it_cannot_be_paused()
         {
-            _edp.Pause();
+            Assert.Throws<InvalidOperationException>(() => { _edp.Pause(); });
         }
 
-        [Test, ExpectedException(typeof (InvalidOperationException))]
+        [Fact]
         public void handle_read_events_completed_throws()
         {
-            _edp.Handle(
-                new ClientMessage.ReadStreamEventsForwardCompleted(
-                    _distibutionPointCorrelationId, "a", 100, 100, ReadStreamResult.Success, new ResolvedEvent[0], null, false, "", -1, 4, true, 100));
+            Assert.Throws<InvalidOperationException>(() =>
+            {
+                _edp.Handle(
+                    new ClientMessage.ReadStreamEventsForwardCompleted(
+                        _distibutionPointCorrelationId, "a", 100, 100, ReadStreamResult.Success, new ResolvedEvent[0], null, false, "", -1, 4, true, 100));
+            });
         }
     }
 }

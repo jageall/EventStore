@@ -4,12 +4,11 @@ using System.Linq;
 using EventStore.Core.Exceptions;
 using EventStore.Core.Index;
 using EventStore.Core.Util;
-using NUnit.Framework;
+using Xunit;
 using EventStore.Common.Utils;
 
 namespace EventStore.Core.Tests.Index
 {
-    [TestFixture]
     public class index_map_should: SpecificationWithDirectory
     {
         private string _indexMapFileName;
@@ -17,11 +16,8 @@ namespace EventStore.Core.Tests.Index
         private IndexMap _emptyIndexMap;
         private PTable _ptable;
 
-        [SetUp]
-        public override void SetUp()
+        public index_map_should()
         {
-            base.SetUp();
-
             _indexMapFileName = GetFilePathFor("index.map");
             _ptableFileName = GetFilePathFor("ptable");
 
@@ -32,33 +28,32 @@ namespace EventStore.Core.Tests.Index
             _ptable = PTable.FromMemtable(memTable, _ptableFileName);
         }
 
-        [TearDown]
-        public override void TearDown()
+        public override void Dispose()
         {
             _ptable.MarkForDestruction();
-            base.TearDown();
+            base.Dispose();
         }
 
-        [Test]
+        [Fact]
         public void not_allow_negative_prepare_checkpoint_when_adding_ptable()
         {
             Assert.Throws<ArgumentOutOfRangeException>(() => _emptyIndexMap.AddPTable(_ptable, -1, 0, _ => true, new GuidFilenameProvider(PathName)));
         }
 
-        [Test]
+        [Fact]
         public void not_allow_negative_commit_checkpoint_when_adding_ptable()
         {
             Assert.Throws<ArgumentOutOfRangeException>(() => _emptyIndexMap.AddPTable(_ptable, 0, -1, _ => true, new GuidFilenameProvider(PathName)));
         }
 
-        [Test]
+        [Fact]
         public void throw_corruptedindexexception_when_prepare_checkpoint_is_less_than_minus_one()
         {
             CreateArtificialIndexMapFile(_indexMapFileName, -2, 0, null);
             Assert.Throws<CorruptIndexException>(() => IndexMap.FromFile(_indexMapFileName, 2));
         }
 
-        [Test]
+        [Fact]
         public void allow_prepare_checkpoint_equal_to_minus_one_if_no_ptables_are_in_index()
         {
             CreateArtificialIndexMapFile(_indexMapFileName, -1, 0, null);
@@ -69,21 +64,21 @@ namespace EventStore.Core.Tests.Index
             });
         }
 
-        [Test]
+        [Fact]
         public void throw_corruptedindexexception_if_prepare_checkpoint_is_minus_one_and_there_are_ptables_in_indexmap()
         {
             CreateArtificialIndexMapFile(_indexMapFileName, -1, 0, _ptableFileName);
             Assert.Throws<CorruptIndexException>(() => IndexMap.FromFile(_indexMapFileName, 2));
         }
 
-        [Test]
+        [Fact]
         public void throw_corruptedindexexception_when_commit_checkpoint_is_less_than_minus_one()
         {
             CreateArtificialIndexMapFile(_indexMapFileName, 0, -2, null);
             Assert.Throws<CorruptIndexException>(() => IndexMap.FromFile(_indexMapFileName, 2));
         }
 
-        [Test]
+        [Fact]
         public void allow_commit_checkpoint_equal_to_minus_one_if_no_ptables_are_in_index()
         {
             CreateArtificialIndexMapFile(_indexMapFileName, 0, -1, null);
@@ -94,7 +89,7 @@ namespace EventStore.Core.Tests.Index
             });
         }
 
-        [Test]
+        [Fact]
         public void throw_corruptedindexexception_if_commit_checkpoint_is_minus_one_and_there_are_ptables_in_indexmap()
         {
             CreateArtificialIndexMapFile(_indexMapFileName, 0, -1, _ptableFileName);

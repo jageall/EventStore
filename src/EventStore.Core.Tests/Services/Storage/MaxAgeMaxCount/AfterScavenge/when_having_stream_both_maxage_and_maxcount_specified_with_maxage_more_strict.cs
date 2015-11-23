@@ -1,12 +1,11 @@
 using System;
 using EventStore.Core.Data;
 using EventStore.Core.Services.Storage.ReaderIndex;
-using NUnit.Framework;
+using Xunit;
 using ReadStreamResult = EventStore.Core.Services.Storage.ReaderIndex.ReadStreamResult;
 
 namespace EventStore.Core.Tests.Services.Storage.MaxAgeMaxCount.AfterScavenge
 {
-    [TestFixture]
     public class when_having_stream_both_maxage_and_maxcount_specified_with_maxage_more_strict : ReadIndexTestScenario
     {
         private EventRecord _r1;
@@ -18,78 +17,85 @@ namespace EventStore.Core.Tests.Services.Storage.MaxAgeMaxCount.AfterScavenge
             var now = DateTime.UtcNow;
 
             var metadata = string.Format(@"{{""$maxAge"":{0},""$maxCount"":4}}", (int)TimeSpan.FromMinutes(10).TotalSeconds);
-            _r1 = WriteStreamMetadata("ES", 0, metadata);
-                  WriteSingleEvent("ES", 0, "bla1", now.AddMinutes(-50));
-                  WriteSingleEvent("ES", 1, "bla1", now.AddMinutes(-20));
-                  WriteSingleEvent("ES", 2, "bla1", now.AddMinutes(-11));
-            _r5 = WriteSingleEvent("ES", 3, "bla1", now.AddMinutes(-5));
-            _r6 = WriteSingleEvent("ES", 4, "bla1", now.AddMinutes(-1));
+            var r1 = Fixture.WriteStreamMetadata("ES", 0, metadata);
+                  Fixture.WriteSingleEvent("ES", 0, "bla1", now.AddMinutes(-50));
+                  Fixture.WriteSingleEvent("ES", 1, "bla1", now.AddMinutes(-20));
+                  Fixture.WriteSingleEvent("ES", 2, "bla1", now.AddMinutes(-11));
+            var r5 = Fixture.WriteSingleEvent("ES", 3, "bla1", now.AddMinutes(-5));
+            var r6 = Fixture.WriteSingleEvent("ES", 4, "bla1", now.AddMinutes(-1));
 
-            Scavenge(completeLast: true, mergeChunks: false);
+            Fixture.Scavenge(completeLast: true, mergeChunks: false);
+
+            Fixture.AddStashedValueAssignment(this, instance =>
+            {
+                instance._r1 = r1;
+                instance._r5 = r5;
+                instance._r6 = r6;
+            });
         }
 
-        [Test]
+        [Fact]
         public void single_event_read_doesnt_return_expired_events_and_returns_all_actual_ones()
         {
             var result = ReadIndex.ReadEvent("ES", 0);
-            Assert.AreEqual(ReadEventResult.NotFound, result.Result);
-            Assert.IsNull(result.Record);
+            Assert.Equal(ReadEventResult.NotFound, result.Result);
+            Assert.Null(result.Record);
 
             result = ReadIndex.ReadEvent("ES", 1);
-            Assert.AreEqual(ReadEventResult.NotFound, result.Result);
-            Assert.IsNull(result.Record);
+            Assert.Equal(ReadEventResult.NotFound, result.Result);
+            Assert.Null(result.Record);
 
             result = ReadIndex.ReadEvent("ES", 2);
-            Assert.AreEqual(ReadEventResult.NotFound, result.Result);
-            Assert.IsNull(result.Record);
+            Assert.Equal(ReadEventResult.NotFound, result.Result);
+            Assert.Null(result.Record);
 
             result = ReadIndex.ReadEvent("ES", 3);
-            Assert.AreEqual(ReadEventResult.Success, result.Result);
-            Assert.AreEqual(_r5, result.Record);
+            Assert.Equal(ReadEventResult.Success, result.Result);
+            Assert.Equal(_r5, result.Record);
 
             result = ReadIndex.ReadEvent("ES", 4);
-            Assert.AreEqual(ReadEventResult.Success, result.Result);
-            Assert.AreEqual(_r6, result.Record);
+            Assert.Equal(ReadEventResult.Success, result.Result);
+            Assert.Equal(_r6, result.Record);
         }
 
-        [Test]
+        [Fact]
         public void forward_range_read_doesnt_return_expired_records()
         {
             var result = ReadIndex.ReadStreamEventsForward("ES", 0, 100);
-            Assert.AreEqual(ReadStreamResult.Success, result.Result);
-            Assert.AreEqual(2, result.Records.Length);
-            Assert.AreEqual(_r5, result.Records[0]);
-            Assert.AreEqual(_r6, result.Records[1]);
+            Assert.Equal(ReadStreamResult.Success, result.Result);
+            Assert.Equal(2, result.Records.Length);
+            Assert.Equal(_r5, result.Records[0]);
+            Assert.Equal(_r6, result.Records[1]);
         }
 
-        [Test]
+        [Fact]
         public void backward_range_read_doesnt_return_expired_records()
         {
             var result = ReadIndex.ReadStreamEventsBackward("ES", -1, 100);
-            Assert.AreEqual(ReadStreamResult.Success, result.Result);
-            Assert.AreEqual(2, result.Records.Length);
-            Assert.AreEqual(_r6, result.Records[0]);
-            Assert.AreEqual(_r5, result.Records[1]);
+            Assert.Equal(ReadStreamResult.Success, result.Result);
+            Assert.Equal(2, result.Records.Length);
+            Assert.Equal(_r6, result.Records[0]);
+            Assert.Equal(_r5, result.Records[1]);
         }
 
-        [Test]
+        [Fact]
         public void read_all_forward_doesnt_return_expired_records()
         {
             var records = ReadIndex.ReadAllEventsForward(new TFPos(0, 0), 100).Records;
-            Assert.AreEqual(3, records.Count);
-            Assert.AreEqual(_r1, records[0].Event);
-            Assert.AreEqual(_r5, records[1].Event);
-            Assert.AreEqual(_r6, records[2].Event);
+            Assert.Equal(3, records.Count);
+            Assert.Equal(_r1, records[0].Event);
+            Assert.Equal(_r5, records[1].Event);
+            Assert.Equal(_r6, records[2].Event);
         }
 
-        [Test]
+        [Fact]
         public void read_all_backward_doesnt_return_expired_records()
         {
             var records = ReadIndex.ReadAllEventsBackward(GetBackwardReadPos(), 100).Records;
-            Assert.AreEqual(3, records.Count);
-            Assert.AreEqual(_r6, records[0].Event);
-            Assert.AreEqual(_r5, records[1].Event);
-            Assert.AreEqual(_r1, records[2].Event);
+            Assert.Equal(3, records.Count);
+            Assert.Equal(_r6, records[0].Event);
+            Assert.Equal(_r5, records[1].Event);
+            Assert.Equal(_r1, records[2].Event);
         }
     }
 }

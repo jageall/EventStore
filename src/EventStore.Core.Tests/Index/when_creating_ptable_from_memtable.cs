@@ -2,26 +2,25 @@ using System;
 using System.IO;
 using System.Linq;
 using EventStore.Core.Index;
-using NUnit.Framework;
+using Xunit;
 
 namespace EventStore.Core.Tests.Index
 {
-    [TestFixture]
     public class when_creating_ptable_from_memtable: SpecificationWithFile
     {
-        [Test]
+        [Fact]
         public void null_file_throws_null_exception()
         {
             Assert.Throws<ArgumentNullException>(() => PTable.FromMemtable(new HashListMemTable(maxSize: 10), null));
         }
 
-        [Test]
+        [Fact]
         public void null_memtable_throws_null_exception()
         {
             Assert.Throws<ArgumentNullException>(() => PTable.FromMemtable(null, "C:\\foo.txt"));
         }
 
-        [Test]
+        [Fact]
         public void wait_for_destroy_will_timeout()
         {
             var table = new HashListMemTable(maxSize: 10);
@@ -34,7 +33,7 @@ namespace EventStore.Core.Tests.Index
             ptable.WaitForDisposal(1000);
         }
 
-        //[Test]
+        //[Fact]
         //public void non_power_of_two_throws_invalid_operation()
         //{
         //    var table = new HashListMemTable();
@@ -44,7 +43,7 @@ namespace EventStore.Core.Tests.Index
         //    Assert.Throws<InvalidOperationException>(() => PTable.FromMemtable(table, "C:\\foo.txt"));
         //}
 
-        [Test]
+        [Fact]
         public void the_file_gets_created()
         {
             var table = new HashListMemTable(maxSize: 10);
@@ -55,20 +54,20 @@ namespace EventStore.Core.Tests.Index
             using (var sstable = PTable.FromMemtable(table, Filename))
             {
                 var fileinfo = new FileInfo(Filename);
-                Assert.AreEqual(PTableHeader.Size + PTable.MD5Size + 4*16, fileinfo.Length);
+                Assert.Equal(PTableHeader.Size + PTable.MD5Size + 4*16, fileinfo.Length);
                 var items = sstable.IterateAllInOrder().ToList();
-                Assert.AreEqual(0x0105, items[0].Stream);
-                Assert.AreEqual(0x0001, items[0].Version);
-                Assert.AreEqual(0x0102, items[1].Stream);
-                Assert.AreEqual(0x0002, items[1].Version);
-                Assert.AreEqual(0x0102, items[2].Stream);
-                Assert.AreEqual(0x0001, items[2].Version);
-                Assert.AreEqual(0x0101, items[3].Stream);
-                Assert.AreEqual(0x0001, items[3].Version);        
+                Assert.Equal(0x0105u, items[0].Stream);
+                Assert.Equal(0x0001, items[0].Version);
+                Assert.Equal(0x0102u, items[1].Stream);
+                Assert.Equal(0x0002, items[1].Version);
+                Assert.Equal(0x0102u, items[2].Stream);
+                Assert.Equal(0x0001, items[2].Version);
+                Assert.Equal(0x0101u, items[3].Stream);
+                Assert.Equal(0x0001, items[3].Version);        
             }
         }
 
-        [Test]
+        [Fact]
         public void the_hash_of_file_is_valid()
         {
             var table = new HashListMemTable(maxSize: 10);

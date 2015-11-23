@@ -2,14 +2,13 @@
 using System.IO;
 using System.Security.Cryptography;
 using EventStore.Core.Util;
-using NUnit.Framework;
+using Xunit;
 
 namespace EventStore.Core.Tests.Hashes
 {
-    [TestFixture]
     public class MD5HashTests
     {
-         [Test]
+         [Fact]
          public void does_not_include_previous_data_in_stream()
          {
              var bytes = new byte[1024];
@@ -23,11 +22,11 @@ namespace EventStore.Core.Tests.Hashes
              Array.Copy(hash, 0, bytes, 0, hash.Length);
              stream.Seek(16, SeekOrigin.Begin);
              var hash2 = MD5Hash.GetHashFor(stream);
-             Assert.AreEqual(16, hash.Length);
-             Assert.AreEqual(hash, hash2);
+             Assert.Equal(16, hash.Length);
+             Assert.Equal(hash, hash2);
          }
 
-         [Test]
+         [Fact]
          public void changing_data_in_stream_results_in_different_hash()
          {
              var bytes = new byte[1024];
@@ -41,10 +40,10 @@ namespace EventStore.Core.Tests.Hashes
              bytes[243] = 17;
              stream.Seek(16, SeekOrigin.Begin);
              var hash2 = MD5Hash.GetHashFor(stream);
-             Assert.AreNotEqual(hash, hash2);
+             Assert.NotEqual(hash, hash2);
          }
 
-         [Test]
+         [Fact]
          public void includes_correct_substream_data()
          {
              var bytes = new byte[1024];
@@ -58,12 +57,14 @@ namespace EventStore.Core.Tests.Hashes
              using (var md5 = MD5.Create())
              {
                  var referenceHash = md5.ComputeHash(bytes, 16, bytes.Length - 32);
-                 Assert.AreEqual(16, hash.Length);
-                 Assert.AreEqual(referenceHash, hash);
+                 Assert.Equal(16, hash.Length);
+                 Assert.Equal(referenceHash, hash);
              }
          }
 
-         [Test, Category("LongRunning"), Explicit]
+         [Fact]
+         [Trait("Category", "LongRunning")]
+         [Trait("Category", "Explicit")]
          public void randomized_hash_verification_test()
          {
              var buf = new byte[1024];
@@ -81,8 +82,8 @@ namespace EventStore.Core.Tests.Hashes
                      {
                          var referenceHash = md5.ComputeHash(buf, i, Math.Min(buf.Length-i, j - i + 1));
                          var hash = MD5Hash.GetHashFor(stream, i, j - i + 1);
-                         Assert.AreEqual(16, hash.Length);
-                         Assert.AreEqual(referenceHash, hash);
+                         Assert.Equal(16, hash.Length);
+                         Assert.Equal(referenceHash, hash);
                      }
                  }
              }

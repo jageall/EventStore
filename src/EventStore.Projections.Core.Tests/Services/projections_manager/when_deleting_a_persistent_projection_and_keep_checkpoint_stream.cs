@@ -9,11 +9,11 @@ using EventStore.Core.Messaging;
 using EventStore.Projections.Core.Messages;
 using EventStore.Projections.Core.Services;
 using EventStore.Projections.Core.Services.Management;
-using NUnit.Framework;
+using Xunit;
 
 namespace EventStore.Projections.Core.Tests.Services.projections_manager
 {
-    [TestFixture]
+    
     public class when_deleting_a_persistent_projection_and_keep_checkpoint_stream : TestFixtureWithProjectionCoreAndManagementServices
     {
         private string _projectionName;
@@ -44,21 +44,21 @@ namespace EventStore.Projections.Core.Tests.Services.projections_manager
                     ProjectionManagementMessage.RunAs.System, false, false);
         }
 
-        [Test, Category("v8")]
+        [Fact][Trait("Category", "v8")]
         public void a_projection_deleted_event_is_written()
         {
-            Assert.AreEqual(
+            Assert.Equal(
                 "$ProjectionDeleted",
                 _consumer.HandledMessages.OfType<ClientMessage.WriteEvents>().Last().Events[0].EventType);
-            Assert.AreEqual(
+            Assert.Equal(
                 _projectionName,
                 Helper.UTF8NoBom.GetString(_consumer.HandledMessages.OfType<ClientMessage.WriteEvents>().Last().Events[0].Data));
         }
 
-        [Test, Category("v8")]
+        [Fact][Trait("Category", "v8")]
         public void should_not_have_attempted_to_delete_the_checkpoint_stream()
         {
-            Assert.IsFalse(
+            Assert.False(
                 _consumer.HandledMessages.OfType<ClientMessage.DeleteStream>().Any(x=>x.EventStreamId == _projectionCheckpointStream));
         }
     }

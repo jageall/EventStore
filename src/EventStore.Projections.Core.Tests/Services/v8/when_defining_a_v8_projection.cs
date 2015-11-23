@@ -3,14 +3,14 @@ using System.Linq;
 using EventStore.Core.Data;
 using EventStore.Projections.Core.Services.Processing;
 using EventStore.Projections.Core.Tests.Services.projections_manager;
-using NUnit.Framework;
+using Xunit;
 using ResolvedEvent = EventStore.Projections.Core.Services.Processing.ResolvedEvent;
 
 namespace EventStore.Projections.Core.Tests.Services.v8
 {
     public static class when_defining_a_v8_projection
     {
-        [TestFixture]
+        
         public class with_from_all_source : TestFixtureWithJsProjection
         {
             protected override void Given()
@@ -24,17 +24,17 @@ namespace EventStore.Projections.Core.Tests.Services.v8
                 _state = @"{""count"": 0}";
             }
 
-            [Test, Category("v8")]
+            [Fact][Trait("Category", "v8")]
             public void source_definition_is_correct()
             {
-                Assert.AreEqual(true, _source.AllStreams);
-                Assert.That(_source.Streams == null || _source.Streams.Length == 0);
-                Assert.That(_source.Categories == null || _source.Categories.Length== 0);
-                Assert.AreEqual(false, _source.ByStreams);
+                Assert.Equal(true, _source.AllStreams);
+                Assert.True(_source.Streams == null || _source.Streams.Length == 0);
+                Assert.True(_source.Categories == null || _source.Categories.Length== 0);
+                Assert.Equal(false, _source.ByStreams);
             }
         }
 
-        [TestFixture]
+        
         public class with_from_stream : TestFixtureWithJsProjection
         {
             protected override void Given()
@@ -48,19 +48,19 @@ namespace EventStore.Projections.Core.Tests.Services.v8
                 _state = @"{""count"": 0}";
             }
 
-            [Test, Category("v8")]
+            [Fact][Trait("Category", "v8")]
             public void source_definition_is_correct()
             {
-                Assert.AreEqual(false, _source.AllStreams);
-                Assert.IsNotNull(_source.Streams);
-                Assert.AreEqual(1, _source.Streams.Length);
-                Assert.AreEqual("stream1", _source.Streams[0]);
-                Assert.That(_source.Categories == null || _source.Categories.Length == 0);
-                Assert.AreEqual(false, _source.ByStreams);
+                Assert.Equal(false, _source.AllStreams);
+                Assert.NotNull(_source.Streams);
+                Assert.Equal(1, _source.Streams.Length);
+                Assert.Equal("stream1", _source.Streams[0]);
+                Assert.True(_source.Categories == null || _source.Categories.Length == 0);
+                Assert.Equal(false, _source.ByStreams);
             }
         }
 
-        [TestFixture]
+        
         public class with_multiple_from_streams : TestFixtureWithJsProjection
         {
             protected override void Given()
@@ -74,21 +74,21 @@ namespace EventStore.Projections.Core.Tests.Services.v8
                 _state = @"{""count"": 0}";
             }
 
-            [Test, Category("v8")]
+            [Fact][Trait("Category", "v8")]
             public void source_definition_is_correct()
             {
-                Assert.AreEqual(false, _source.AllStreams);
-                Assert.IsNotNull(_source.Streams);
-                Assert.AreEqual(3, _source.Streams.Length);
-                Assert.AreEqual("stream1", _source.Streams[0]);
-                Assert.AreEqual("stream2", _source.Streams[1]);
-                Assert.AreEqual("stream3", _source.Streams[2]);
-                Assert.That(_source.Categories == null || _source.Categories.Length == 0);
-                Assert.AreEqual(false, _source.ByStreams);
+                Assert.Equal(false, _source.AllStreams);
+                Assert.NotNull(_source.Streams);
+                Assert.Equal(3, _source.Streams.Length);
+                Assert.Equal("stream1", _source.Streams[0]);
+                Assert.Equal("stream2", _source.Streams[1]);
+                Assert.Equal("stream3", _source.Streams[2]);
+                Assert.True(_source.Categories == null || _source.Categories.Length == 0);
+                Assert.Equal(false, _source.ByStreams);
             }
         }
 
-        [TestFixture]
+        
         public class with_multiple_from_streams_plain : TestFixtureWithJsProjection
         {
             protected override void Given()
@@ -102,21 +102,21 @@ namespace EventStore.Projections.Core.Tests.Services.v8
                 _state = @"{""count"": 0}";
             }
 
-            [Test, Category("v8")]
+            [Fact][Trait("Category", "v8")]
             public void source_definition_is_correct()
             {
-                Assert.AreEqual(false, _source.AllStreams);
-                Assert.IsNotNull(_source.Streams);
-                Assert.AreEqual(3, _source.Streams.Length);
-                Assert.AreEqual("stream1", _source.Streams[0]);
-                Assert.AreEqual("stream2", _source.Streams[1]);
-                Assert.AreEqual("stream3", _source.Streams[2]);
-                Assert.That(_source.Categories == null || _source.Categories.Length == 0);
-                Assert.AreEqual(false, _source.ByStreams);
+                Assert.Equal(false, _source.AllStreams);
+                Assert.NotNull(_source.Streams);
+                Assert.Equal(3, _source.Streams.Length);
+                Assert.Equal("stream1", _source.Streams[0]);
+                Assert.Equal("stream2", _source.Streams[1]);
+                Assert.Equal("stream3", _source.Streams[2]);
+                Assert.True(_source.Categories == null || _source.Categories.Length == 0);
+                Assert.Equal(false, _source.ByStreams);
             }
         }
 
-        [TestFixture]
+        
         public class with_from_category : TestFixtureWithJsProjection
         {
             protected override void Given()
@@ -130,19 +130,19 @@ namespace EventStore.Projections.Core.Tests.Services.v8
                 _state = @"{""count"": 0}";
             }
 
-            [Test, Category("v8")]
+            [Fact][Trait("Category", "v8")]
             public void source_definition_is_correct()
             {
-                Assert.AreEqual(false, _source.AllStreams);
-                Assert.IsNotNull(_source.Categories);
-                Assert.AreEqual(1, _source.Categories.Length);
-                Assert.AreEqual("category1", _source.Categories[0]);
-                Assert.That(_source.Streams == null || _source.Streams.Length == 0);
-                Assert.AreEqual(false, _source.ByStreams);
+                Assert.Equal(false, _source.AllStreams);
+                Assert.NotNull(_source.Categories);
+                Assert.Equal(1, _source.Categories.Length);
+                Assert.Equal("category1", _source.Categories[0]);
+                Assert.True(_source.Streams == null || _source.Streams.Length == 0);
+                Assert.Equal(false, _source.ByStreams);
             }
         }
 
-        [TestFixture]
+        
         public class with_from_category_by_stream : TestFixtureWithJsProjection
         {
             protected override void Given()
@@ -156,19 +156,19 @@ namespace EventStore.Projections.Core.Tests.Services.v8
                 _state = @"{""count"": 0}";
             }
 
-            [Test, Category("v8")]
+            [Fact][Trait("Category", "v8")]
             public void source_definition_is_correct()
             {
-                Assert.AreEqual(false, _source.AllStreams);
-                Assert.IsNotNull(_source.Categories);
-                Assert.AreEqual(1, _source.Categories.Length);
-                Assert.AreEqual("category1", _source.Categories[0]);
-                Assert.That(_source.Streams == null || _source.Streams.Length == 0);
-                Assert.AreEqual(true, _source.ByStreams);
+                Assert.Equal(false, _source.AllStreams);
+                Assert.NotNull(_source.Categories);
+                Assert.Equal(1, _source.Categories.Length);
+                Assert.Equal("category1", _source.Categories[0]);
+                Assert.True(_source.Streams == null || _source.Streams.Length == 0);
+                Assert.Equal(true, _source.ByStreams);
             }
         }
 
-        [TestFixture]
+        
         public class with_from_stream_catalog : TestFixtureWithJsProjection
         {
             protected override void Given()
@@ -179,18 +179,18 @@ namespace EventStore.Projections.Core.Tests.Services.v8
                 _state = @"{""count"": 0}";
             }
 
-            [Test, Category("v8")]
+            [Fact][Trait("Category", "v8")]
             public void source_definition_is_correct()
             {
-                Assert.AreEqual(false, _source.AllStreams);
-                Assert.That(_source.Categories == null || _source.Categories.Length == 0);
-                Assert.AreEqual("catalog1", _source.CatalogStream);
-                Assert.That(_source.Streams == null || _source.Streams.Length == 0);
-                Assert.AreEqual(false, _source.ByStreams);
+                Assert.Equal(false, _source.AllStreams);
+                Assert.True(_source.Categories == null || _source.Categories.Length == 0);
+                Assert.Equal("catalog1", _source.CatalogStream);
+                Assert.True(_source.Streams == null || _source.Streams.Length == 0);
+                Assert.Equal(false, _source.ByStreams);
             }
         }
 
-        [TestFixture]
+        
         public class with_from_stream_catalog_with_transform : TestFixtureWithJsProjection
         {
             protected override void Given()
@@ -201,14 +201,14 @@ namespace EventStore.Projections.Core.Tests.Services.v8
                 _state = @"{""count"": 0}";
             }
 
-            [Test, Category("v8")]
+            [Fact][Trait("Category", "v8")]
             public void source_definition_is_correct()
             {
-                Assert.AreEqual(true, _source.DefinesCatalogTransform);
+                Assert.Equal(true, _source.DefinesCatalogTransform);
             }
         }
 
-        [TestFixture]
+        
         public class with_from_stream_catalog_by_stream : TestFixtureWithJsProjection
         {
             protected override void Given()
@@ -219,18 +219,18 @@ namespace EventStore.Projections.Core.Tests.Services.v8
                 _state = @"{""count"": 0}";
             }
 
-            [Test, Category("v8")]
+            [Fact][Trait("Category", "v8")]
             public void source_definition_is_correct()
             {
-                Assert.AreEqual(false, _source.AllStreams);
-                Assert.That(_source.Categories == null || _source.Categories.Length == 0);
-                Assert.AreEqual("catalog1", _source.CatalogStream);
-                Assert.That(_source.Streams == null || _source.Streams.Length == 0);
-                Assert.AreEqual(true, _source.ByStreams);
+                Assert.Equal(false, _source.AllStreams);
+                Assert.True(_source.Categories == null || _source.Categories.Length == 0);
+                Assert.Equal("catalog1", _source.CatalogStream);
+                Assert.True(_source.Streams == null || _source.Streams.Length == 0);
+                Assert.Equal(true, _source.ByStreams);
             }
         }
 
-        [TestFixture]
+        
         public class with_from_streams_matching: TestFixtureWithJsProjection
         {
             protected override void Given()
@@ -241,20 +241,20 @@ namespace EventStore.Projections.Core.Tests.Services.v8
                 _state = @"{""count"": 0}";
             }
 
-            [Test, Category("v8")]
+            [Fact][Trait("Category", "v8")]
             public void source_definition_is_correct()
             {
-                Assert.AreEqual(false, _source.AllStreams);
-                Assert.That(_source.Categories == null || _source.Categories.Length == 0);
-                Assert.That(_source.Streams == null || _source.Streams.Length == 0);
+                Assert.Equal(false, _source.AllStreams);
+                Assert.True(_source.Categories == null || _source.Categories.Length == 0);
+                Assert.True(_source.Streams == null || _source.Streams.Length == 0);
 
-                Assert.AreEqual("$all", _source.CatalogStream);
-                Assert.AreEqual(true, _source.DefinesCatalogTransform);
-                Assert.AreEqual(true, _source.ByStreams);
+                Assert.Equal("$all", _source.CatalogStream);
+                Assert.Equal(true, _source.DefinesCatalogTransform);
+                Assert.Equal(true, _source.ByStreams);
             }
         }
 
-        [TestFixture]
+        
         public class with_from_all_by_custom_partitions : TestFixtureWithJsProjection
         {
             protected override void Given()
@@ -270,18 +270,18 @@ namespace EventStore.Projections.Core.Tests.Services.v8
                 _state = @"{""count"": 0}";
             }
 
-            [Test]
+            [Fact]
             public void source_definition_is_correct()
             {
-                Assert.AreEqual(true, _source.AllStreams);
-                Assert.That(_source.Categories == null || _source.Categories.Length == 0);
-                Assert.That(_source.Streams == null || _source.Streams.Length == 0);
-                Assert.AreEqual(true, _source.ByCustomPartitions);
-                Assert.AreEqual(false, _source.ByStreams);
+                Assert.Equal(true, _source.AllStreams);
+                Assert.True(_source.Categories == null || _source.Categories.Length == 0);
+                Assert.True(_source.Streams == null || _source.Streams.Length == 0);
+                Assert.Equal(true, _source.ByCustomPartitions);
+                Assert.Equal(false, _source.ByStreams);
             }
         }
 
-        [TestFixture]
+        
         public class with_output_to : TestFixtureWithJsProjection
         {
             protected override void Given()
@@ -297,14 +297,14 @@ namespace EventStore.Projections.Core.Tests.Services.v8
                 _state = @"{""count"": 0}";
             }
 
-            [Test]
+            [Fact]
             public void source_definition_is_correct()
             {
-                Assert.AreEqual(true, _source.DefinesStateTransform);
+                Assert.Equal(true, _source.DefinesStateTransform);
             }
         }
 
-        [TestFixture]
+        
         public class with_transform_by : TestFixtureWithJsProjection
         {
             protected override void Given()
@@ -317,10 +317,10 @@ namespace EventStore.Projections.Core.Tests.Services.v8
                 ";
                 _state = @"{""count"": 0}";
             }
-            [Test, Category("v8")]
+            [Fact][Trait("Category", "v8")]
             public void source_definition_is_correct()
             {
-                Assert.AreEqual(true, _source.DefinesStateTransform);
+                Assert.Equal(true, _source.DefinesStateTransform);
             }
         }
 
@@ -338,10 +338,10 @@ namespace EventStore.Projections.Core.Tests.Services.v8
                 _state = @"{""count"": 0}";
             }
 
-            [Test, Category("v8")]
+            [Fact][Trait("Category", "v8")]
             public void source_definition_is_correct()
             {
-                Assert.AreEqual(true, _source.DefinesStateTransform);
+                Assert.Equal(true, _source.DefinesStateTransform);
             }
         }
 
@@ -355,10 +355,10 @@ namespace EventStore.Projections.Core.Tests.Services.v8
                 _state = @"{""count"": 0}";
             }
 
-            [Test, Category("v8")]
+            [Fact][Trait("Category", "v8")]
             public void source_definition_is_correct()
             {
-                Assert.AreEqual(true, _source.ProducesResults);
+                Assert.Equal(true, _source.ProducesResults);
             }
         }
 
@@ -372,10 +372,10 @@ namespace EventStore.Projections.Core.Tests.Services.v8
                 _state = @"{""count"": 0}";
             }
 
-            [Test, Category("v8")]
+            [Fact][Trait("Category", "v8")]
             public void source_definition_is_correct()
             {
-                Assert.AreEqual(false, _source.DefinesFold);
+                Assert.Equal(false, _source.DefinesFold);
             }
         }
 
@@ -389,14 +389,14 @@ namespace EventStore.Projections.Core.Tests.Services.v8
                 _state = @"{""count"": 0}";
             }
 
-            [Test, Category("v8")]
+            [Fact][Trait("Category", "v8")]
             public void source_definition_is_correct()
             {
-                Assert.AreEqual(true, _source.DefinesFold);
+                Assert.Equal(true, _source.DefinesFold);
             }
         }
 
-        [TestFixture]
+        
         public class with_state_stream_name_option : TestFixtureWithJsProjection
         {
             protected override void Given()
@@ -413,14 +413,14 @@ namespace EventStore.Projections.Core.Tests.Services.v8
                 _state = @"{""count"": 0}";
             }
 
-            [Test, Category("v8")]
+            [Fact][Trait("Category", "v8")]
             public void source_definition_is_correct()
             {
-                Assert.AreEqual("state-stream", _source.ResultStreamNameOption);
+                Assert.Equal("state-stream", _source.ResultStreamNameOption);
             }
         }
 
-        [TestFixture]
+        
         public class with_include_links_option : TestFixtureWithJsProjection
         {
             protected override void Given()
@@ -437,14 +437,14 @@ namespace EventStore.Projections.Core.Tests.Services.v8
                 _state = @"{""count"": 0}";
             }
 
-            [Test, Category("v8")]
+            [Fact][Trait("Category", "v8")]
             public void source_definition_is_correct()
             {
-                Assert.AreEqual(true, _source.IncludeLinksOption);
+                Assert.Equal(true, _source.IncludeLinksOption);
             }
         }
 
-        [TestFixture]
+        
         public class with_bi_state_option : TestFixtureWithJsProjection
         {
             protected override void Given()
@@ -461,14 +461,14 @@ namespace EventStore.Projections.Core.Tests.Services.v8
                 _state = @"{""count"": 0}";
             }
 
-            [Test, Category("v8")]
+            [Fact][Trait("Category", "v8")]
             public void source_definition_is_correct()
             {
-                Assert.AreEqual(true, _source.IsBiState);
+                Assert.Equal(true, _source.IsBiState);
             }
         }
 
-        [TestFixture]
+        
         public class with_reorder_events_option : TestFixtureWithJsProjection
         {
             protected override void Given()
@@ -486,15 +486,15 @@ namespace EventStore.Projections.Core.Tests.Services.v8
                 _state = @"{""count"": 0}";
             }
 
-            [Test, Category("v8")]
+            [Fact][Trait("Category", "v8")]
             public void source_definition_is_correct()
             {
-                Assert.AreEqual(500, _source.ProcessingLagOption);
-                Assert.AreEqual(true, _source.ReorderEventsOption);
+                Assert.Equal(500, _source.ProcessingLagOption);
+                Assert.Equal(true, _source.ReorderEventsOption);
             }
         }
 
-        [TestFixture]
+        
         public class with_multiple_option_statements : TestFixtureWithJsProjection
         {
             protected override void Given()
@@ -515,17 +515,17 @@ namespace EventStore.Projections.Core.Tests.Services.v8
                 _state = @"{""count"": 0}";
             }
 
-            [Test, Category("v8")]
+            [Fact][Trait("Category", "v8")]
             public void source_definition_is_correct()
             {
-                Assert.AreEqual(500, _source.ProcessingLagOption);
-                Assert.AreEqual(true, _source.ReorderEventsOption);
+                Assert.Equal(500, _source.ProcessingLagOption);
+                Assert.Equal(true, _source.ReorderEventsOption);
             }
         }
 
     }
 
-    [TestFixture]
+    
     public class with_foreach_and_deleted_notification_handled : TestFixtureWithJsProjection
     {
         protected override void Given()
@@ -536,14 +536,14 @@ namespace EventStore.Projections.Core.Tests.Services.v8
             _state = @"{}";
         }
 
-        [Test]
+        [Fact]
         public void source_definition_is_correct()
         {
-            Assert.AreEqual(true, _source.HandlesDeletedNotifications);
+            Assert.Equal(true, _source.HandlesDeletedNotifications);
         }
     }
 
-    [TestFixture]
+    
     public class with_deleted_notification_handled : TestFixtureWithJsProjection
     {
         protected override void Given()
@@ -554,10 +554,10 @@ namespace EventStore.Projections.Core.Tests.Services.v8
             _state = @"{}";
         }
 
-        [Test]
+        [Fact]
         public void source_definition_is_correct()
         {
-            Assert.AreEqual(true, _source.HandlesDeletedNotifications);
+            Assert.Equal(true, _source.HandlesDeletedNotifications);
         }
     }
 
@@ -586,7 +586,7 @@ namespace EventStore.Projections.Core.Tests.Services.v8
         }
     }
 
-    [TestFixture]
+    
     public class with_no_when_statement : specification_with_event_handled
     {
         protected override void Given()
@@ -596,15 +596,15 @@ namespace EventStore.Projections.Core.Tests.Services.v8
             _handledEvent = CreateSampleEvent("stream", 0, "event_type", "{\"data\":1}", new TFPos(100, 50));
         }
 
-        [Test]
+        [Fact]
         public void returns_event_data_as_state()
         {
-            Assert.AreEqual("{\"data\":1}", _newState);
-            Assert.IsTrue(_emittedEventEnvelopes == null || !_emittedEventEnvelopes.Any());
+            Assert.Equal("{\"data\":1}", _newState);
+            Assert.True(_emittedEventEnvelopes == null || !_emittedEventEnvelopes.Any());
         }
     }
 
-    [TestFixture]
+    
     public class with_return_link_metadata : specification_with_event_handled
     {
         protected override void Given()
@@ -616,11 +616,11 @@ namespace EventStore.Projections.Core.Tests.Services.v8
             _handledEvent = CreateSampleEvent("stream", 0, "event_type", "{\"data\":1}", new TFPos(100, 50));
         }
 
-        [Test]
+        [Fact]
         public void returns_position_metadata_as_state()
         {
-            Assert.AreEqual("{\"position_meta\":1}", _newState);
-            Assert.IsTrue(_emittedEventEnvelopes == null || !_emittedEventEnvelopes.Any());
+            Assert.Equal("{\"position_meta\":1}", _newState);
+            Assert.True(_emittedEventEnvelopes == null || !_emittedEventEnvelopes.Any());
         }
     }
 }

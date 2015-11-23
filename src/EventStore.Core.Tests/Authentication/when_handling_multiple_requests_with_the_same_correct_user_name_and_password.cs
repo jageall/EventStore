@@ -1,11 +1,10 @@
 ﻿using System.Linq;
 using System.Security.Principal;
 using EventStore.Core.Messages;
-using NUnit.Framework;
+using Xunit;
 
 namespace EventStore.Core.Tests.Authentication
 {
-    [TestFixture]
     public class when_handling_multiple_requests_with_the_same_correct_user_name_and_password :
         with_internal_authentication_provider
     {
@@ -19,8 +18,7 @@ namespace EventStore.Core.Tests.Authentication
             ExistingEvent("$user-user", "$user", null, "{LoginName:'user', Salt:'drowssap',Hash:'password'}");
         }
 
-        [SetUp]
-        public void SetUp()
+        public when_handling_multiple_requests_with_the_same_correct_user_name_and_password()
         {
             SetUpProvider();
 
@@ -34,20 +32,20 @@ namespace EventStore.Core.Tests.Authentication
                     "user", "password", () => _unauthorized = true, p => _authenticatedAs = p, () => _error = true, () => { }));
         }
 
-        [Test]
+        [Fact]
         public void authenticates_user()
         {
-            Assert.IsFalse(_unauthorized);
-            Assert.IsFalse(_error);
+            Assert.False(_unauthorized);
+            Assert.False(_error);
             Assert.NotNull(_authenticatedAs);
-            Assert.IsTrue(_authenticatedAs.IsInRole("user"));
+            Assert.True(_authenticatedAs.IsInRole("user"));
         }
 
-        [Test]
+        [Fact]
         public void does_not_publish_any_read_requests()
         {
-            Assert.AreEqual(0, _consumer.HandledMessages.OfType<ClientMessage.ReadStreamEventsBackward>().Count());
-            Assert.AreEqual(0, _consumer.HandledMessages.OfType<ClientMessage.ReadStreamEventsForward>().Count());
+            Assert.Equal(0, _consumer.HandledMessages.OfType<ClientMessage.ReadStreamEventsBackward>().Count());
+            Assert.Equal(0, _consumer.HandledMessages.OfType<ClientMessage.ReadStreamEventsForward>().Count());
         }
     }
 }

@@ -2,14 +2,13 @@
 using System.Collections.Generic;
 using System.Text;
 using EventStore.Core.Services.PersistentSubscription;
-using NUnit.Framework;
+using Xunit;
 
 namespace EventStore.Core.Tests.Services
 {
-    [TestFixture]
     public class PersistentSubscriptionConfigTests
     {
-        [Test]
+        [Fact]
         public void output_can_be_read_as_input_and_keep_same_values()
         {
             var config = new PersistentSubscriptionConfig();
@@ -20,19 +19,19 @@ namespace EventStore.Core.Tests.Services
             config.Entries.Add(new PersistentSubscriptionEntry(){Group="foo", ResolveLinkTos = true, Stream = "Stream"});
             var data = config.GetSerializedForm();
             var config2 = PersistentSubscriptionConfig.FromSerializedForm(data);
-            Assert.AreEqual(1, config2.Entries.Count);
-            Assert.AreEqual(config.Updated, config2.Updated);
-            Assert.AreEqual(config.UpdatedBy, config2.UpdatedBy);
+            Assert.Equal(1, config2.Entries.Count);
+            Assert.Equal(config.Updated, config2.Updated);
+            Assert.Equal(config.UpdatedBy, config2.UpdatedBy);
         }
 
-        [Test]
+        [Fact]
         public void bad_json_causes_bad_config_data_exception()
         {
             var bunkdata = Encoding.UTF8.GetBytes("{'some weird stuff' : 'something'}");
             Assert.Throws<BadConfigDataException>(() => PersistentSubscriptionConfig.FromSerializedForm(bunkdata));
         }
 
-        [Test]
+        [Fact]
         public void random_bad_data_causes_bad_config_data_exception()
         {
             var bunkdata = Encoding.UTF8.GetBytes("This ain't even valid json");

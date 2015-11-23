@@ -8,7 +8,7 @@ using EventStore.Core.Messaging;
 using EventStore.Core.Tests.Bus;
 using EventStore.Core.Tests.Bus.Helpers;
 using EventStore.Core.Tests.Services.TimeService;
-using NUnit.Framework;
+using Xunit;
 using System.Linq;
 
 namespace EventStore.Core.Tests.Helpers
@@ -49,8 +49,7 @@ namespace EventStore.Core.Tests.Helpers
             get { return _consumer.HandledMessages; }
         }
 
-        [SetUp]
-        public void setup0()
+        public TestFixtureWithReadWriteDispatchers()
         {
             _envelope = null;
             _timeProvider = new FakeTimeProvider();

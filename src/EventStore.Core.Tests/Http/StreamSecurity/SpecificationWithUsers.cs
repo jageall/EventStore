@@ -3,12 +3,12 @@ using System.Linq;
 using System.Net;
 using EventStore.ClientAPI;
 using EventStore.Core.Services;
-using NUnit.Framework;
+using Xunit;
 using Newtonsoft.Json.Linq;
 
 namespace EventStore.Core.Tests.Http.StreamSecurity
 {
-    abstract class SpecificationWithUsers : HttpBehaviorSpecification
+    public abstract class SpecificationWithUsers : HttpBehaviorSpecification
     {
         protected override void Given()
         {
@@ -19,24 +19,19 @@ namespace EventStore.Core.Tests.Http.StreamSecurity
 
         protected readonly ICredentials _admin = DefaultData.AdminNetworkCredentials;
 
-        protected override bool GivenSkipInitializeStandardUsersCheck()
-        {
-            return false;
-        }
-
         protected void PostUser(string login, string userFullName, string password, params string[] groups)
         {
             var response = MakeJsonPost(
                 "/users/", new {LoginName = login + Tag, FullName = userFullName, Groups = groups, Password = password},
                 _admin);
-            Assert.AreEqual(HttpStatusCode.Created, response.StatusCode);
+            Assert.Equal(HttpStatusCode.Created, response.StatusCode);
         }
 
         protected string PostMetadata(StreamMetadata metadata)
         {
             var response = MakeArrayEventsPost(
                 TestMetadataStream, new[] {new {EventId = Guid.NewGuid(), EventType = "event-type", Data = metadata}});
-            Assert.AreEqual(HttpStatusCode.Created, response.StatusCode);
+            Assert.Equal(HttpStatusCode.Created, response.StatusCode);
             return response.Headers[HttpResponseHeader.Location];
         }
 
@@ -44,7 +39,7 @@ namespace EventStore.Core.Tests.Http.StreamSecurity
         {
             var response = MakeArrayEventsPost(
                 TestStream, new[] {new {EventId = Guid.NewGuid(), EventType = "event-type", Data = new {Number = i}}});
-            Assert.AreEqual(HttpStatusCode.Created, response.StatusCode);
+            Assert.Equal(HttpStatusCode.Created, response.StatusCode);
             return response.Headers[HttpResponseHeader.Location];
         }
 

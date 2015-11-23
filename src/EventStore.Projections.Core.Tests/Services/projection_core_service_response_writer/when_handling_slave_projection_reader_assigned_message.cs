@@ -2,12 +2,12 @@
 using EventStore.Projections.Core.Messages;
 using EventStore.Projections.Core.Messages.Persisted.Responses;
 using EventStore.Projections.Core.Services.Management;
-using NUnit.Framework;
+using Xunit;
 
 namespace EventStore.Projections.Core.Tests.Services.projection_core_service_response_writer
 {
-    [TestFixture]
-    class when_handling_slave_projection_reader_assigned_message : specification_with_projection_core_service_response_writer
+
+    public class when_handling_slave_projection_reader_assigned_message : specification_with_projection_core_service_response_writer
     {
         private Guid _projectionId;
         private Guid _subscriptionId;
@@ -26,12 +26,12 @@ namespace EventStore.Projections.Core.Tests.Services.projection_core_service_res
                     _subscriptionId));
         }
 
-        [Test]
+        [Fact]
         public void publishes_slave_projection_reader_assigned_response()
         {
             var command = AssertParsedSingleCommand<SlaveProjectionReaderAssigned>("$slave-projection-reader-assigned");
-            Assert.AreEqual(_projectionId.ToString("N"), command.Id);
-            Assert.AreEqual(_subscriptionId.ToString("N"), command.SubscriptionId);
+            Assert.Equal(_projectionId.ToString("N"), command.Id);
+            Assert.Equal(_subscriptionId.ToString("N"), command.SubscriptionId);
         }
     }
 }

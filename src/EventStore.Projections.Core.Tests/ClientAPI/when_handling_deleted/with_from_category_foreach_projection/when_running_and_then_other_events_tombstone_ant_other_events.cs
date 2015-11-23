@@ -1,8 +1,8 @@
-﻿using NUnit.Framework;
+﻿using Xunit;
 
 namespace EventStore.Projections.Core.Tests.ClientAPI.when_handling_deleted.with_from_category_foreach_projection
 {
-    [TestFixture]
+    
     public class when_running_and_then_other_events_tombstone_ant_other_events : specification_with_standard_projections_runnning
     {
         protected override bool GivenStandardProjectionsRunning()
@@ -41,7 +41,9 @@ fromCategory('stream').foreachStream().when({
             WaitIdle();
         }
 
-        [Test, Category("Network")]
+        [DebugBuildFact]
+        [Trait("Category", "Network")]
+        [Trait("Category", "ClientAPI")]
         public void receives_deleted_notification()
         {
             AssertStreamTail(

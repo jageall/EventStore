@@ -6,11 +6,11 @@ using EventStore.Core.Messaging;
 using EventStore.Projections.Core.Messages;
 using EventStore.Projections.Core.Services;
 using EventStore.Projections.Core.Services.Management;
-using NUnit.Framework;
+using Xunit;
 
 namespace EventStore.Projections.Core.Tests.Services.projections_manager
 {
-    [TestFixture]
+    
     public class when_updating_a_persistent_projection_query_text : TestFixtureWithProjectionCoreAndManagementServices
     {
         protected override void Given()
@@ -43,72 +43,72 @@ namespace EventStore.Projections.Core.Tests.Services.projections_manager
                     _newProjectionSource, emitEnabled: null));
         }
 
-        [Test, Category("v8")]
+        [Fact][Trait("Category", "v8")]
         public void the_projection_source_can_be_retrieved()
         {
             _manager.Handle(
                 new ProjectionManagementMessage.Command.GetQuery(
                     new PublishEnvelope(_bus), _projectionName, ProjectionManagementMessage.RunAs.Anonymous));
-            Assert.AreEqual(1, _consumer.HandledMessages.OfType<ProjectionManagementMessage.ProjectionQuery>().Count());
+            Assert.Equal(1, _consumer.HandledMessages.OfType<ProjectionManagementMessage.ProjectionQuery>().Count());
             var projectionQuery =
                 _consumer.HandledMessages.OfType<ProjectionManagementMessage.ProjectionQuery>().Single();
-            Assert.AreEqual(_projectionName, projectionQuery.Name);
-            Assert.AreEqual(_newProjectionSource, projectionQuery.Query);
+            Assert.Equal(_projectionName, projectionQuery.Name);
+            Assert.Equal(_newProjectionSource, projectionQuery.Query);
         }
 
-        [Test, Category("v8")]
+        [Fact][Trait("Category", "v8")]
         public void emit_enabled_options_remains_unchanged()
         {
             _manager.Handle(
                 new ProjectionManagementMessage.Command.GetQuery(
                     new PublishEnvelope(_bus), _projectionName, ProjectionManagementMessage.RunAs.Anonymous));
-            Assert.AreEqual(1, _consumer.HandledMessages.OfType<ProjectionManagementMessage.ProjectionQuery>().Count());
+            Assert.Equal(1, _consumer.HandledMessages.OfType<ProjectionManagementMessage.ProjectionQuery>().Count());
             var projectionQuery =
                 _consumer.HandledMessages.OfType<ProjectionManagementMessage.ProjectionQuery>().Single();
-            Assert.AreEqual(_projectionName, projectionQuery.Name);
-            Assert.AreEqual(true, projectionQuery.EmitEnabled);
+            Assert.Equal(_projectionName, projectionQuery.Name);
+            Assert.Equal(true, projectionQuery.EmitEnabled);
         }
 
-        [Test, Category("v8")]
+        [Fact][Trait("Category", "v8")]
         public void the_projection_status_is_still_running()
         {
             _manager.Handle(
                 new ProjectionManagementMessage.Command.GetStatistics(new PublishEnvelope(_bus), null, _projectionName, false));
 
-            Assert.AreEqual(1, _consumer.HandledMessages.OfType<ProjectionManagementMessage.Statistics>().Count());
-            Assert.AreEqual(
+            Assert.Equal(1, _consumer.HandledMessages.OfType<ProjectionManagementMessage.Statistics>().Count());
+            Assert.Equal(
                 1,
                 _consumer.HandledMessages.OfType<ProjectionManagementMessage.Statistics>().Single().Projections.Length);
-            Assert.AreEqual(
+            Assert.Equal(
                 _projectionName,
                 _consumer.HandledMessages.OfType<ProjectionManagementMessage.Statistics>().Single().Projections.Single()
                     .Name);
-            Assert.AreEqual(
+            Assert.Equal(
                 ManagedProjectionState.Running,
                 _consumer.HandledMessages.OfType<ProjectionManagementMessage.Statistics>().Single().Projections.Single()
                     .MasterStatus);
         }
 
-        [Test, Category("v8")]
+        [Fact][Trait("Category", "v8")]
         public void the_projection_state_can_be_retrieved()
         {
             _manager.Handle(new ProjectionManagementMessage.Command.GetState(new PublishEnvelope(_bus), _projectionName, ""));
             _queue.Process();
 
-            Assert.AreEqual(1, _consumer.HandledMessages.OfType<ProjectionManagementMessage.ProjectionState>().Count());
-            Assert.AreEqual(
+            Assert.Equal(1, _consumer.HandledMessages.OfType<ProjectionManagementMessage.ProjectionState>().Count());
+            Assert.Equal(
                 _projectionName,
                 _consumer.HandledMessages.OfType<ProjectionManagementMessage.ProjectionState>().Single().Name);
-            Assert.AreEqual(// empty? why?
+            Assert.Equal(// empty? why?
                 "", _consumer.HandledMessages.OfType<ProjectionManagementMessage.ProjectionState>().Single().State);
         }
 
-        [Test, Category("v8")]
+        [Fact][Trait("Category", "v8")]
         public void correct_query_has_been_prepared()
         {
             var lastPrepared = _consumer.HandledMessages.OfType<CoreProjectionStatusMessage.Prepared>().LastOrDefault();
-            Assert.IsNotNull(lastPrepared);
-            Assert.IsFalse(lastPrepared.SourceDefinition.AllEvents);
+            Assert.NotNull(lastPrepared);
+            Assert.False(lastPrepared.SourceDefinition.AllEvents);
         }
     }
 }

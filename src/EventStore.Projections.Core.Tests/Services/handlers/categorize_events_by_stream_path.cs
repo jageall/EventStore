@@ -2,14 +2,14 @@
 using EventStore.Core.Data;
 using EventStore.Projections.Core.Services.Processing;
 using EventStore.Projections.Core.Standard;
-using NUnit.Framework;
+using Xunit;
 using ResolvedEvent = EventStore.Projections.Core.Services.Processing.ResolvedEvent;
 
 namespace EventStore.Projections.Core.Tests.Services.handlers
 {
     public static class categorize_events_by_stream_path
     {
-        [TestFixture]
+        
         public class when_handling_simple_event
         {
             private CategorizeEventsByStreamPath _handler;
@@ -17,8 +17,7 @@ namespace EventStore.Projections.Core.Tests.Services.handlers
             private EmittedEventEnvelope[] _emittedEvents;
             private bool _result;
 
-            [SetUp]
-            public void when()
+            public when_handling_simple_event()
             {
                 _handler = new CategorizeEventsByStreamPath("-", Console.WriteLine);
                 _handler.Initialize();
@@ -30,32 +29,32 @@ namespace EventStore.Projections.Core.Tests.Services.handlers
                         "event_type", true, "{}", "{}"), out _state, out sharedState, out _emittedEvents);
             }
 
-            [Test]
+            [Fact]
             public void result_is_true()
             {
-                Assert.IsTrue(_result);
+                Assert.True(_result);
             }
 
-            [Test]
+            [Fact]
             public void state_stays_null()
             {
-                Assert.IsNull(_state);
+                Assert.Null(_state);
             }
 
-            [Test]
+            [Fact]
             public void emits_correct_link()
             {
                 Assert.NotNull(_emittedEvents);
-                Assert.AreEqual(1, _emittedEvents.Length);
+                Assert.Equal(1, _emittedEvents.Length);
                 var @event = _emittedEvents[0].Event;
-                Assert.AreEqual("$>", @event.EventType);
-                Assert.AreEqual("$ce-cat1", @event.StreamId);
-                Assert.AreEqual("10@cat1-stream1", @event.Data);
+                Assert.Equal("$>", @event.EventType);
+                Assert.Equal("$ce-cat1", @event.StreamId);
+                Assert.Equal("10@cat1-stream1", @event.Data);
             }
 
         }
 
-        [TestFixture]
+        
         public class when_handling_link_to_event
         {
             private CategorizeEventsByStreamPath _handler;
@@ -63,8 +62,7 @@ namespace EventStore.Projections.Core.Tests.Services.handlers
             private EmittedEventEnvelope[] _emittedEvents;
             private bool _result;
 
-            [SetUp]
-            public void when()
+            public when_handling_link_to_event()
             {
                 _handler = new CategorizeEventsByStreamPath("-", Console.WriteLine);
                 _handler.Initialize();
@@ -76,27 +74,27 @@ namespace EventStore.Projections.Core.Tests.Services.handlers
                         "$>", true, "10@cat1-stream1", "{}"), out _state, out sharedState, out _emittedEvents);
             }
 
-            [Test]
+            [Fact]
             public void result_is_true()
             {
-                Assert.IsTrue(_result);
+                Assert.True(_result);
             }
 
-            [Test]
+            [Fact]
             public void state_stays_null()
             {
-                Assert.IsNull(_state);
+                Assert.Null(_state);
             }
 
-            [Test]
+            [Fact]
             public void emits_correct_link()
             {
                 Assert.NotNull(_emittedEvents);
-                Assert.AreEqual(1, _emittedEvents.Length);
+                Assert.Equal(1, _emittedEvents.Length);
                 var @event = _emittedEvents[0].Event;
-                Assert.AreEqual("$>", @event.EventType);
-                Assert.AreEqual("$ce-cat2", @event.StreamId);
-                Assert.AreEqual("10@cat1-stream1", @event.Data);
+                Assert.Equal("$>", @event.EventType);
+                Assert.Equal("$ce-cat2", @event.StreamId);
+                Assert.Equal("10@cat1-stream1", @event.Data);
             }
 
         }

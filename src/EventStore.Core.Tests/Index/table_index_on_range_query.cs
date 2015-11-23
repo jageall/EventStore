@@ -1,21 +1,21 @@
 ﻿using System;
 using System.Linq;
 using EventStore.Core.Index;
-using NUnit.Framework;
+using Xunit;
 
 namespace EventStore.Core.Tests.Index
 {
-    [TestFixture]
-    public class table_index_on_range_query  :SpecificationWithDirectoryPerTestFixture
+    public class table_index_on_range_query  : IUseFixture<table_index_on_range_query.Fixture>
     {
         private TableIndex _tableIndex;
 
-        [TestFixtureSetUp]
-        public override void TestFixtureSetUp()
+        public class Fixture : SpecificationWithDirectoryPerTestFixture
         {
-            base.TestFixtureSetUp();
+            public readonly TableIndex _tableIndex;
 
-            _tableIndex = new TableIndex(PathName,
+            public Fixture()
+            {
+                _tableIndex = new TableIndex(PathName,
                                          () => new HashListMemTable(maxSize: 40),
                                          () => { throw new InvalidOperationException(); },
                                          maxSizeForMemory: 20);
@@ -36,55 +36,60 @@ namespace EventStore.Core.Tests.Index
             _tableIndex.Add(0, 0xDEAD, 1, 0xFF11); 
                              
             _tableIndex.Add(0, 0xADA, 0, 0xFF00);
-        }
+            }
 
-        [TestFixtureTearDown]
-        public override void TestFixtureTearDown()
+            public override void Dispose()
+            {
+                _tableIndex.Close();
+                base.Dispose();
+            }
+        }
+        public void SetFixture(Fixture data)
         {
-            _tableIndex.Close();
-            base.TestFixtureTearDown();
+            _tableIndex = data._tableIndex;
         }
 
-        [Test]
+
+        [Fact]
         public void should_return_empty_collection_when_stream_is_not_in_db()
         {
             var res = _tableIndex.GetRange(0xFEED, 0, 100);
-            Assert.That(res, Is.Empty);
+            Assert.Empty(res);
         }
 
-        [Test]
+        [Fact]
         public void should_return_all_applicable_elements_in_correct_order()
         {
             var res = _tableIndex.GetRange(0xBEEF, 0, 100).ToList();
-            Assert.That(res.Count(), Is.EqualTo(2));
-            Assert.That(res[0].Stream, Is.EqualTo(0xBEEF));
-            Assert.That(res[0].Version, Is.EqualTo(1));
-            Assert.That(res[0].Position, Is.EqualTo(0xFF01));
-            Assert.That(res[1].Stream, Is.EqualTo(0xBEEF));
-            Assert.That(res[1].Version, Is.EqualTo(0));
-            Assert.That(res[1].Position, Is.EqualTo(0xFF00));
+            Assert.Equal(2, res.Count());
+            Assert.Equal(0xBEEFu, res[0].Stream);
+            Assert.Equal(1,res[0].Version);
+            Assert.Equal(0xFF01, res[0].Position);
+            Assert.Equal(0xBEEFu,res[1].Stream);
+            Assert.Equal(0,res[1].Version);
+            Assert.Equal(0xFF00,res[1].Position);
         }
 
-        [Test]
+        [Fact]
         public void should_return_all_elements_with_hash_collisions_in_correct_order()
         {
             var res = _tableIndex.GetRange(0xDEAD, 0, 100).ToList();
-            Assert.That(res.Count(), Is.EqualTo(4));
-            Assert.That(res[0].Stream, Is.EqualTo(0xDEAD));
-            Assert.That(res[0].Version, Is.EqualTo(1));
-            Assert.That(res[0].Position, Is.EqualTo(0xFF11));
-        
-            Assert.That(res[1].Stream, Is.EqualTo(0xDEAD));
-            Assert.That(res[1].Version, Is.EqualTo(1));
-            Assert.That(res[1].Position, Is.EqualTo(0xFF01));
-
-            Assert.That(res[2].Stream, Is.EqualTo(0xDEAD));
-            Assert.That(res[2].Version, Is.EqualTo(0));
-            Assert.That(res[2].Position, Is.EqualTo(0xFF10));
-            
-            Assert.That(res[3].Stream, Is.EqualTo(0xDEAD));
-            Assert.That(res[3].Version, Is.EqualTo(0));
-            Assert.That(res[3].Position, Is.EqualTo(0xFF00));
+            Assert.Equal(4, res.Count());
+            Assert.Equal(0xDEADu, res[0].Stream);
+            Assert.Equal(1, res[0].Version);
+            Assert.Equal(0xFF11, res[0].Position);
+                   
+            Assert.Equal(0xDEADu, res[1].Stream);
+            Assert.Equal(1, res[1].Version);
+            Assert.Equal(0xFF01u, res[1].Position);
+                   
+            Assert.Equal(0xDEADu, res[2].Stream);
+            Assert.Equal(0, res[2].Version);
+            Assert.Equal(0xFF10u,res[2].Position);
+                   
+            Assert.Equal(0xDEADu,res[3].Stream);
+            Assert.Equal(0, res[3].Version);
+            Assert.Equal(0xFF00u, res[3].Position);
         }
     }
 }

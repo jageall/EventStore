@@ -14,26 +14,29 @@ namespace EventStore.Core.Tests.TransactionLog.Truncation
         {
         }
 
-        public override void TestFixtureSetUp()
+        protected override void AdditionalFixtureSetup()
         {
-            base.TestFixtureSetUp();
-
+            
             if (TruncateCheckpoint == long.MinValue)
                 throw new InvalidOperationException("AckCheckpoint must be set in WriteTestScenario.");
-
+            var toStash = TruncateCheckpoint;
+            Fixture.AddStashedValueAssignment(this, instance =>
+            {
+                instance.TruncateCheckpoint = toStash;
+            });
             OnBeforeTruncating();
 
             // need to close db before truncator can delete files
 
-            ReadIndex.Close();
-            ReadIndex.Dispose();
+            Fixture.ReadIndex.Close();
+            Fixture.ReadIndex.Dispose();
 
-            TableIndex.Close(removeFiles: false);
+            Fixture.TableIndex.Close(removeFiles: false);
 
-            Db.Close();
-            Db.Dispose();
+            Fixture.Db.Close();
+            Fixture.Db.Dispose();
 
-            var truncator = new TFChunkDbTruncator(Db.Config);
+            var truncator = new TFChunkDbTruncator(Fixture.Db.Config);
             truncator.TruncateDb(TruncateCheckpoint);
         }
 

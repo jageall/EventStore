@@ -6,7 +6,7 @@ using EventStore.Core.Messaging;
 using EventStore.Core.Services.RequestManager.Managers;
 using EventStore.Core.Tests.Fakes;
 using EventStore.Core.Tests.Helpers;
-using NUnit.Framework;
+using Xunit;
 
 namespace EventStore.Core.Tests.Services.Replication
 {
@@ -33,8 +33,7 @@ namespace EventStore.Core.Tests.Services.Replication
             return new Event(Guid.NewGuid(), "test", false, EventData, Metadata);
         }
 
-        [SetUp]
-        public void Setup()
+        protected RequestManagerSpecification()
         {
             Publisher = new FakePublisher();
             Envelope = new FakeEnvelope();

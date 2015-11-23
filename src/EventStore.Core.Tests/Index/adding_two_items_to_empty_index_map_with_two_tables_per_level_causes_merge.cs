@@ -3,84 +3,76 @@ using System.Linq;
 using EventStore.Core.Index;
 using EventStore.Core.Tests.Fakes;
 using EventStore.Core.TransactionLog;
-using NUnit.Framework;
+using Xunit;
 
 namespace EventStore.Core.Tests.Index
 {
-    [TestFixture]
-    public class adding_two_items_to_empty_index_map_with_two_tables_per_level_causes_merge: SpecificationWithDirectoryPerTestFixture
+    public class adding_two_items_to_empty_index_map_with_two_tables_per_level_causes_merge: IUseFixture<MergeFileFixture>
     {
         private string _filename;
         private IndexMap _map;
         private string _mergeFile;
         private MergeResult _result;
 
-        [TestFixtureSetUp]
-        public override void TestFixtureSetUp()
+        public void SetFixture(MergeFileFixture data)
         {
-            base.TestFixtureSetUp();
+         
+            _filename = data.Filename;
+            _mergeFile = data.MergeFile;
 
-            _filename = GetTempFilePath();
-            _mergeFile = GetTempFilePath();
+            _map = data.Map(maxTablesPerLevel: 2);
 
-            _map = IndexMap.FromFile(_filename, maxTablesPerLevel: 2);
-            var memtable = new HashListMemTable(maxSize: 10);
-            memtable.Add(0, 1, 0);
+            _result = data.Result(() =>
+            {
+                var memtable = new HashListMemTable(maxSize: 10);
+                memtable.Add(0, 1, 0);
 
-            _result = _map.AddPTable(PTable.FromMemtable(memtable, GetTempFilePath()),
-                                     123, 321, _ => true, new GuidFilenameProvider(PathName));
-            _result.ToDelete.ForEach(x => x.MarkForDestruction());
-            _result = _result.MergedMap.AddPTable(PTable.FromMemtable(memtable, GetTempFilePath()),
-                                                  100, 400, _ => true, new FakeFilenameProvider(_mergeFile));
-            _result.ToDelete.ForEach(x => x.MarkForDestruction());
+                var result = _map.AddPTable(PTable.FromMemtable(memtable, data.GetTempFilePath()),
+                    123, 321, _ => true, new GuidFilenameProvider(data.PathName));
+                result.ToDelete.ForEach(x => x.MarkForDestruction());
+                result = result.MergedMap.AddPTable(PTable.FromMemtable(memtable, data.GetTempFilePath()),
+                    100, 400, _ => true, new FakeFilenameProvider(_mergeFile));
+                result.ToDelete.ForEach(x => x.MarkForDestruction());
+                return result;
+            });
         }
 
-        [TestFixtureTearDown]
-        public override void TestFixtureTearDown()
-        {
-            _result.MergedMap.InOrder().ToList().ForEach(x => x.MarkForDestruction());
-            File.Delete(_filename);
-            File.Delete(_mergeFile);
-
-            base.TestFixtureTearDown();
-        }
-
-        [Test]
+        [Fact]
         public void the_prepare_checkpoint_is_taken_from_the_latest_added_table()
         {
-            Assert.AreEqual(100, _result.MergedMap.PrepareCheckpoint);
+            Assert.Equal(100, _result.MergedMap.PrepareCheckpoint);
         }
 
-        [Test]
+        [Fact]
         public void the_commit_checkpoint_is_taken_from_the_latest_added_table()
         {
-            Assert.AreEqual(400, _result.MergedMap.CommitCheckpoint);
+            Assert.Equal(400, _result.MergedMap.CommitCheckpoint);
         }
 
-        [Test]
+        [Fact]
         public void there_are_two_items_to_delete()
         {
-            Assert.AreEqual(2, _result.ToDelete.Count);
+            Assert.Equal(2, _result.ToDelete.Count);
         }
 
-        [Test]
+        [Fact]
         public void the_merged_map_has_a_single_file()
         {
-            Assert.AreEqual(1, _result.MergedMap.GetAllFilenames().Count());
-            Assert.AreEqual(_mergeFile, _result.MergedMap.GetAllFilenames().ToList()[0]);
+            Assert.Equal(1, _result.MergedMap.GetAllFilenames().Count());
+            Assert.Equal(_mergeFile, _result.MergedMap.GetAllFilenames().ToList()[0]);
         }
 
-        [Test]
+        [Fact]
         public void the_original_map_did_not_change()
         {
-            Assert.AreEqual(0, _map.InOrder().Count());
-            Assert.AreEqual(0, _map.GetAllFilenames().Count());
+            Assert.Equal(0, _map.InOrder().Count());
+            Assert.Equal(0, _map.GetAllFilenames().Count());
         }
 
-        [Test]
+        [Fact]
         public void a_merged_file_was_created()
         {
-            Assert.IsTrue(File.Exists(_mergeFile));
+            Assert.True(File.Exists(_mergeFile));
         }
     }
 }

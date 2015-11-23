@@ -3,11 +3,10 @@ using System.Text;
 using System.Threading;
 using EventStore.ClientAPI;
 using EventStore.ClientAPI.Exceptions;
-using NUnit.Framework;
+using Xunit;
 
 namespace EventStore.Core.Tests.ClientAPI
 {
-    [TestFixture, Category("LongRunning")]
     public class update_existing_persistent_subscription : SpecificationWithMiniNode
     {
         private readonly string _stream = Guid.NewGuid().ToString();
@@ -27,36 +26,43 @@ namespace EventStore.Core.Tests.ClientAPI
             
         }
 
-        [Test]
+        [Fact]
+        [Trait("Category", "LongRunning")]
         public void the_completion_succeeds()
         {
             Assert.DoesNotThrow(() => _conn.UpdatePersistentSubscriptionAsync(_stream, "existing", _settings, DefaultData.AdminCredentials).Wait());
         }
     }
 
-    [TestFixture, Category("LongRunning")]
     public class update_existing_persistent_subscription_with_subscribers : SpecificationWithMiniNode
     {
         private readonly string _stream = Guid.NewGuid().ToString();
         private readonly PersistentSubscriptionSettings _settings = PersistentSubscriptionSettings.Create()
                                                                 .DoNotResolveLinkTos()
                                                                 .StartFromCurrent();
-        private readonly AutoResetEvent _dropped = new AutoResetEvent(false);
+
+        private AutoResetEvent _dropped;
         private SubscriptionDropReason _reason;
         private Exception _exception;
         private Exception _caught = null;
 
         protected override void Given()
         {
+            var dropped = new AutoResetEvent(false);
+            Fixture.AddStashedValueAssignment(this, instance => { instance._dropped = dropped; });
             _conn.AppendToStreamAsync(_stream, ExpectedVersion.Any,
                 new EventData(Guid.NewGuid(), "whatever", true, Encoding.UTF8.GetBytes("{'foo' : 2}"), new Byte[0]));
             _conn.CreatePersistentSubscriptionAsync(_stream, "existing", _settings, DefaultData.AdminCredentials).Wait();
             _conn.ConnectToPersistentSubscription(_stream, "existing" , (x, y) => { },
                 (sub, reason, ex) =>
                 {
-                    _dropped.Set();
-                    _reason = reason;
-                    _exception = ex;
+                    dropped.Set();
+                    Fixture.AddStashedValueAssignment(this, instance =>
+                    {   
+                        instance._reason = reason;
+                        instance._exception = ex; 
+
+                    });
                 });
         }
 
@@ -69,29 +75,31 @@ namespace EventStore.Core.Tests.ClientAPI
             }
             catch (Exception ex)
             {
-                _caught = ex;
+                Fixture.AddStashedValueAssignment(this, instance =>
+                {
+                    instance._caught = ex; 
+                });
             }
         }
 
-        [Test]
+        [Fact]
+        [Trait("Category", "LongRunning")]
         public void the_completion_succeeds()
         {
-            Assert.IsNull(_caught);
+            Assert.Null(_caught);
         }
 
-        [Test]
+        [Fact]
+        [Trait("Category", "LongRunning")]
         public void existing_subscriptions_are_dropped()
         {
-            Assert.IsTrue(_dropped.WaitOne(TimeSpan.FromSeconds(5)));
-            Assert.AreEqual(SubscriptionDropReason.UserInitiated, _reason);
-            Assert.IsNull(_exception);
+            Assert.True(_dropped.WaitOne(TimeSpan.FromSeconds(5)));
+            Assert.Equal(SubscriptionDropReason.UserInitiated, _reason);
+            Assert.Null(_exception);
         }
 
     }
 
-
-
-    [TestFixture, Category("LongRunning")]
     public class update_non_existing_persistent_subscription : SpecificationWithMiniNode
     {
         private readonly string _stream = Guid.NewGuid().ToString();
@@ -104,24 +112,23 @@ namespace EventStore.Core.Tests.ClientAPI
             
         }
 
-        [Test]
+        [Fact]
+        [Trait("Category", "LongRunning")]
         public void the_completion_fails_with_not_found()
         {
             try
             {
                 _conn.UpdatePersistentSubscriptionAsync(_stream, "existing", _settings,
                     DefaultData.AdminCredentials).Wait();
-                Assert.Fail("should have thrown");
-            }
-            catch (Exception ex)
+                Assert.True(false, "should have thrown"); // TODO JAG this should be converted to Assert.Throws
+            } catch (Exception ex)
             {
-                Assert.IsInstanceOf<AggregateException>(ex);
-                Assert.IsInstanceOf<InvalidOperationException>(ex.InnerException);
+                Assert.IsType<AggregateException>(ex);
+                Assert.IsType<InvalidOperationException>(ex.InnerException);
             }
         }
     }
 
-    [TestFixture, Category("LongRunning")]
     public class update_existing_persistent_subscription_without_permissions : SpecificationWithMiniNode
     {
         private readonly string _stream = Guid.NewGuid().ToString();
@@ -136,20 +143,20 @@ namespace EventStore.Core.Tests.ClientAPI
             _conn.CreatePersistentSubscriptionAsync(_stream, "existing", _settings, DefaultData.AdminCredentials).Wait();
         }
 
-        [Test]
+        [Fact]
+        [Trait("Category", "LongRunning")]
         public void the_completion_fails_with_access_denied()
         {
             try
             {
                 _conn.UpdatePersistentSubscriptionAsync(_stream, "existing", _settings, null).Wait();
-                Assert.Fail("should have thrown");
+                Assert.True(false, "should have thrown"); // TODO JAG this should be converted to Assert.Throws
             }
             catch (Exception ex)
             {
-                Assert.IsInstanceOf<AggregateException>(ex);
-                Assert.IsInstanceOf<AccessDeniedException>(ex.InnerException);
+                Assert.IsType<AggregateException>(ex);
+                Assert.IsType<AccessDeniedException>(ex.InnerException);
             }
         }
     }
-
 }

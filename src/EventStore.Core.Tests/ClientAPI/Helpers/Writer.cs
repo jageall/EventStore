@@ -1,5 +1,5 @@
 ﻿using EventStore.ClientAPI;
-using NUnit.Framework;
+using Xunit;
 
 namespace EventStore.Core.Tests.ClientAPI.Helpers
 {
@@ -23,7 +23,7 @@ namespace EventStore.Core.Tests.ClientAPI.Helpers
                 var expVer = _version == ExpectedVersion.Any ? ExpectedVersion.Any : _version + i;
                 var nextExpVer = _store.AppendToStreamAsync(_stream, expVer, new[] { events[i] }).Result.NextExpectedVersion;
                 if (_version != ExpectedVersion.Any)
-                    Assert.AreEqual(expVer + 1, nextExpVer);
+                    Assert.Equal(expVer + 1, nextExpVer);
             }
             return new TailWriter(_store, _stream);
         }

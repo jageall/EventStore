@@ -1,11 +1,10 @@
 ﻿using System.Linq;
 using EventStore.Core.Tests.TransactionLog.Scavenging.Helpers;
 using EventStore.Core.TransactionLog.LogRecords;
-using NUnit.Framework;
+using Xunit;
 
 namespace EventStore.Core.Tests.TransactionLog.Scavenging
 {
-    [TestFixture]
     public class when_deleted_stream_with_explicit_transaction_is_scavenged : ScavengeTestScenario
     {
         protected override DbResult CreateDb(TFChunkDbCreationHelper dbCreator)
@@ -32,7 +31,7 @@ namespace EventStore.Core.Tests.TransactionLog.Scavenging
             };
         }
 
-        [Test]
+        [Fact]
         public void only_delete_tombstone_records_with_their_commits_are_kept()
         {
             CheckRecords();

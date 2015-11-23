@@ -3,13 +3,13 @@ using EventStore.Projections.Core.Services;
 using EventStore.Projections.Core.Services.Processing;
 using EventStore.Projections.Core.Tests.Services.projections_manager;
 using EventStore.Projections.Core.v8;
-using NUnit.Framework;
+using Xunit;
 
 namespace EventStore.Projections.Core.Tests.Services.v8
 {
     public class when_running_a_faulting_v8_projection {
 
-        [TestFixture]
+        
         public class when_event_handler_throws : TestFixtureWithJsProjection
         {
             protected override void Given()
@@ -25,18 +25,22 @@ namespace EventStore.Projections.Core.Tests.Services.v8
                 _state = @"{""count"": 0}";
             }
 
-            [Test, Category("v8"), ExpectedException(typeof (Js1Exception), ExpectedMessage = "failed")]
+            [Fact][Trait("Category", "v8")]
             public void process_event_throws_js1_exception()
             {
                 string state;
                 EmittedEventEnvelope[] emittedEvents;
-                _stateHandler.ProcessEvent(
-                    "", CheckpointTag.FromPosition(0, 10, 5), "stream1", "type1", "category", Guid.NewGuid(), 0, "metadata",
-                    @"{""a"":""b""}", out state, out emittedEvents);
+                var thrown = Assert.Throws<Js1Exception>(() =>
+                {
+                    _stateHandler.ProcessEvent(
+                        "", CheckpointTag.FromPosition(0, 10, 5), "stream1", "type1", "category", Guid.NewGuid(), 0, "metadata",
+                        @"{""a"":""b""}", out state, out emittedEvents);
+                });
+                Assert.Equal("failed", thrown.Message);
             }
         }
 
-        [TestFixture]
+        
         public class when_state_transform_throws : TestFixtureWithJsProjection
         {
             protected override void Given()
@@ -50,7 +54,7 @@ namespace EventStore.Projections.Core.Tests.Services.v8
                 _state = @"{""count"": 0}";
             }
 
-            [Test, Category("v8"), ExpectedException(typeof(Js1Exception), ExpectedMessage = "failed")]
+            [Fact][Trait("Category", "v8")]
             public void process_event_throws_js1_exception()
             {
                 string state;
@@ -58,7 +62,8 @@ namespace EventStore.Projections.Core.Tests.Services.v8
                 Assert.DoesNotThrow(() => _stateHandler.ProcessEvent(
                     "", CheckpointTag.FromPosition(0, 10, 5), "stream1", "type1", "category", Guid.NewGuid(), 0, "metadata",
                     @"{""a"":""b""}", out state, out emittedEvents));
-                _stateHandler.TransformStateToResult();
+                var thrown = Assert.Throws<Js1Exception>(() => { _stateHandler.TransformStateToResult(); });
+                Assert.Equal("failed", thrown.Message);
             }
         }
 

@@ -1,7 +1,7 @@
 using System;
 using EventStore.Projections.Core.Messages;
 using EventStore.Projections.Core.Services;
-using NUnit.Framework;
+using Xunit;
 
 namespace EventStore.Projections.Core.Tests.Services.core_projection
 {
@@ -10,8 +10,7 @@ namespace EventStore.Projections.Core.Tests.Services.core_projection
     {
         protected ReaderSubscriptionDispatcher _subscriptionDispatcher;
 
-        [SetUp]
-        public void SetUp()
+        public TestFixtureWithReadWriteDispatchers()
         {
             _subscriptionDispatcher = new ReaderSubscriptionDispatcher(
                 _bus);

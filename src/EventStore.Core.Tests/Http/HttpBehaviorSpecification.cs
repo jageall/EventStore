@@ -7,38 +7,105 @@ using System.Linq.Expressions;
 using System.Net;
 using System.Reflection;
 using System.Text;
+using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Linq;
 using EventStore.ClientAPI;
 using EventStore.Common.Utils;
+using EventStore.Core.Tests.ClientAPI;
 using EventStore.Core.Tests.ClientAPI.Helpers;
 using EventStore.Core.Tests.Helpers;
 using EventStore.Core.Tests.Http.Streams;
 using EventStore.Core.Tests.Http.Users;
-using NUnit.Framework;
+using Xunit;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using EventStore.ClientAPI.Transport.Http;
 
 namespace EventStore.Core.Tests.Http
 {
-    public abstract class HttpBehaviorSpecification : SpecificationWithDirectoryPerTestFixture
+    public abstract class HttpBehaviorSpecification : IUseFixture<HttpBehaviorSpecification.SpecificationFixture>, IUseFixture<object>
     {
-        protected MiniNode _node;
-        protected IEventStoreConnection _connection;
-        protected HttpWebResponse _lastResponse;
-        protected string _lastResponseBody;
-        protected JsonException _lastJsonException;
+        public class SpecificationFixture : SpecificationWithDirectoryPerTestFixture
+        {
+            public MiniNode Node { get; private set; }
+            public IEventStoreConnection Connection { get;private set; }
+            private Action<Func<string, MiniNode>, Action, Action> _initialize;
+            private Action<object> _assignStashedValues;
+            private Action _dispose;
+            public SpecificationFixture()
+            {
+                _dispose = () => { };
+                _assignStashedValues = _ => { };
+                _initialize = (createMiniNode, given, when) =>
+                {
+                    _initialize = (_, __,___) => { };
+                    Node = createMiniNode(PathName);
+                    Node.Start();
+                    Connection = TestConnection.Create(Node.TcpEndPoint);
+                    Connection.ConnectAsync().Wait();
+                    given();
+                    when();
+                };
+            }
+
+            public HttpWebResponse LastResponse { get; set; }
+            public string LastResponseBody { get; set; }
+            public JsonException LastJsonException { get; set; }
+
+            public void EnsureInitialized(Func<string, MiniNode> createMiniNode, Action given, Action when)
+            {
+                _initialize(createMiniNode, given, when);
+            }
+            //To help migrate from nunit this allows fixture initialized fields to be appended into test class
+            public void AddStashedValueAssignment<T>(T ignored, Action<T> assignStashedValues) where T : HttpBehaviorSpecification
+            {
+                _assignStashedValues += instance => assignStashedValues((T)instance);
+            }
+
+            public void AssignStashedValues(HttpBehaviorSpecification scenario)
+            {
+                _assignStashedValues(scenario);
+            }
+
+            public void RunOnDispose(Action dispose)
+            {
+                _dispose += dispose;
+            }
+
+            public override void Dispose()
+            {
+                try
+                {
+                    _dispose();
+                }
+                finally
+                {
+                    if (Connection != null)
+                        Helper.EatException(() => Connection.Close());
+                    if (Node != null)
+                        Node.Shutdown();
+                }
+            }
+        }
+
+        protected SpecificationFixture Fixture { get { return _fixture; } }
+        private SpecificationFixture _fixture;
+        protected MiniNode Node { get { return _fixture.Node; } }
+        protected IEventStoreConnection Connection { get { return _fixture.Connection; } }
+        private readonly string _tag = "_1";
+        public HttpWebResponse LastResponse { get { return Fixture.LastResponse; } }
+        public string LastResponseBody { get { return Fixture.LastResponseBody; } }
+        public JsonException LastJsonException { get { return Fixture.LastJsonException; } }
 #if !__MonoCS__
         private Func<HttpWebResponse, byte[]> _dumpResponse;
         private Func<HttpWebResponse, int> _dumpResponse2;
         private Func<HttpWebRequest, byte[]> _dumpRequest;
         private Func<HttpWebRequest, byte[]> _dumpRequest2;
 #endif
-        private string _tag;
 
-        [TestFixtureSetUp]
-        public override void TestFixtureSetUp()
+        public void SetFixture(object foo){}
+        public void SetFixture(SpecificationFixture data)
         {
 #if !__MonoCS__
             Helper.EatException(() => _dumpResponse = CreateDumpResponse());
@@ -46,68 +113,29 @@ namespace EventStore.Core.Tests.Http
             Helper.EatException(() => _dumpRequest = CreateDumpRequest());
             Helper.EatException(() => _dumpRequest2 = CreateDumpRequest2());
 #endif
-
-            base.TestFixtureSetUp();
-
-            bool createdMiniNode = false;
-            if (SetUpFixture._connection != null && SetUpFixture._node != null)
-            {
-                _tag = "_" + (++SetUpFixture._counter);
-                _node = SetUpFixture._node;
-                _connection = SetUpFixture._connection;
-            }
-            else
-            {
-                createdMiniNode = true;
-                _tag = "_1";
-                _node = CreateMiniNode();
-                _node.Start();
-
-                _connection = TestConnection.Create(_node.TcpEndPoint);
-                _connection.ConnectAsync().Wait();
-            }
-            _lastResponse = null;
-            _lastResponseBody = null;
-            _lastJsonException = null;
-            try
-            {
-                Given();
-                When();
-            }
-            catch
-            {
-                if (createdMiniNode)
-                {
-                    if (_connection != null)
-                        try
-                        {
-                            _connection.Close();
-                        }
-                        catch
-                        {
-                        }
-                    if (_node != null)
-                        try
-                        {
-                            _node.Shutdown();
-                        }
-                        catch
-                        {
-                        }
-                }
-                throw;
-            }
+            _fixture = data;
+            _fixture.EnsureInitialized(CreateMiniNode, Given, When);
+            _fixture.AssignStashedValues(this);
         }
 
-        public string TestStream {
+        protected virtual MiniNode CreateMiniNode(string pathname)
+        {
+            WebRequest.DefaultWebProxy = new WebProxy();
+            return new MiniNode(pathname, enableTrustedAuth:true, skipInitializeStandardUsersCheck:false);
+        }
+
+        public string TestStream
+        {
             get { return "/streams/test" + Tag; }
         }
 
-        public string TestStreamName {
+        public string TestStreamName
+        {
             get { return "test" + Tag; }
         }
 
-        public string TestMetadataStream {
+        public string TestMetadataStream
+        {
             get { return "/streams/$$test" + Tag; }
         }
 
@@ -116,32 +144,11 @@ namespace EventStore.Core.Tests.Http
             get { return _tag; }
         }
 
-        protected virtual MiniNode CreateMiniNode()
-        {
-            return new MiniNode(PathName, skipInitializeStandardUsersCheck: GivenSkipInitializeStandardUsersCheck());
-        }
-
-        protected virtual bool GivenSkipInitializeStandardUsersCheck()
-        {
-            return false;
-        }
-
-        [TestFixtureTearDown]
-        public override void TestFixtureTearDown()
-        {
-            if (SetUpFixture._connection == null || SetUpFixture._node == null)
-            {
-                _connection.Close();
-                _node.Shutdown();
-            }
-            base.TestFixtureTearDown();
-        }
-
         protected HttpWebRequest CreateRequest(
             string path, string extra, string method, string contentType, ICredentials credentials = null)
         {
-			var uri = MakeUrl (path, extra);
-			var request = WebRequest.Create (uri);
+            var uri = MakeUrl(path, extra);
+            var request = WebRequest.Create(uri);
             var httpWebRequest = (HttpWebRequest)request;
             httpWebRequest.ConnectionGroupName = TestStream;
             httpWebRequest.Method = method;
@@ -150,24 +157,28 @@ namespace EventStore.Core.Tests.Http
             if (credentials != null)
             {
                 httpWebRequest.Credentials = credentials;
-				httpWebRequest.PreAuthenticate = true;
+                httpWebRequest.PreAuthenticate = true;
             }
             return httpWebRequest;
         }
 
         protected HttpWebRequest CreateRequest(string path, string method, ICredentials credentials = null)
         {
-            var httpWebRequest = (HttpWebRequest) WebRequest.Create(MakeUrl(path));
+            var httpWebRequest = (HttpWebRequest)WebRequest.Create(MakeUrl(path));
             httpWebRequest.Method = method;
             httpWebRequest.UseDefaultCredentials = false;
             if (credentials != null)
             {
                 httpWebRequest.Credentials = credentials;
-				httpWebRequest.PreAuthenticate = true;
+                httpWebRequest.PreAuthenticate = true;
             }
             return httpWebRequest;
         }
 
+        protected string MakeUrlString(string path, string extra = "")
+        {
+            return MakeUrl(path, extra).AbsoluteUri;
+        }
         protected Uri MakeUrl(string path, string extra = "")
         {
 
@@ -176,10 +187,10 @@ namespace EventStore.Core.Tests.Http
             if (supplied.IsAbsoluteUri && !supplied.IsFile) // NOTE: is file imporant for mono
                 return supplied;
 
-            var httpEndPoint = _node.ExtHttpEndPoint;
-            var x =  new UriBuilder("http", httpEndPoint.Address.ToString(), httpEndPoint.Port, path);
+            var httpEndPoint = Node.ExtHttpEndPoint;
+            var x = new UriBuilder("http", httpEndPoint.Address.ToString(), httpEndPoint.Port, path);
             x.Query = extra;
-	    Console.WriteLine(new string('*', 50) + Environment.NewLine + path + Environment.NewLine + extra + Environment.NewLine + x.Uri + Environment.NewLine + new string('*', 50));
+            Console.WriteLine(new string('*', 50) + Environment.NewLine + path + Environment.NewLine + extra + Environment.NewLine + x.Uri + Environment.NewLine + new string('*', 50));
 
             return x.Uri;
         }
@@ -199,7 +210,8 @@ namespace EventStore.Core.Tests.Http
             return httpWebResponse;
         }
 
-        protected HttpWebResponse MakeArrayEventsPost<T>(string path, T body, ICredentials credentials=null) {
+        protected HttpWebResponse MakeArrayEventsPost<T>(string path, T body, ICredentials credentials = null)
+        {
             var request = CreateEventsJsonPostRequest(path, "POST", body, credentials);
             var response = GetRequestResponse(request);
             return response;
@@ -215,18 +227,17 @@ namespace EventStore.Core.Tests.Http
         protected JObject MakeJsonPostWithJsonResponse<T>(string path, T body, ICredentials credentials = null)
         {
             var request = CreateRawJsonPostRequest(path, "POST", body, credentials);
-            _lastResponse = GetRequestResponse(request);
+            Fixture.LastResponse = GetRequestResponse(request);
             var memoryStream = new MemoryStream();
-            _lastResponse.GetResponseStream().CopyTo(memoryStream);
+            Fixture.LastResponse.GetResponseStream().CopyTo(memoryStream);
             var bytes = memoryStream.ToArray();
-            _lastResponseBody = Helper.UTF8NoBom.GetString(bytes);
+            Fixture.LastResponseBody = Helper.UTF8NoBom.GetString(bytes);
             try
             {
-                return _lastResponseBody.ParseJson<JObject>();
-            }
-            catch (JsonException ex)
+                return Fixture.LastResponseBody.ParseJson<JObject>();
+            } catch (JsonException ex)
             {
-                _lastJsonException = ex;
+                Fixture.LastJsonException = ex;
                 return default(JObject);
             }
         }
@@ -234,18 +245,17 @@ namespace EventStore.Core.Tests.Http
         protected JObject MakeJsonEventsPostWithJsonResponse<T>(string path, T body, ICredentials credentials = null)
         {
             var request = CreateEventsJsonPostRequest(path, "POST", body, credentials);
-            _lastResponse = GetRequestResponse(request);
+            Fixture.LastResponse = GetRequestResponse(request);
             var memoryStream = new MemoryStream();
-            _lastResponse.GetResponseStream().CopyTo(memoryStream);
+            Fixture.LastResponse.GetResponseStream().CopyTo(memoryStream);
             var bytes = memoryStream.ToArray();
-            _lastResponseBody = Helper.UTF8NoBom.GetString(bytes);
+            Fixture.LastResponseBody = Helper.UTF8NoBom.GetString(bytes);
             try
             {
-                return _lastResponseBody.ParseJson<JObject>();
-            }
-            catch (JsonException ex)
+                return Fixture.LastResponseBody.ParseJson<JObject>();
+            } catch (JsonException ex)
             {
-                _lastJsonException = ex;
+                Fixture.LastJsonException = ex;
                 return default(JObject);
             }
         }
@@ -278,17 +288,17 @@ namespace EventStore.Core.Tests.Http
             var httpWebResponse = GetRequestResponse(request);
             return httpWebResponse;
         }
-        
+
         protected XDocument GetAtomXml(Uri uri, ICredentials credentials = null)
         {
             Get(uri.ToString(), "", ContentType.Atom, credentials);
-            return XDocument.Parse(_lastResponseBody);
+            return XDocument.Parse(Fixture.LastResponseBody);
         }
 
         protected XDocument GetXml(Uri uri, ICredentials credentials = null)
         {
             Get(uri.ToString(), "", ContentType.Xml, credentials);
-            return XDocument.Parse(_lastResponseBody);
+            return XDocument.Parse(Fixture.LastResponseBody);
         }
 
         protected T GetJson<T>(string path, string accept = null, ICredentials credentials = null)
@@ -296,11 +306,10 @@ namespace EventStore.Core.Tests.Http
             Get(path, "", accept, credentials);
             try
             {
-                return _lastResponseBody.ParseJson<T>();
-            }
-            catch (JsonException ex)
+                return Fixture.LastResponseBody.ParseJson<T>();
+            } catch (JsonException ex)
             {
-                _lastJsonException = ex;
+                Fixture.LastJsonException = ex;
                 return default(T);
             }
         }
@@ -310,11 +319,10 @@ namespace EventStore.Core.Tests.Http
             Get(path, extra, accept, credentials);
             try
             {
-                return _lastResponseBody.ParseJson<T>();
-            }
-            catch (JsonException ex)
+                return Fixture.LastResponseBody.ParseJson<T>();
+            } catch (JsonException ex)
             {
-                _lastJsonException = ex;
+                Fixture.LastJsonException = ex;
                 return default(T);
             }
         }
@@ -323,11 +331,11 @@ namespace EventStore.Core.Tests.Http
         {
             var request = CreateRequest(path, extra, "GET", null, credentials);
             request.Accept = accept ?? "application/json";
-            _lastResponse = GetRequestResponse(request);
+            Fixture.LastResponse = GetRequestResponse(request);
             var memoryStream = new MemoryStream();
-            _lastResponse.GetResponseStream().CopyTo(memoryStream);
+            Fixture.LastResponse.GetResponseStream().CopyTo(memoryStream);
             var bytes = memoryStream.ToArray();
-            _lastResponseBody = Helper.UTF8NoBom.GetString(bytes);
+            Fixture.LastResponseBody = Helper.UTF8NoBom.GetString(bytes);
         }
 
         protected HttpWebResponse GetRequestResponse(HttpWebRequest request)
@@ -335,11 +343,10 @@ namespace EventStore.Core.Tests.Http
             HttpWebResponse response;
             try
             {
-                response = (HttpWebResponse) request.GetResponse();
-            }
-            catch (WebException ex)
+                response = (HttpWebResponse)request.GetResponse();
+            } catch (WebException ex)
             {
-                response = (HttpWebResponse) ex.Response;
+                response = (HttpWebResponse)ex.Response;
             }
 #if !__MonoCS__
             if (_dumpRequest != null)
@@ -400,15 +407,15 @@ namespace EventStore.Core.Tests.Http
 
         private static Func<HttpWebResponse, byte[]> CreateDumpResponse()
         {
-            var r = Expression.Parameter(typeof (HttpWebResponse), "r");
-            var piCoreResponseData = typeof (HttpWebResponse).GetProperty(
+            var r = Expression.Parameter(typeof(HttpWebResponse), "r");
+            var piCoreResponseData = typeof(HttpWebResponse).GetProperty(
                 "CoreResponseData",
-                BindingFlags.GetProperty | BindingFlags.NonPublic | BindingFlags.FlattenHierarchy| BindingFlags.Instance);
+                BindingFlags.GetProperty | BindingFlags.NonPublic | BindingFlags.FlattenHierarchy | BindingFlags.Instance);
             var fim_ConnectStream = piCoreResponseData.PropertyType.GetField("m_ConnectStream",
-                                                                             BindingFlags.GetField| BindingFlags.Public | BindingFlags.FlattenHierarchy| BindingFlags.Instance);
+                                                                             BindingFlags.GetField | BindingFlags.Public | BindingFlags.FlattenHierarchy | BindingFlags.Instance);
             var connectStreamType = AppDomain.CurrentDomain.GetAssemblies().Select(a => a.GetType("System.Net.ConnectStream")).Where(t => t != null).FirstOrDefault();
             var fim_ReadBuffer = connectStreamType.GetField("m_ReadBuffer",
-                                                            BindingFlags.GetField| BindingFlags.NonPublic | BindingFlags.FlattenHierarchy| BindingFlags.Instance);
+                                                            BindingFlags.GetField | BindingFlags.NonPublic | BindingFlags.FlattenHierarchy | BindingFlags.Instance);
             var body = Expression.Field(Expression.Convert(Expression.Field(Expression.Property(r, piCoreResponseData), fim_ConnectStream), connectStreamType), fim_ReadBuffer);
             var debugExpression = Expression.Lambda<Func<HttpWebResponse, byte[]>>(body, r);
             return debugExpression.Compile();
@@ -416,17 +423,17 @@ namespace EventStore.Core.Tests.Http
 
         private static Func<HttpWebResponse, int> CreateDumpResponse2()
         {
-            var r = Expression.Parameter(typeof (HttpWebResponse), "r");
-            var piCoreResponseData = typeof (HttpWebResponse).GetProperty(
+            var r = Expression.Parameter(typeof(HttpWebResponse), "r");
+            var piCoreResponseData = typeof(HttpWebResponse).GetProperty(
                 "CoreResponseData",
-                BindingFlags.GetProperty | BindingFlags.NonPublic | BindingFlags.FlattenHierarchy| BindingFlags.Instance);
+                BindingFlags.GetProperty | BindingFlags.NonPublic | BindingFlags.FlattenHierarchy | BindingFlags.Instance);
             var fim_ConnectStream = piCoreResponseData.PropertyType.GetField("m_ConnectStream",
-                                                                             BindingFlags.GetField| BindingFlags.Public | BindingFlags.FlattenHierarchy| BindingFlags.Instance);
+                                                                             BindingFlags.GetField | BindingFlags.Public | BindingFlags.FlattenHierarchy | BindingFlags.Instance);
             var connectStreamType = AppDomain.CurrentDomain.GetAssemblies().Select(a => a.GetType("System.Net.ConnectStream")).Where(t => t != null).FirstOrDefault();
             var fim_ReadOffset = connectStreamType.GetField("m_ReadOffset",
-                                                            BindingFlags.GetField| BindingFlags.NonPublic | BindingFlags.FlattenHierarchy| BindingFlags.Instance);
+                                                            BindingFlags.GetField | BindingFlags.NonPublic | BindingFlags.FlattenHierarchy | BindingFlags.Instance);
             var fim_ReadBufferSize = connectStreamType.GetField("m_ReadBufferSize",
-                                                            BindingFlags.GetField| BindingFlags.NonPublic | BindingFlags.FlattenHierarchy| BindingFlags.Instance);
+                                                            BindingFlags.GetField | BindingFlags.NonPublic | BindingFlags.FlattenHierarchy | BindingFlags.Instance);
             var stream = Expression.Convert(Expression.Field(Expression.Property(r, piCoreResponseData), fim_ConnectStream), connectStreamType);
             var body = Expression.Add(Expression.Field(stream, fim_ReadOffset), Expression.Field(stream, fim_ReadBufferSize));
             var debugExpression = Expression.Lambda<Func<HttpWebResponse, int>>(body, r);
@@ -435,9 +442,9 @@ namespace EventStore.Core.Tests.Http
 
         private static Func<HttpWebRequest, byte[]> CreateDumpRequest()
         {
-            var r = Expression.Parameter(typeof (HttpWebRequest), "r");
-            var fi_WriteBuffer = typeof (HttpWebRequest).GetField("_WriteBuffer",
-                                                                  BindingFlags.GetField| BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.FlattenHierarchy| BindingFlags.Instance);
+            var r = Expression.Parameter(typeof(HttpWebRequest), "r");
+            var fi_WriteBuffer = typeof(HttpWebRequest).GetField("_WriteBuffer",
+                                                                  BindingFlags.GetField | BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.FlattenHierarchy | BindingFlags.Instance);
             var body = Expression.Field(r, fi_WriteBuffer);
             var debugExpression = Expression.Lambda<Func<HttpWebRequest, byte[]>>(body, r);
             return debugExpression.Compile();
@@ -445,8 +452,8 @@ namespace EventStore.Core.Tests.Http
 
         private static Func<HttpWebRequest, byte[]> CreateDumpRequest2()
         {
-            var r = Expression.Parameter(typeof (HttpWebRequest), "r");
-            var fi_SubmitWriteStream = typeof (HttpWebRequest).GetField(
+            var r = Expression.Parameter(typeof(HttpWebRequest), "r");
+            var fi_SubmitWriteStream = typeof(HttpWebRequest).GetField(
                 "_SubmitWriteStream",
                 BindingFlags.GetField | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.FlattenHierarchy
                 | BindingFlags.Instance);

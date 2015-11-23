@@ -1,14 +1,13 @@
 ﻿using System;
 using System.Collections.Specialized;
 using EventStore.Transport.Http.EntityManagement;
-using NUnit.Framework;
+using Xunit;
 
 namespace EventStore.Core.Tests.Services.Transport.Http
 {
-    [TestFixture]
-    class proxy_headers
+    public class proxy_headers
     {
-        [Test]
+        [Fact]
         public void with_no_headers_uri_is_unchanged()
         {
             var inputUri = new Uri("http://www.example.com:1234/path/?key=value#anchor");
@@ -16,10 +15,10 @@ namespace EventStore.Core.Tests.Services.Transport.Http
                 HttpEntity.BuildRequestedUrl(inputUri,
                                              new NameValueCollection());
 
-            Assert.AreEqual(inputUri, requestedUri);
+            Assert.Equal(inputUri, requestedUri);
         }
 
-        [Test]
+        [Fact]
         public void with_port_forward_header_only_port_is_changed()
         {
             var inputUri = new Uri("http://www.example.com:1234/path/?key=value#anchor");
@@ -27,10 +26,10 @@ namespace EventStore.Core.Tests.Services.Transport.Http
             var requestedUri =
                 HttpEntity.BuildRequestedUrl(inputUri, headers);
 
-            Assert.AreEqual(new Uri("http://www.example.com:4321/path/?key=value#anchor"), requestedUri);
+            Assert.Equal(new Uri("http://www.example.com:4321/path/?key=value#anchor"), requestedUri);
         }
 
-        [Test]
+        [Fact]
         public void non_integer_port_forward_header_is_ignored()
         {
             var inputUri = new Uri("http://www.example.com:1234/path/?key=value#anchor");
@@ -38,10 +37,10 @@ namespace EventStore.Core.Tests.Services.Transport.Http
             var requestedUri =
                 HttpEntity.BuildRequestedUrl(inputUri, headers);
 
-            Assert.AreEqual(inputUri, requestedUri);
+            Assert.Equal(inputUri, requestedUri);
         }
 
-        [Test]
+        [Fact]
         public void with_proto_forward_header_only_scheme_is_changed()
         {
             var inputUri = new Uri("http://www.example.com:1234/path/?key=value#anchor");
@@ -49,7 +48,7 @@ namespace EventStore.Core.Tests.Services.Transport.Http
             var requestedUri =
                 HttpEntity.BuildRequestedUrl(inputUri, headers);
 
-            Assert.AreEqual(new Uri("https://www.example.com:1234/path/?key=value#anchor"), requestedUri);
+            Assert.Equal(new Uri("https://www.example.com:1234/path/?key=value#anchor"), requestedUri);
         }
     }
 }

@@ -8,13 +8,13 @@ using EventStore.Core.Services.TimerService;
 using EventStore.Core.TransactionLog.LogRecords;
 using EventStore.Projections.Core.Services.Processing;
 using EventStore.Projections.Core.Tests.Services.core_projection;
-using NUnit.Framework;
+using Xunit;
 using ReadStreamResult = EventStore.Core.Data.ReadStreamResult;
 using ResolvedEvent = EventStore.Core.Data.ResolvedEvent;
 
 namespace EventStore.Projections.Core.Tests.Services.event_reader.multi_stream_reader
 {
-    [TestFixture]
+    
     public class when_resuming : TestFixtureWithExistingEvents
     {
         private MultiStreamEventReader _edp;
@@ -23,8 +23,7 @@ namespace EventStore.Projections.Core.Tests.Services.event_reader.multi_stream_r
         private string[] _abStreams;
         private Dictionary<string, int> _ab12Tag;
 
-        [SetUp]
-        public new void When()
+        public when_resuming()
         {
             _ab12Tag = new Dictionary<string, int> {{"a", 1}, {"b", 2}};
             _abStreams = new[] {"a", "b"};
@@ -37,41 +36,41 @@ namespace EventStore.Projections.Core.Tests.Services.event_reader.multi_stream_r
             _edp.Resume();
         }
 
-        [Test, ExpectedException(typeof (InvalidOperationException))]
+        [Fact]
         public void it_cannot_be_resumed()
         {
-            _edp.Resume();
+            Assert.Throws<InvalidOperationException>(() => { _edp.Resume(); });
         }
 
-        [Test]
+        [Fact]
         public void it_cannot_be_paused()
         {
             _edp.Pause();
         }
 
-        [Test]
+        [Fact]
         public void it_publishes_read_events_from_beginning()
         {
-            Assert.AreEqual(2, _consumer.HandledMessages.OfType<ClientMessage.ReadStreamEventsForward>().Count());
-            Assert.IsTrue(
+            Assert.Equal(2, _consumer.HandledMessages.OfType<ClientMessage.ReadStreamEventsForward>().Count());
+            Assert.True(
                 _consumer.HandledMessages.OfType<ClientMessage.ReadStreamEventsForward>()
                          .Any(m => m.EventStreamId == "a"));
-            Assert.IsTrue(
+            Assert.True(
                 _consumer.HandledMessages.OfType<ClientMessage.ReadStreamEventsForward>()
                          .Any(m => m.EventStreamId == "b"));
-            Assert.AreEqual(
+            Assert.Equal(
                 1,
                 _consumer.HandledMessages.OfType<ClientMessage.ReadStreamEventsForward>()
                          .Single(m => m.EventStreamId == "a")
                          .FromEventNumber);
-            Assert.AreEqual(
+            Assert.Equal(
                 2,
                 _consumer.HandledMessages.OfType<ClientMessage.ReadStreamEventsForward>()
                          .Single(m => m.EventStreamId == "b")
                          .FromEventNumber);
         }
 
-        [Test]
+        [Fact]
         public void can_handle_read_events_completed()
         {
             _edp.Handle(

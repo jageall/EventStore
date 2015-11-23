@@ -8,12 +8,12 @@ using EventStore.Core.TransactionLog.LogRecords;
 using EventStore.Projections.Core.Messages;
 using EventStore.Projections.Core.Services.Processing;
 using EventStore.Projections.Core.Tests.Services.core_projection;
-using NUnit.Framework;
+using Xunit;
 using ResolvedEvent = EventStore.Core.Data.ResolvedEvent;
 
 namespace EventStore.Projections.Core.Tests.Services.event_reader.transaction_file_reader
 {
-    [TestFixture]
+    
     public class when_handling_stream_hard_deleted : TestFixtureWithExistingEvents
     {
         private TransactionFileEventReader _edp;
@@ -28,8 +28,7 @@ namespace EventStore.Projections.Core.Tests.Services.event_reader.transaction_fi
 
         private FakeTimeProvider _fakeTimeProvider;
 
-        [SetUp]
-        public new void When()
+        public when_handling_stream_hard_deleted()
         {
             _distibutionPointCorrelationId = Guid.NewGuid();
             _fakeTimeProvider = new FakeTimeProvider();
@@ -60,13 +59,13 @@ namespace EventStore.Projections.Core.Tests.Services.event_reader.transaction_fi
 
         }
 
-        [Test]
+        [Fact]
         public void publishes_event_reader_partition_deleted_messages()
         {
             var deleteds =
                 _consumer.HandledMessages.OfType<ReaderSubscriptionMessage.EventReaderPartitionDeleted>().ToArray();
-            Assert.AreEqual(1, deleteds.Count());
-            Assert.AreEqual("a", deleteds[0].Partition);
+            Assert.Equal(1, deleteds.Count());
+            Assert.Equal("a", deleteds[0].Partition);
         }
     }
 }

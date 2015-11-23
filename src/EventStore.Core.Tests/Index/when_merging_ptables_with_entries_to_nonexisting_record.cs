@@ -1,70 +1,76 @@
 using System.Collections.Generic;
 using EventStore.Core.Index;
-using NUnit.Framework;
+using Xunit;
 
 namespace EventStore.Core.Tests.Index
 {
-    [TestFixture]
-    public class when_merging_ptables_with_entries_to_nonexisting_record: SpecificationWithDirectoryPerTestFixture
+    public class when_merging_ptables_with_entries_to_nonexisting_record : IUseFixture<when_merging_ptables_with_entries_to_nonexisting_record.FixtureData>
     {
-        private readonly List<string> _files = new List<string>();
-        private readonly List<PTable> _tables = new List<PTable>();
         private PTable _newtable;
 
-        [TestFixtureSetUp]
-        public override void TestFixtureSetUp()
+        public class FixtureData : SpecificationWithDirectoryPerTestFixture
         {
-            base.TestFixtureSetUp();
-            for (int i = 0; i < 4; i++)
-            {
-                _files.Add(GetTempFilePath());
+            private readonly List<string> _files = new List<string>();
+            private readonly List<PTable> _tables = new List<PTable>();
+            public PTable _newtable;
 
-                var table = new HashListMemTable(maxSize: 30);
-                for (int j = 0; j < 10; j++)
+            public FixtureData()
+            {
+                for (int i = 0; i < 4; i++)
                 {
-                    table.Add((uint)i, j, i*10 + j);
+                    _files.Add(GetTempFilePath());
+
+                    var table = new HashListMemTable(maxSize: 30);
+                    for (int j = 0; j < 10; j++)
+                    {
+                        table.Add((uint)i, j, i * 10 + j);
+                    }
+                    _tables.Add(PTable.FromMemtable(table, _files[i]));
                 }
-                _tables.Add(PTable.FromMemtable(table, _files[i]));
+                _files.Add(GetTempFilePath());
+                _newtable = PTable.MergeTo(_tables, _files[4], x => x.Position % 2 == 0);    
             }
-            _files.Add(GetTempFilePath());
-            _newtable = PTable.MergeTo(_tables, _files[4], x => x.Position % 2 == 0);
-        }
 
-        [TestFixtureTearDown]
-        public override void TestFixtureTearDown()
-        {
-            _newtable.Dispose();
-            foreach (var ssTable in _tables)
+            public override void Dispose()
             {
-                ssTable.Dispose();
+                _newtable.Dispose();
+                foreach (var ssTable in _tables)
+                {
+                    ssTable.Dispose();
+                }
+                base.Dispose();
             }
-            base.TestFixtureTearDown();
         }
 
-        [Test]
+        public void SetFixture(FixtureData data)
+        {
+            _newtable = data._newtable;
+        }
+
+        [Fact]
         public void there_are_only_twenty_entries_left()
         {
-            Assert.AreEqual(20, _newtable.Count);
+            Assert.Equal(20, _newtable.Count);
         }
 
-        [Test]
+        [Fact]
         public void the_hash_can_be_verified()
         {
             Assert.DoesNotThrow(() => _newtable.VerifyFileHash());
         }
 
-        [Test]
+        [Fact]
         public void the_items_are_sorted()
         {
             var last = new IndexEntry(ulong.MaxValue, long.MaxValue);
             foreach (var item in _newtable.IterateAllInOrder())
             {
-                Assert.IsTrue(last.Key > item.Key || last.Key == item.Key && last.Position > item.Position);
+                Assert.True(last.Key > item.Key || last.Key == item.Key && last.Position > item.Position);
                 last = item;
             }
         }
 
-        [Test]
+        [Fact]
         public void the_right_items_are_deleted()
         {
             for (int i = 0; i < 4; i++)
@@ -74,11 +80,11 @@ namespace EventStore.Core.Tests.Index
                     long position;
                     if ((i*10 + j)%2 == 0)
                     {
-                        Assert.IsTrue(_newtable.TryGetOneValue((uint)i, j, out position));
-                        Assert.AreEqual(i*10+j, position);
+                        Assert.True(_newtable.TryGetOneValue((uint)i, j, out position));
+                        Assert.Equal(i*10+j, position);
                     }
                     else
-                        Assert.IsFalse(_newtable.TryGetOneValue((uint)i, j, out position));
+                        Assert.False(_newtable.TryGetOneValue((uint)i, j, out position));
                 }
             }
         }

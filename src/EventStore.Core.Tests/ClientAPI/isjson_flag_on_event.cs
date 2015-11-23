@@ -8,36 +8,26 @@ using EventStore.Core.Messaging;
 using EventStore.Core.Tests.ClientAPI.Helpers;
 using EventStore.Core.Tests.Helpers;
 using EventStore.Core.TransactionLog.LogRecords;
-using NUnit.Framework;
+using Xunit;
 
 namespace EventStore.Core.Tests.ClientAPI
 {
-    [TestFixture]
-    public class isjson_flag_on_event : SpecificationWithDirectory
+    public class isjson_flag_on_event : IUseFixture<MiniNodeFixture>
     {
         private MiniNode _node;
 
-        [SetUp]
-        public override void SetUp()
+        public void SetFixture(MiniNodeFixture data)
         {
-            base.SetUp();
-            _node = new MiniNode(PathName);
-            _node.Start();
+            _node = data.Node;
         }
-
-        [TearDown]
-        public override void TearDown()
-        {
-            _node.Shutdown();
-            base.TearDown();
-        }
-
         protected virtual IEventStoreConnection BuildConnection(MiniNode node)
         {
             return TestConnection.To(node, TcpType.Normal);
         }
 
-        [Test, Category("LongRunning"), Category("Network")]
+        [Trait("Category", "Network")]
+        [Trait("Category", "LongRunning")]
+        [Fact]
         public void should_be_preserved_with_all_possible_write_and_read_methods()
         {
             const string stream = "should_be_preserved_with_all_possible_write_methods";
@@ -70,15 +60,15 @@ namespace EventStore.Core.Tests.ClientAPI
                 _node.Node.MainQueue.Publish(new ClientMessage.ReadStreamEventsForward(
                     Guid.NewGuid(), Guid.NewGuid(), new CallbackEnvelope(message =>
                     {
-                        Assert.IsInstanceOf<ClientMessage.ReadStreamEventsForwardCompleted>(message);
+                        Assert.IsType<ClientMessage.ReadStreamEventsForwardCompleted>(message);
                         var msg = (ClientMessage.ReadStreamEventsForwardCompleted) message;
-                        Assert.AreEqual(Data.ReadStreamResult.Success, msg.Result);
-                        Assert.AreEqual(6, msg.Events.Length);
-                        Assert.IsTrue(msg.Events.All(x => (x.OriginalEvent.Flags & PrepareFlags.IsJson) != 0));
+                        Assert.Equal(Data.ReadStreamResult.Success, msg.Result);
+                        Assert.Equal(6, msg.Events.Length);
+                        Assert.True(msg.Events.All(x => (x.OriginalEvent.Flags & PrepareFlags.IsJson) != 0));
 
                         done.Set();
                     }), stream, 0, 100, false, false, null, null));
-                Assert.IsTrue(done.Wait(10000), "Read was not completed in time.");
+                Assert.True(done.Wait(10000), "Read was not completed in time.");
             }
         }
     }

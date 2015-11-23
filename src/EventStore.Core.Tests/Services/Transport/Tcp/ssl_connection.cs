@@ -9,16 +9,16 @@ using EventStore.Common.Log;
 using EventStore.Core.Services.Transport.Tcp;
 using EventStore.Core.Tests.Helpers;
 using EventStore.Transport.Tcp;
-using NUnit.Framework;
+using Xunit;
 
 namespace EventStore.Core.Tests.Services.Transport.Tcp
 {
-    [TestFixture, Category("LongRunning")]
     public class ssl_connections
     {
         private static readonly ILogger Log = LogManager.GetLoggerFor<ssl_connections>();
 
-        [Test]
+        [Fact]
+        [Trait("Category", "LongRunning")]
         public void should_connect_to_each_other_and_send_data()
         {
             var ip = IPAddress.Loopback;
@@ -83,14 +83,14 @@ namespace EventStore.Core.Tests.Services.Transport.Tcp
                 },
                 verbose: true);
 
-            Assert.IsTrue(done.Wait(20000), "Took too long to receive completion.");
+            Assert.True(done.Wait(20000), "Took too long to receive completion.");
 
             Log.Info("Stopping listener...");
             listener.Stop();
             Log.Info("Closing client ssl connection...");
             clientSsl.Close("Normal close.");
             Log.Info("Checking received data...");
-            Assert.AreEqual(sent, received.ToArray());
+            Assert.Equal(sent, received.ToArray());
         }
 
         public static X509Certificate2 GetCertificate()

@@ -1,18 +1,17 @@
 using System;
 using System.Collections.Generic;
 using EventStore.Projections.Core.Services.Processing;
-using NUnit.Framework;
+using Xunit;
 
 namespace EventStore.Projections.Core.Tests.Services.position_tagging.multistream_position_tagger
 {
-    [TestFixture]
+    
     public class when_updating_postion_multistream_position_tracker
     {
         private MultiStreamPositionTagger _tagger;
         private PositionTracker _positionTracker;
 
-        [SetUp]
-        public void When()
+        public when_updating_postion_multistream_position_tracker()
         {
             // given
             _tagger = new MultiStreamPositionTagger(0, new []{"stream1", "stream2"});
@@ -23,27 +22,27 @@ namespace EventStore.Projections.Core.Tests.Services.position_tagging.multistrea
             _positionTracker.UpdateByCheckpointTagForward(newTag2);
         }
 
-        [Test]
+        [Fact]
         public void stream_position_is_updated()
         {
-            Assert.AreEqual(1, _positionTracker.LastTag.Streams["stream1"]);
-            Assert.AreEqual(3, _positionTracker.LastTag.Streams["stream2"]);
+            Assert.Equal(1, _positionTracker.LastTag.Streams["stream1"]);
+            Assert.Equal(3, _positionTracker.LastTag.Streams["stream2"]);
         }
 
         
-        [Test, ExpectedException(typeof (InvalidOperationException))]
+        [Fact]
         public void cannot_update_to_the_same_postion()
         {
             var newTag = CheckpointTag.FromStreamPositions(0, new Dictionary<string, int> { { "stream1", 1 }, { "stream2", 3 } });
-            _positionTracker.UpdateByCheckpointTagForward(newTag);
+            Assert.Throws<InvalidOperationException>(() => { _positionTracker.UpdateByCheckpointTagForward(newTag); });
         }
 
-        [Test, ExpectedException(typeof(InvalidOperationException))]
+        [Fact]
         public void it_cannot_be_updated_with_other_stream()
         {
             // even not initialized (UpdateToZero can be removed)
             var newTag = CheckpointTag.FromStreamPositions(0, new Dictionary<string, int> { { "stream1", 3 }, { "stream3", 2 } });
-            _positionTracker.UpdateByCheckpointTagForward(newTag);
+            Assert.Throws<InvalidOperationException>(() => { _positionTracker.UpdateByCheckpointTagForward(newTag); });
         }
 
         //TODO: write tests on updating with incompatible snapshot loaded

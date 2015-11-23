@@ -1,10 +1,10 @@
 ﻿using System.IO;
 using EventStore.Core.Data;
-using NUnit.Framework;
+using EventStore.Core.Tests.Services.Storage;
+using Xunit;
 
 namespace EventStore.Core.Tests.TransactionLog.Truncation
 {
-    [TestFixture]
     public class when_truncating_few_chunks_with_index_on_disk : TruncateScenario
     {
         private EventRecord _event4;
@@ -21,58 +21,67 @@ namespace EventStore.Core.Tests.TransactionLog.Truncation
 
         protected override void WriteTestScenario()
         {
-            WriteSingleEvent("ES", 0, new string('.', 4000));
-            WriteSingleEvent("ES", 1, new string('.', 4000));
-            WriteSingleEvent("ES", 2, new string('.', 4000), retryOnFail: true);  // ptable 1, chunk 1
-            _event4 = WriteSingleEvent("ES", 3, new string('.', 4000));
-            WriteSingleEvent("ES", 4, new string('.', 4000), retryOnFail: true);  // chunk 2
-            WriteSingleEvent("ES", 5, new string('.', 4000));  // ptable 2
-            WriteSingleEvent("ES", 6, new string('.', 4000), retryOnFail: true);  // chunk 3 
+            Fixture.WriteSingleEvent("ES", 0, new string('.', 4000));
+            Fixture.WriteSingleEvent("ES", 1, new string('.', 4000));
+            Fixture.WriteSingleEvent("ES", 2, new string('.', 4000), retryOnFail: true);  // ptable 1, chunk 1
+            var event4 = Fixture.WriteSingleEvent("ES", 3, new string('.', 4000));
+            Fixture.WriteSingleEvent("ES", 4, new string('.', 4000), retryOnFail: true);  // chunk 2
+            Fixture.WriteSingleEvent("ES", 5, new string('.', 4000));  // ptable 2
+            Fixture.WriteSingleEvent("ES", 6, new string('.', 4000), retryOnFail: true);  // chunk 3 
 
-            TruncateCheckpoint = _event4.LogPosition;
+            TruncateCheckpoint = event4.LogPosition;
 
-            _chunk0 = GetChunkName(0);
-            _chunk1 = GetChunkName(1);
-            _chunk2 = GetChunkName(2);
-            _chunk3 = GetChunkName(3);
+            var chunk0 = GetChunkName(0);
+            var chunk1 = GetChunkName(1);
+            var chunk2 = GetChunkName(2);
+            var chunk3 = GetChunkName(3);
 
-            Assert.IsTrue(File.Exists(_chunk0));
-            Assert.IsTrue(File.Exists(_chunk1));
-            Assert.IsTrue(File.Exists(_chunk2));
-            Assert.IsTrue(File.Exists(_chunk3));
+            Assert.True(File.Exists(chunk0));
+            Assert.True(File.Exists(chunk1));
+            Assert.True(File.Exists(chunk2));
+            Assert.True(File.Exists(chunk3));
+
+            Fixture.AddStashedValueAssignment(this, instance =>
+            {
+                instance._event4 = event4;
+                instance._chunk0 = chunk0;
+                instance._chunk1 = chunk1;
+                instance._chunk2 = chunk2;
+                instance._chunk3 = chunk3;
+            });
         }
 
         private string GetChunkName(int chunkNumber)
         {
-            var allVersions = Db.Config.FileNamingStrategy.GetAllVersionsFor(chunkNumber);
-            Assert.AreEqual(1, allVersions.Length);
+            var allVersions = Fixture.Db.Config.FileNamingStrategy.GetAllVersionsFor(chunkNumber);
+            Assert.Equal(1, allVersions.Length);
             return allVersions[0];
         }
 
-        [Test]
+        [Fact]
         public void checksums_should_be_equal_to_ack_checksum()
         {
-            Assert.AreEqual(TruncateCheckpoint, WriterCheckpoint.Read());
-            Assert.AreEqual(TruncateCheckpoint, ChaserCheckpoint.Read());
+            Assert.Equal(TruncateCheckpoint, WriterCheckpoint.Read());
+            Assert.Equal(TruncateCheckpoint, ChaserCheckpoint.Read());
         }
 
-        [Test]
+        [Fact]
         public void truncated_chunks_should_be_deleted()
         {
-            Assert.IsFalse(File.Exists(_chunk2));
-            Assert.IsFalse(File.Exists(_chunk3));
+            Assert.False(File.Exists(_chunk2));
+            Assert.False(File.Exists(_chunk3));
         }
 
-        [Test]
+        [Fact]
         public void not_truncated_chunks_should_survive()
         {
             var chunks = Db.Config.FileNamingStrategy.GetAllPresentFiles();
-            Assert.AreEqual(2, chunks.Length);
-            Assert.AreEqual(_chunk0, GetChunkName(0));
-            Assert.AreEqual(_chunk1, GetChunkName(1));
+            Assert.Equal(2, chunks.Length);
+            Assert.Equal(_chunk0, GetChunkName(0));
+            Assert.Equal(_chunk1, GetChunkName(1));
         }
 
-        [Test]
+        [Fact(Skip = "No asserts")]
         public void read_all_returns_only_survived_events()
         {
         }

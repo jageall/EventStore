@@ -6,7 +6,7 @@ using EventStore.Core.Messaging;
 using EventStore.Core.Services.TimerService;
 using EventStore.Core.Tests.Helpers;
 using EventStore.Projections.Core.Messages;
-using NUnit.Framework;
+using Xunit;
 
 namespace EventStore.Projections.Core.Tests.Services.projections_manager.query
 {
@@ -26,7 +26,7 @@ namespace EventStore.Projections.Core.Tests.Services.projections_manager.query
                 foreach (var m in base.When()) yield return m;
                 var readerAssignedMessage =
                     _consumer.HandledMessages.OfType<EventReaderSubscriptionMessage.ReaderAssignedReader>().LastOrDefault();
-                Assert.IsNotNull(readerAssignedMessage);
+                Assert.NotNull(readerAssignedMessage);
                 _reader = readerAssignedMessage.ReaderId;
 
                 yield return
@@ -40,7 +40,7 @@ namespace EventStore.Projections.Core.Tests.Services.projections_manager.query
             }
         }
 
-        [TestFixture]
+        
         public class when_retrieving_statistics : Base
         {
             protected override IEnumerable<WhenStep> When()
@@ -51,10 +51,10 @@ namespace EventStore.Projections.Core.Tests.Services.projections_manager.query
                         new PublishEnvelope(_bus), null, _projectionName, false));
             }
 
-            [Test]
+            [Fact]
             public void projection_is_not_found()
             {
-                Assert.IsTrue(_consumer.HandledMessages.OfType<ProjectionManagementMessage.NotFound>().Any());
+                Assert.True(_consumer.HandledMessages.OfType<ProjectionManagementMessage.NotFound>().Any());
             }
         }
     }

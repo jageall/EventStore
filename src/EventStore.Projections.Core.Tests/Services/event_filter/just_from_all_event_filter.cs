@@ -1,12 +1,12 @@
 using System;
-using NUnit.Framework;
+using Xunit;
 
 namespace EventStore.Projections.Core.Tests.Services.event_filter
 {
-    [TestFixture]
+    
     public class just_from_all_event_filter : TestFixtureWithEventFilter
     {
-        [Test]
+        [Fact]
         public void cannot_be_built()
         {
             Assert.IsAssignableFrom(typeof (InvalidOperationException), _exception);

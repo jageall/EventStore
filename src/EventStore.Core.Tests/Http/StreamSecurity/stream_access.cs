@@ -2,16 +2,16 @@
 using System.Net;
 using EventStore.ClientAPI;
 using EventStore.Core.Services;
+using EventStore.Core.Tests.Helpers;
 using EventStore.Core.Tests.Http.Users;
-using NUnit.Framework;
+using Xunit;
 using Newtonsoft.Json.Linq;
 
 namespace EventStore.Core.Tests.Http.StreamSecurity
 {
     namespace stream_access
     {
-        [TestFixture, Category("LongRunning")]
-        class when_creating_a_secured_stream_by_posting_metadata: SpecificationWithUsers
+        public class when_creating_a_secured_stream_by_posting_metadata: SpecificationWithUsers
         {
             private HttpWebResponse _response;
 
@@ -25,7 +25,7 @@ namespace EventStore.Core.Tests.Http.StreamSecurity
                                   .SetReadRole("")
                                   .SetWriteRole("other");
                 var jsonMetadata = metadata.AsJsonString();
-                _response = MakeArrayEventsPost(
+                var response = MakeArrayEventsPost(
                     TestMetadataStream,
                     new[]
                         {
@@ -36,29 +36,38 @@ namespace EventStore.Core.Tests.Http.StreamSecurity
                                     Data = new JRaw(jsonMetadata)
                                 }
                         });
+                Fixture.AddStashedValueAssignment(this, instance => instance._response = response);
             }
 
-            [Test]
+            protected override MiniNode CreateMiniNode(string pathname)
+            {
+                return new MiniNode(pathname, enableTrustedAuth:true);
+            }
+
+            [Fact]
+            [Trait("Category", "LongRunning")]
             public void returns_ok_status_code()
             {
-                Assert.AreEqual(HttpStatusCode.Created, _response.StatusCode);
+                Assert.Equal(HttpStatusCode.Created, _response.StatusCode);
             }
 
-            [Test]
+            [Fact]
             public void refuses_to_post_event_as_anonymous()
             {
                 var response = PostEvent(new {Some = "Data"});
-                Assert.AreEqual(HttpStatusCode.Unauthorized, response.StatusCode);
+                Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
             }
 
-            [Test]
+            [Fact]
+            [Trait("Category", "LongRunning")]
             public void accepts_post_event_as_authorized_user()
             {
                 var response = PostEvent(new {Some = "Data"}, GetCorrectCredentialsFor("user1"));
-                Assert.AreEqual(HttpStatusCode.Created, response.StatusCode);
+                Assert.Equal(HttpStatusCode.Created, response.StatusCode);
             }
 
-            [Test]
+            [Fact]
+            [Trait("Category", "LongRunning")][Trait("Category", "A")]
             public void accepts_post_event_as_authorized_user_by_trusted_auth()
             {
                 var uri = MakeUrl (TestStream);
@@ -83,7 +92,7 @@ namespace EventStore.Core.Tests.Http.StreamSecurity
                 var request = httpWebRequest;
                 var httpWebResponse = GetRequestResponse(request);
                 var response = httpWebResponse;
-                Assert.AreEqual(HttpStatusCode.Created, response.StatusCode);
+                Assert.Equal(HttpStatusCode.Created, response.StatusCode);
             }
         }
     }

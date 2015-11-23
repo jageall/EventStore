@@ -5,14 +5,15 @@ using System.Runtime.InteropServices;
 using EventStore.Common.Log;
 using EventStore.Common.Utils;
 using EventStore.Core.Tests.Helpers;
-using NUnit.Framework;
+using Xunit;
 
 namespace EventStore.Core.Tests
 {
-    [SetUpFixture]
+    //TODO: not sure how to port this across
+    //[SetUpFixture]
     public class TestsInitFixture
     {
-        [SetUp]
+        //[SetUp]
         public void SetUp()
         {
             Console.WriteLine("Initializing tests (setting console loggers)...");
@@ -38,7 +39,7 @@ namespace EventStore.Core.Tests
                      "GC:", GC.MaxGeneration == 0 ? "NON-GENERATION (PROBABLY BOEHM)" : string.Format("{0} GENERATIONS", GC.MaxGeneration + 1));
         }
 
-        [TearDown]
+      //  [TearDown]
         public void TearDown()
         {
             var runCount = Math.Max(1, MiniNode.RunCount);

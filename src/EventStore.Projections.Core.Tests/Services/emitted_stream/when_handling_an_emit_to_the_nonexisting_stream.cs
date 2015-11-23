@@ -4,11 +4,11 @@ using EventStore.Core.Messages;
 using EventStore.Core.Services;
 using EventStore.Projections.Core.Services.Processing;
 using EventStore.Projections.Core.Tests.Services.core_projection;
-using NUnit.Framework;
+using Xunit;
 
 namespace EventStore.Projections.Core.Tests.Services.emitted_stream
 {
-    [TestFixture]
+    
     public class when_handling_an_emit_to_the_nonexisting_stream : TestFixtureWithExistingEvents
     {
         private EmittedStream _stream;
@@ -21,8 +21,7 @@ namespace EventStore.Projections.Core.Tests.Services.emitted_stream
             NoOtherStreams();
         }
 
-        [SetUp]
-        public void setup()
+        public when_handling_an_emit_to_the_nonexisting_stream()
         {
             _readyHandler = new TestCheckpointManagerMessageHandler();
             _stream = new EmittedStream(
@@ -32,18 +31,19 @@ namespace EventStore.Projections.Core.Tests.Services.emitted_stream
             _stream.Start();
         }
 
-        [Test, ExpectedException(typeof (InvalidOperationException))]
+        [Fact]
         public void throws_if_position_is_prior_to_from_position()
         {
+            Assert.Throws<InvalidOperationException>(() =>
             _stream.EmitEvents(
                 new[]
                 {
                     new EmittedDataEvent(
                         "test_stream", Guid.NewGuid(), "type", true, "data", null, CheckpointTag.FromPosition(0, 20, 10), null)
-                });
+                }));
         }
 
-        [Test]
+        [Fact]
         public void publishes_already_published_events()
         {
             _stream.EmitEvents(
@@ -52,14 +52,14 @@ namespace EventStore.Projections.Core.Tests.Services.emitted_stream
                     new EmittedDataEvent(
                         "test_stream", Guid.NewGuid(), "type", true, "data", null, CheckpointTag.FromPosition(0, 100, 50), null)
                 });
-            Assert.AreEqual(
+            Assert.Equal(
                 1,
                 _consumer.HandledMessages.OfType<ClientMessage.WriteEvents>()
                     .ExceptOfEventType(SystemEventTypes.StreamMetadata)
                     .Count());
         }
 
-        [Test]
+        [Fact]
         public void publishes_not_yet_published_events()
         {
             _stream.EmitEvents(
@@ -68,14 +68,14 @@ namespace EventStore.Projections.Core.Tests.Services.emitted_stream
                     new EmittedDataEvent(
                         "test_stream", Guid.NewGuid(), "type", true, "data", null, CheckpointTag.FromPosition(0, 200, 150), null)
                 });
-            Assert.AreEqual(
+            Assert.Equal(
                 1,
                 _consumer.HandledMessages.OfType<ClientMessage.WriteEvents>()
                     .ExceptOfEventType(SystemEventTypes.StreamMetadata)
                     .Count());
         }
 
-        [Test]
+        [Fact]
         public void does_not_reply_with_write_completed_message()
         {
             _stream.EmitEvents(
@@ -84,10 +84,10 @@ namespace EventStore.Projections.Core.Tests.Services.emitted_stream
                     new EmittedDataEvent(
                         "test_stream", Guid.NewGuid(), "type", true, "data", null, CheckpointTag.FromPosition(0, 200, 150), null)
                 });
-            Assert.AreEqual(0, _readyHandler.HandledWriteCompletedMessage.Count);
+            Assert.Equal(0, _readyHandler.HandledWriteCompletedMessage.Count);
         }
 
-        [Test]
+        [Fact]
         public void reply_with_write_completed_message_when_write_completes()
         {
             _stream.EmitEvents(
@@ -97,7 +97,7 @@ namespace EventStore.Projections.Core.Tests.Services.emitted_stream
                         "test_stream", Guid.NewGuid(), "type", true, "data", null, CheckpointTag.FromPosition(0, 200, 150), null)
                 });
             OneWriteCompletes();
-            Assert.IsTrue(_readyHandler.HandledWriteCompletedMessage.Any(v => v.StreamId == "test_stream"));
+            Assert.True(_readyHandler.HandledWriteCompletedMessage.Any(v => v.StreamId == "test_stream"));
                 // more than one is ok
         }
     }

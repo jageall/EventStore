@@ -1,10 +1,10 @@
 using System;
 using EventStore.Projections.Core.Services.Processing;
-using NUnit.Framework;
+using Xunit;
 
 namespace EventStore.Projections.Core.Tests.Services.partition_state_cache
 {
-    [TestFixture]
+    
     public class when_unlocking_part_of_cached_states
     {
         private PartitionStateCache _cache;
@@ -12,8 +12,7 @@ namespace EventStore.Projections.Core.Tests.Services.partition_state_cache
         private CheckpointTag _cachedAtCheckpointTag2;
         private CheckpointTag _cachedAtCheckpointTag3;
 
-        [SetUp]
-        public void setup()
+        public when_unlocking_part_of_cached_states()
         {
             //given
             _cache = new PartitionStateCache();
@@ -30,54 +29,58 @@ namespace EventStore.Projections.Core.Tests.Services.partition_state_cache
             _cache.Unlock(_cachedAtCheckpointTag2);
         }
 
-        [Test, ExpectedException(typeof (InvalidOperationException))]
+        [Fact]
         public void partitions_locked_before_the_unlock_position_cannot_be_retrieved_as_locked()
         {
-            _cache.GetLockedPartitionState("partition1");
+            Assert.Throws<InvalidOperationException>(() => { _cache.GetLockedPartitionState("partition1"); });
         }
 
-        [Test]
+        [Fact]
         public void partitions_locked_before_the_unlock_position_can_be_retrieved_and_relocked_at_later_position()
         {
             var data = _cache.TryGetAndLockPartitionState(
                 "partition1", CheckpointTag.FromPosition(0, 1600, 1500));
-            Assert.AreEqual("data1", data.State);
+            Assert.Equal("data1", data.State);
         }
 
         
-        [Test, ExpectedException(typeof (InvalidOperationException))]
+        [Fact]
         public void partitions_locked_at_the_unlock_position_cannot_be_retrieved_as_locked()
         {
-            _cache.GetLockedPartitionState("partition2");
+            Assert.Throws<InvalidOperationException>(() => { _cache.GetLockedPartitionState("partition2"); });
         }
 
-        [Test]
+        [Fact]
         public void partitions_locked_at_the_unlock_position_cannot_be_retrieved_as_relocked_at_later_position()
         {
             var data = _cache.TryGetAndLockPartitionState(
                 "partition2", CheckpointTag.FromPosition(0, 1600, 1500));
-            Assert.AreEqual("data2", data.State);
+            Assert.Equal("data2", data.State);
         }
 
-        [Test]
+        [Fact]
         public void partitions_locked_after_the_unlock_position_can_be_retrieved_as_locked()
         {
             var data = _cache.GetLockedPartitionState("partition3");
-            Assert.AreEqual("data3", data.State);
+            Assert.Equal("data3", data.State);
         }
 
-        [Test, ExpectedException(typeof (InvalidOperationException))]
+        [Fact]
         public void no_other_partition_states_can_be_locked_before_the_unlock_position()
         {
             CheckpointTag at = CheckpointTag.FromPosition(0, 1040, 1030);
-            _cache.CacheAndLockPartitionState("partition4", new PartitionState("data4", null, at), at);
+            Assert.Throws<InvalidOperationException>(
+                () => { _cache.CacheAndLockPartitionState("partition4", new PartitionState("data4", null, at), at); });
         }
 
-        [Test, ExpectedException(typeof (InvalidOperationException))]
+        [Fact]
         public void cached_partition_states_cannot_be_locked_before_the_unlock_position()
         {
-            _cache.TryGetAndLockPartitionState(
-                "partition1", CheckpointTag.FromPosition(0, 1040, 1030));
+            Assert.Throws<InvalidOperationException>(() =>
+            {
+                _cache.TryGetAndLockPartitionState(
+                    "partition1", CheckpointTag.FromPosition(0, 1040, 1030));
+            });
         }
     }
 }

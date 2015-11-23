@@ -2,12 +2,12 @@ using System;
 using EventStore.Core.Data;
 using EventStore.Projections.Core.Services.Processing;
 using EventStore.Projections.Core.Tests.Services.projections_manager;
-using NUnit.Framework;
+using Xunit;
 using ResolvedEvent = EventStore.Projections.Core.Services.Processing.ResolvedEvent;
 
 namespace EventStore.Projections.Core.Tests.Services.v8
 {
-    [TestFixture]
+    
     public class when_running_a_projection_with_created_handler : TestFixtureWithJsProjection
     {
         protected override void Given()
@@ -27,7 +27,7 @@ namespace EventStore.Projections.Core.Tests.Services.v8
             _state = @"{}";
         }
 
-        [Test, Category("v8")]
+        [Fact][Trait("Category", "v8")]
         public void invokes_created_handler()
         {
 
@@ -38,15 +38,15 @@ namespace EventStore.Projections.Core.Tests.Services.v8
             _stateHandler.ProcessPartitionCreated(
                 "partition", CheckpointTag.FromPosition(0, 10, 5), e, out emittedEvents);
 
-            Assert.AreEqual(5, _logged.Count);
-            Assert.AreEqual(@"handler-invoked", _logged[0]);
-            Assert.AreEqual(@"stream", _logged[1]);
-            Assert.AreEqual(@"event", _logged[2]);
-            Assert.AreEqual(@"{}", _logged[3]);
-            Assert.AreEqual(@"{""m"":1}", _logged[4]);
+            Assert.Equal(5, _logged.Count);
+            Assert.Equal(@"handler-invoked", _logged[0]);
+            Assert.Equal(@"stream", _logged[1]);
+            Assert.Equal(@"event", _logged[2]);
+            Assert.Equal(@"{}", _logged[3]);
+            Assert.Equal(@"{""m"":1}", _logged[4]);
         }
 
-        [Test, Category("v8")]
+        [Fact][Trait("Category", "v8")]
         public void returns_emitted_events()
         {
 
@@ -57,11 +57,11 @@ namespace EventStore.Projections.Core.Tests.Services.v8
             _stateHandler.ProcessPartitionCreated(
                 "partition", CheckpointTag.FromPosition(0, 10, 5), e, out emittedEvents);
 
-            Assert.IsNotNull(emittedEvents);
-            Assert.AreEqual(1, emittedEvents.Length);
-            Assert.AreEqual("stream1", emittedEvents[0].Event.StreamId);
-            Assert.AreEqual("event1", emittedEvents[0].Event.EventType);
-            Assert.AreEqual("{\"a\":1}", emittedEvents[0].Event.Data);
+            Assert.NotNull(emittedEvents);
+            Assert.Equal(1, emittedEvents.Length);
+            Assert.Equal("stream1", emittedEvents[0].Event.StreamId);
+            Assert.Equal("event1", emittedEvents[0].Event.EventType);
+            Assert.Equal("{\"a\":1}", emittedEvents[0].Event.Data);
         }
     }
 }

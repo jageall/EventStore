@@ -8,13 +8,13 @@ using EventStore.Core.Services.TimerService;
 using EventStore.Core.TransactionLog.LogRecords;
 using EventStore.Projections.Core.Services.Processing;
 using EventStore.Projections.Core.Tests.Services.core_projection;
-using NUnit.Framework;
+using Xunit;
 using ReadStreamResult = EventStore.Core.Data.ReadStreamResult;
 using ResolvedEvent = EventStore.Core.Data.ResolvedEvent;
 
 namespace EventStore.Projections.Core.Tests.Services.event_reader.multi_stream_reader
 {
-    [TestFixture]
+    
     public class when_handling_read_completed_for_all_streams_then_pause_requested_then_eof :
         TestFixtureWithExistingEvents
     {
@@ -33,8 +33,7 @@ namespace EventStore.Projections.Core.Tests.Services.event_reader.multi_stream_r
         private string[] _abStreams;
         private Dictionary<string, int> _ab12Tag;
 
-        [SetUp]
-        public new void When()
+        public when_handling_read_completed_for_all_streams_then_pause_requested_then_eof()
         {
             _ab12Tag = new Dictionary<string, int> {{"a", 1}, {"b", 2}};
             _abStreams = new[] {"a", "b"};
@@ -86,32 +85,32 @@ namespace EventStore.Projections.Core.Tests.Services.event_reader.multi_stream_r
                     _distibutionPointCorrelationId, "a", 100, 100, ReadStreamResult.Success, new ResolvedEvent[] { }, null, false, "", 3, 2, true, 400));
         }
 
-        [Test]
+        [Fact]
         public void publishes_read_events_from_beginning_with_correct_next_event_number()
         {
-            Assert.AreEqual(3, _consumer.HandledMessages.OfType<ClientMessage.ReadStreamEventsForward>().Count());
-            Assert.IsTrue(
+            Assert.Equal(3, _consumer.HandledMessages.OfType<ClientMessage.ReadStreamEventsForward>().Count());
+            Assert.True(
                 _consumer.HandledMessages.OfType<ClientMessage.ReadStreamEventsForward>()
                          .Any(m => m.EventStreamId == "a"));
-            Assert.IsTrue(
+            Assert.True(
                 _consumer.HandledMessages.OfType<ClientMessage.ReadStreamEventsForward>()
                          .Any(m => m.EventStreamId == "b"));
-            Assert.AreEqual(
+            Assert.Equal(
                 3,
                 _consumer.HandledMessages.OfType<ClientMessage.ReadStreamEventsForward>()
                          .Last(m => m.EventStreamId == "a")
                          .FromEventNumber);
-            Assert.AreEqual(
+            Assert.Equal(
                 2,
                 _consumer.HandledMessages.OfType<ClientMessage.ReadStreamEventsForward>()
                          .Last(m => m.EventStreamId == "b")
                          .FromEventNumber);
         }
 
-        [Test]
+        [Fact]
         public void does_not_publish_schedule()
         {
-            Assert.AreEqual(0, _consumer.HandledMessages.OfType<TimerMessage.Schedule>().Count());
+            Assert.Equal(0, _consumer.HandledMessages.OfType<TimerMessage.Schedule>().Count());
         }
 
     }

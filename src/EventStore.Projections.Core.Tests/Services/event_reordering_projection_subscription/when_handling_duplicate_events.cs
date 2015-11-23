@@ -1,11 +1,11 @@
 using System;
 using EventStore.Core.Data;
 using EventStore.Projections.Core.Messages;
-using NUnit.Framework;
+using Xunit;
 
 namespace EventStore.Projections.Core.Tests.Services.event_reordering_projection_subscription
 {
-    [TestFixture]
+    
     public class when_handling_duplicate_events : TestFixtureWithEventReorderingProjectionSubscription
     {
         private DateTime _timestamp;
@@ -30,10 +30,10 @@ namespace EventStore.Projections.Core.Tests.Services.event_reordering_projection
                     _projectionCorrelationId, _timestamp.AddMilliseconds(1100)));
         }
 
-        [Test]
+        [Fact]
         public void duplicates_are_not_passed_to_downstream_handler()
         {
-            Assert.AreEqual(2, _eventHandler.HandledMessages.Count);
+            Assert.Equal(2, _eventHandler.HandledMessages.Count);
         }
     }
 }

@@ -1,27 +1,26 @@
 ﻿using System;
 using EventStore.Core.Data;
 using EventStore.Core.Services.PersistentSubscription;
-using NUnit.Framework;
+using Xunit;
 
 namespace EventStore.Core.Tests.Services.PersistentSubscription
 {
-    [TestFixture]
     public class StreamBufferTests
     {
-        [Test]
+        [Fact]
         public void adding_read_message_in_correct_order()
         {
             var buffer = new StreamBuffer(10, 10, -1, true);
             var id = Guid.NewGuid();
             buffer.AddReadMessage(BuildMessageAt(id, 0));
-            Assert.AreEqual(1, buffer.BufferCount);
+            Assert.Equal(1, buffer.BufferCount);
             OutstandingMessage message;
-            Assert.IsTrue(buffer.TryDequeue(out message));
-            Assert.AreEqual(id, message.EventId);
-            Assert.IsFalse(buffer.Live);
+            Assert.True(buffer.TryDequeue(out message));
+            Assert.Equal(id, message.EventId);
+            Assert.False(buffer.Live);
         }
 
-        [Test]
+        [Fact]
         public void adding_multiple_read_message_in_correct_order()
         {
             var buffer = new StreamBuffer(10, 10, -1, true);
@@ -29,17 +28,17 @@ namespace EventStore.Core.Tests.Services.PersistentSubscription
             var id2 = Guid.NewGuid();
             buffer.AddReadMessage(BuildMessageAt(id1, 0));
             buffer.AddReadMessage(BuildMessageAt(id2, 1));
-            Assert.AreEqual(2, buffer.BufferCount);
+            Assert.Equal(2, buffer.BufferCount);
             OutstandingMessage message;
-            Assert.IsTrue(buffer.TryDequeue(out message));
-            Assert.AreEqual(id1, message.EventId);
-            Assert.IsTrue(buffer.TryDequeue(out message));
-            Assert.AreEqual(id2, message.EventId);
-            Assert.IsFalse(buffer.Live);
+            Assert.True(buffer.TryDequeue(out message));
+            Assert.Equal(id1, message.EventId);
+            Assert.True(buffer.TryDequeue(out message));
+            Assert.Equal(id2, message.EventId);
+            Assert.False(buffer.Live);
         }
 
 
-        [Test]
+        [Fact]
         public void adding_multiple_read_message_in_wrong_order()
         {
             var buffer = new StreamBuffer(10, 10, -1, true);
@@ -47,46 +46,46 @@ namespace EventStore.Core.Tests.Services.PersistentSubscription
             var id2 = Guid.NewGuid();
             buffer.AddReadMessage(BuildMessageAt(id1, 1));
             buffer.AddReadMessage(BuildMessageAt(id2, 0));
-            Assert.AreEqual(2, buffer.BufferCount);
+            Assert.Equal(2, buffer.BufferCount);
             OutstandingMessage message;
-            Assert.IsTrue(buffer.TryDequeue(out message));
-            Assert.AreEqual(id1, message.EventId);
-            Assert.IsTrue(buffer.TryDequeue(out message));
-            Assert.AreEqual(id2, message.EventId);
-            Assert.IsFalse(buffer.Live);
+            Assert.True(buffer.TryDequeue(out message));
+            Assert.Equal(id1, message.EventId);
+            Assert.True(buffer.TryDequeue(out message));
+            Assert.Equal(id2, message.EventId);
+            Assert.False(buffer.Live);
         }
 
-        [Test]
+        [Fact]
         public void adding_multiple_same_read_message()
         {
             var buffer = new StreamBuffer(10, 10, -1, true);
             var id1 = Guid.NewGuid();
             buffer.AddReadMessage(BuildMessageAt(id1, 0));
             buffer.AddReadMessage(BuildMessageAt(id1, 0));
-            Assert.AreEqual(2, buffer.BufferCount);
+            Assert.Equal(2, buffer.BufferCount);
             OutstandingMessage message;
-            Assert.IsTrue(buffer.TryDequeue(out message));
-            Assert.AreEqual(id1, message.EventId);
-            Assert.IsTrue(buffer.TryDequeue(out message));
-            Assert.AreEqual(id1, message.EventId);
-            Assert.IsFalse(buffer.Live);
+            Assert.True(buffer.TryDequeue(out message));
+            Assert.Equal(id1, message.EventId);
+            Assert.True(buffer.TryDequeue(out message));
+            Assert.Equal(id1, message.EventId);
+            Assert.False(buffer.Live);
         }
 
-        [Test]
+        [Fact]
         public void adding_messages_to_read_after_same_on_live_switches_to_live()
         {
             var buffer = new StreamBuffer(10, 10, -1, true);
             var id1 = Guid.NewGuid();
             buffer.AddLiveMessage(BuildMessageAt(id1, 0));
             buffer.AddReadMessage(BuildMessageAt(id1, 0));
-            Assert.IsTrue(buffer.Live);
-            Assert.AreEqual(1, buffer.BufferCount);
+            Assert.True(buffer.Live);
+            Assert.Equal(1, buffer.BufferCount);
             OutstandingMessage message;
-            Assert.IsTrue(buffer.TryDequeue(out message));
-            Assert.AreEqual(id1, message.EventId);
+            Assert.True(buffer.TryDequeue(out message));
+            Assert.Equal(id1, message.EventId);
         }
 
-        [Test]
+        [Fact]
         public void adding_messages_to_read_after_later_live_does_not_switch()
         {
             var buffer = new StreamBuffer(10, 10, -1, true);
@@ -94,14 +93,14 @@ namespace EventStore.Core.Tests.Services.PersistentSubscription
             var id2 = Guid.NewGuid();
             buffer.AddLiveMessage(BuildMessageAt(id1, 5));
             buffer.AddReadMessage(BuildMessageAt(id2, 0));
-            Assert.IsFalse(buffer.Live);
-            Assert.AreEqual(1, buffer.BufferCount);
+            Assert.False(buffer.Live);
+            Assert.Equal(1, buffer.BufferCount);
             OutstandingMessage message;
-            Assert.IsTrue(buffer.TryDequeue(out message));
-            Assert.AreEqual(id2, message.EventId);
+            Assert.True(buffer.TryDequeue(out message));
+            Assert.Equal(id2, message.EventId);
         }
 
-        [Test]
+        [Fact]
         public void adding_messages_to_live_without_start_from_beginning()
         {
             var buffer = new StreamBuffer(10, 10, -1, false);
@@ -109,16 +108,16 @@ namespace EventStore.Core.Tests.Services.PersistentSubscription
             var id2 = Guid.NewGuid();
             buffer.AddLiveMessage(BuildMessageAt(id1, 6));
             buffer.AddLiveMessage(BuildMessageAt(id2, 7));
-            Assert.IsTrue(buffer.Live);
-            Assert.AreEqual(2, buffer.BufferCount);
+            Assert.True(buffer.Live);
+            Assert.Equal(2, buffer.BufferCount);
             OutstandingMessage message;
-            Assert.IsTrue(buffer.TryDequeue(out message));
-            Assert.AreEqual(id1, message.EventId);
-            Assert.IsTrue(buffer.TryDequeue(out message));
-            Assert.AreEqual(id2, message.EventId);
+            Assert.True(buffer.TryDequeue(out message));
+            Assert.Equal(id1, message.EventId);
+            Assert.True(buffer.TryDequeue(out message));
+            Assert.Equal(id2, message.EventId);
         }
 
-        [Test]
+        [Fact]
         public void adding_messages_with_lower_in_live()
         {
             var buffer = new StreamBuffer(10, 10, -1, true);
@@ -128,11 +127,11 @@ namespace EventStore.Core.Tests.Services.PersistentSubscription
             buffer.AddLiveMessage(BuildMessageAt(id1, 6));
             buffer.AddLiveMessage(BuildMessageAt(id2, 7));
             buffer.AddReadMessage(BuildMessageAt(id1, 7));
-            Assert.IsTrue(buffer.Live);
-            Assert.AreEqual(1, buffer.BufferCount);
+            Assert.True(buffer.Live);
+            Assert.Equal(1, buffer.BufferCount);
             OutstandingMessage message;
-            Assert.IsTrue(buffer.TryDequeue(out message));
-            Assert.AreEqual(id2, message.EventId);
+            Assert.True(buffer.TryDequeue(out message));
+            Assert.Equal(id2, message.EventId);
         }
 
         private OutstandingMessage BuildMessageAt(Guid id,int version)

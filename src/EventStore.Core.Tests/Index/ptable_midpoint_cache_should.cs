@@ -1,7 +1,7 @@
 ﻿using System;
 using EventStore.Common.Log;
 using EventStore.Core.Index;
-using NUnit.Framework;
+using Xunit;
 
 namespace EventStore.Core.Tests.Index
 {
@@ -9,7 +9,8 @@ namespace EventStore.Core.Tests.Index
     {
         private static readonly ILogger Log = LogManager.GetLoggerFor<ptable_midpoint_cache_should>();
 
-        [Test, Category("LongRunning"), Ignore("Veerrrryyy long running :)")]
+        [Fact(Skip = "Veerrrryyy long running :)")]
+        [Trait("Category","LongRunning")]
         public void construct_valid_cache_for_any_combination_of_params()
         {
             var rnd = new Random(123987);
@@ -51,29 +52,29 @@ namespace EventStore.Core.Tests.Index
         {
             if (count == 0 || depth == 0)
             {
-                Assert.IsNull(cache);
+                Assert.Null(cache);
                 return;
             }
 
             if (count == 1)
             {
-                Assert.IsNotNull(cache);
-                Assert.AreEqual(2, cache.Length);
-                Assert.AreEqual(0, cache[1].ItemIndex);
-                Assert.AreEqual(0, cache[1].ItemIndex);
+                Assert.NotNull(cache);
+                Assert.Equal(2, cache.Length);
+                Assert.Equal(0, cache[1].ItemIndex);
+                Assert.Equal(0, cache[1].ItemIndex);
                 return;
             }
 
-            Assert.IsNotNull(cache);
-            Assert.AreEqual(Math.Min(count, 1<<depth), cache.Length);
+            Assert.NotNull(cache);
+            Assert.Equal(Math.Min(count, 1<<depth), cache.Length);
 
-            Assert.AreEqual(0, cache[0].ItemIndex);
+            Assert.Equal(0, cache[0].ItemIndex);
             for (int i = 1; i < cache.Length; ++i)
             {
-                Assert.GreaterOrEqual(cache[i-1].Key, cache[i].Key);
-                Assert.Less(cache[i-1].ItemIndex, cache[i].ItemIndex);
+                Assert.True(cache[i-1].Key >= cache[i].Key);
+                Assert.True(cache[i-1].ItemIndex < cache[i].ItemIndex);
             }
-            Assert.AreEqual(count-1, cache[cache.Length-1].ItemIndex);
+            Assert.Equal(count-1, cache[cache.Length-1].ItemIndex);
         }
     }
 }

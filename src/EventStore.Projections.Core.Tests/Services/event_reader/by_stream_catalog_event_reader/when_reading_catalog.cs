@@ -4,13 +4,13 @@ using System.Linq;
 using EventStore.Core.Data;
 using EventStore.Projections.Core.Messages;
 using EventStore.Projections.Core.Services.Processing;
-using NUnit.Framework;
+using Xunit;
 
 namespace EventStore.Projections.Core.Tests.Services.event_reader.by_stream_catalog_event_reader
 {
     namespace when_reading_catalog
     {
-        abstract class with_catalog_stream: TestFixtureWithEventReaderService
+        public abstract class with_catalog_stream : TestFixtureWithEventReaderService
         {
             protected const int TailLength = 10;
             protected Guid _subscriptionId;
@@ -60,28 +60,28 @@ namespace EventStore.Projections.Core.Tests.Services.event_reader.by_stream_cata
                     stopAfterNEvents: null);
             }
 
-            [Test]
+            [Fact]
             public void returns_all_events()
             {
                 var receivedEvents =
                     _consumer.HandledMessages.OfType<EventReaderSubscriptionMessage.CommittedEventReceived>().ToArray();
 
-                Assert.AreEqual(6, receivedEvents.Length);
+                Assert.Equal(6, receivedEvents.Length);
             }
 
-            [Test]
+            [Fact]
             public void returns_events_in_catalog_order()
             {
                 var receivedEvents =
                     _consumer.HandledMessages.OfType<EventReaderSubscriptionMessage.CommittedEventReceived>().ToArray();
 
-                Assert.That(
+                Assert.True(
                     (from e in receivedEvents orderby e.Data.Position select e.Data.Position)
                         .SequenceEqual(from e in receivedEvents select e.Data.Position),
                     "Incorrect event order received");
             }
 
-            [Test]
+            [Fact]
             public void publishes_partition_eof_on_each_stream_eof()
             {
                 var messages =
@@ -90,18 +90,18 @@ namespace EventStore.Projections.Core.Tests.Services.event_reader.by_stream_cata
                             v is EventReaderSubscriptionMessage.CommittedEventReceived
                             || v is EventReaderSubscriptionMessage.PartitionEofReached).ToList();
 
-                Assert.AreEqual(9, messages.Count);
+                Assert.Equal(9, messages.Count);
                 Assert.IsAssignableFrom<EventReaderSubscriptionMessage.PartitionEofReached>(messages[2]);
-                Assert.AreEqual("test-stream", ((EventReaderSubscriptionMessage.PartitionEofReached)messages[2]).Partition);
+                Assert.Equal("test-stream", ((EventReaderSubscriptionMessage.PartitionEofReached)messages[2]).Partition);
                 Assert.IsAssignableFrom<EventReaderSubscriptionMessage.PartitionEofReached>(messages[5]);
-                Assert.AreEqual("test-stream2", ((EventReaderSubscriptionMessage.PartitionEofReached)messages[5]).Partition);
+                Assert.Equal("test-stream2", ((EventReaderSubscriptionMessage.PartitionEofReached)messages[5]).Partition);
                 Assert.IsAssignableFrom<EventReaderSubscriptionMessage.PartitionEofReached>(messages[8]);
-                Assert.AreEqual("test-stream3", ((EventReaderSubscriptionMessage.PartitionEofReached)messages[8]).Partition);
+                Assert.Equal("test-stream3", ((EventReaderSubscriptionMessage.PartitionEofReached)messages[8]).Partition);
             }
         }
 
-        [TestFixture]
-        class when_starting_from_the_beginning : with_catalog_stream
+
+        public class when_starting_from_the_beginning : with_catalog_stream
         {
             protected override IEnumerable<WhenStep> When()
             {
@@ -112,8 +112,8 @@ namespace EventStore.Projections.Core.Tests.Services.event_reader.by_stream_cata
             }
         }
 
-        [TestFixture]
-        class when_new_events_appear_after_subscribing : with_catalog_stream
+
+        public class when_new_events_appear_after_subscribing : with_catalog_stream
         {
             protected override IEnumerable<WhenStep> When()
             {
@@ -127,8 +127,8 @@ namespace EventStore.Projections.Core.Tests.Services.event_reader.by_stream_cata
             }
         }
 
-        [TestFixture]
-        class when_new_streams_appear_after_subscribing : with_catalog_stream
+
+        public class when_new_streams_appear_after_subscribing : with_catalog_stream
         {
             protected override IEnumerable<WhenStep> When()
             {

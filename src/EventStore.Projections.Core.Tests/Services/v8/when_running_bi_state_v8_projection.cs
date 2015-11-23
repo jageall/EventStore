@@ -2,11 +2,11 @@ using System;
 using EventStore.Projections.Core.Services;
 using EventStore.Projections.Core.Services.Processing;
 using EventStore.Projections.Core.Tests.Services.projections_manager;
-using NUnit.Framework;
+using Xunit;
 
 namespace EventStore.Projections.Core.Tests.Services.v8
 {
-    [TestFixture]
+    
     public class when_running_bi_state_v8_projection : TestFixtureWithJsProjection
     {
         protected override void Given()
@@ -28,7 +28,7 @@ namespace EventStore.Projections.Core.Tests.Services.v8
             _sharedState = @"{""sharedCount"": 0}";
         }
 
-        [Test, Category("v8")]
+        [Fact][Trait("Category", "v8")]
         public void process_event_counts_events()
         {
             string state;
@@ -37,9 +37,9 @@ namespace EventStore.Projections.Core.Tests.Services.v8
             _stateHandler.ProcessEvent(
                 "", CheckpointTag.FromPosition(0, 10, 5), "stream1", "type1", "category", Guid.NewGuid(), 0, "metadata",
                 @"{""a"":""b""}", out state, out sharedState, out emittedEvents);
-            Assert.AreEqual(2, _logged.Count);
-            Assert.AreEqual(@"1", _logged[0]);
-            Assert.AreEqual(@"1", _logged[1]);
+            Assert.Equal(2, _logged.Count);
+            Assert.Equal(@"1", _logged[0]);
+            Assert.Equal(@"1", _logged[1]);
         }
 
     }

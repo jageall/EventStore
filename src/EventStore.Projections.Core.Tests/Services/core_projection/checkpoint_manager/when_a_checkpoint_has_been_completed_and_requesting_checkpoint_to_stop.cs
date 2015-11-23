@@ -2,11 +2,11 @@ using System;
 using System.Linq;
 using EventStore.Core.Messages;
 using EventStore.Projections.Core.Services.Processing;
-using NUnit.Framework;
+using Xunit;
 
 namespace EventStore.Projections.Core.Tests.Services.core_projection.checkpoint_manager
 {
-    [TestFixture]
+    
     public class when_a_checkpoint_has_been_completed_and_requesting_checkpoint_to_stop :
         TestFixtureWithCoreProjectionCheckpointManager
     {
@@ -45,23 +45,23 @@ namespace EventStore.Projections.Core.Tests.Services.core_projection.checkpoint_
             }
         }
 
-        [Test]
+        [Fact]
         public void does_not_throw()
         {
-            Assert.IsNull(_exception);
+            Assert.Null(_exception);
         }
 
-        [Test]
+        [Fact]
         public void two_checkpoints_are_completed()
         {
-            Assert.AreEqual(2, _projection._checkpointCompletedMessages.Count);
+            Assert.Equal(2, _projection._checkpointCompletedMessages.Count);
         }
 
 
-        [Test]
+        [Fact]
         public void only_one_checkpoint_has_been_written()
         {
-            Assert.AreEqual(
+            Assert.Equal(
                 1,
                 _consumer.HandledMessages.OfType<ClientMessage.WriteEvents>()
                     .ToStream("$projections-projection-checkpoint")

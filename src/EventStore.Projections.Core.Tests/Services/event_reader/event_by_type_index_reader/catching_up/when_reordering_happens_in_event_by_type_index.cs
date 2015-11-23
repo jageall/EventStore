@@ -6,13 +6,13 @@ using EventStore.Core.Messages;
 using EventStore.Core.Messaging;
 using EventStore.Projections.Core.Messages;
 using EventStore.Projections.Core.Services.Processing;
-using NUnit.Framework;
+using Xunit;
 
 namespace EventStore.Projections.Core.Tests.Services.event_reader.event_by_type_index_reader.catching_up
 {
     namespace when_reordering_happens_in_event_by_type_index
     {
-        abstract class ReadingReorderedEventsInTheIndexTestFixture : TestFixtureWithEventReaderService
+        public abstract class ReadingReorderedEventsInTheIndexTestFixture : TestFixtureWithEventReaderService
         {
             protected Guid _subscriptionId;
             private QuerySourcesDefinition _sourceDefinition;
@@ -65,29 +65,29 @@ namespace EventStore.Projections.Core.Tests.Services.event_reader.event_by_type_
                 return string.Format(@"{{""$c"":{0},""$p"":{1}}}", tfPos.CommitPosition, tfPos.PreparePosition);
             }
 
-            [Test]
+            [Fact]
             public void returns_all_events()
             {
                 var receivedEvents =
                     _consumer.HandledMessages.OfType<EventReaderSubscriptionMessage.CommittedEventReceived>().ToArray();
 
-                Assert.AreEqual(3, receivedEvents.Length);
+                Assert.Equal(3, receivedEvents.Length);
             }
 
-            [Test]
+            [Fact]
             public void returns_events_in_original_order()
             {
                 var receivedEvents =
                     _consumer.HandledMessages.OfType<EventReaderSubscriptionMessage.CommittedEventReceived>().ToArray();
 
-                Assert.That(
+                Assert.True(
                     new[] {0, 1, 2}.SequenceEqual(from e in receivedEvents select e.Data.EventSequenceNumber),
                     "Incorrect event order received");
             }
         }
 
-        [TestFixture]
-        class when_starting_with_empty_index : ReadingReorderedEventsInTheIndexTestFixture
+
+        public class when_starting_with_empty_index : ReadingReorderedEventsInTheIndexTestFixture
         {
             protected override void GivenInitialIndexState()
             {
@@ -124,8 +124,8 @@ namespace EventStore.Projections.Core.Tests.Services.event_reader.event_by_type_
             }
         }
 
-        [TestFixture]
-        class when_starting_with_partially_built_index : ReadingReorderedEventsInTheIndexTestFixture
+
+        public class when_starting_with_partially_built_index : ReadingReorderedEventsInTheIndexTestFixture
         {
             protected override void GivenInitialIndexState()
             {

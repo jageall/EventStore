@@ -8,13 +8,13 @@ using EventStore.Core.Services.TimerService;
 using EventStore.Projections.Core.Messages;
 using EventStore.Projections.Core.Services.Processing;
 using EventStore.Projections.Core.Tests.Services.core_projection;
-using NUnit.Framework;
+using Xunit;
 using ReadStreamResult = EventStore.Core.Data.ReadStreamResult;
 using ResolvedEvent = EventStore.Core.Data.ResolvedEvent;
 
 namespace EventStore.Projections.Core.Tests.Services.event_reader.stream_reader
 {
-    [TestFixture]
+    
     public class when_handling_no_stream : TestFixtureWithExistingEvents
     {
         private StreamEventReader _edp;
@@ -25,8 +25,7 @@ namespace EventStore.Projections.Core.Tests.Services.event_reader.stream_reader
             TicksAreHandledImmediately();
         }
 
-        [SetUp]
-        public new void When()
+        public when_handling_no_stream()
         {
             _distibutionPointCorrelationId = Guid.NewGuid();
             _edp = new StreamEventReader(_bus, _distibutionPointCorrelationId, null, "stream", 0, new RealTimeProvider(), false,
@@ -38,43 +37,43 @@ namespace EventStore.Projections.Core.Tests.Services.event_reader.stream_reader
                     ReadStreamResult.NoStream, new ResolvedEvent[0], null, false, "", -1, ExpectedVersion.NoStream, true, 200));
         }
 
-        [Test, ExpectedException(typeof (InvalidOperationException))]
+        [Fact]
         public void cannot_be_resumed()
         {
-            _edp.Resume();
+            Assert.Throws<InvalidOperationException>(() => { _edp.Resume(); });
         }
 
-        [Test]
+        [Fact]
         public void cannot_be_paused()
         {
             _edp.Pause();
         }
 
-        [Test]
+        [Fact]
         public void publishes_read_events_from_beginning_with_correct_next_event_number()
         {
-            Assert.AreEqual(1, _consumer.HandledMessages.OfType<ClientMessage.ReadStreamEventsForward>().Count());
-            Assert.AreEqual(
+            Assert.Equal(1, _consumer.HandledMessages.OfType<ClientMessage.ReadStreamEventsForward>().Count());
+            Assert.Equal(
                 "stream", _consumer.HandledMessages.OfType<ClientMessage.ReadStreamEventsForward>().Last().EventStreamId);
-            Assert.AreEqual(
+            Assert.Equal(
                 0, _consumer.HandledMessages.OfType<ClientMessage.ReadStreamEventsForward>().Last().FromEventNumber);
         }
 
-        [Test]
+        [Fact]
         public void publishes_correct_committed_event_received_messages()
         {
-            Assert.AreEqual(
+            Assert.Equal(
                 1, _consumer.HandledMessages.OfType<ReaderSubscriptionMessage.CommittedEventDistributed>().Count());
             var first =
                 _consumer.HandledMessages.OfType<ReaderSubscriptionMessage.CommittedEventDistributed>().Single();
-            Assert.IsNull(first.Data);
-            Assert.AreEqual(200, first.SafeTransactionFileReaderJoinPosition);
+            Assert.Null(first.Data);
+            Assert.Equal(200, first.SafeTransactionFileReaderJoinPosition);
         }
 
-        [Test]
+        [Fact]
         public void publishes_subscribe_awake()
         {
-            Assert.AreEqual(1, _consumer.HandledMessages.OfType<AwakeServiceMessage.SubscribeAwake>().Count());
+            Assert.Equal(1, _consumer.HandledMessages.OfType<AwakeServiceMessage.SubscribeAwake>().Count());
         }
 
     }

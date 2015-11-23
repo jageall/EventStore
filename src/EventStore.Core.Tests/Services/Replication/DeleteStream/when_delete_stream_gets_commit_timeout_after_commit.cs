@@ -5,11 +5,10 @@ using EventStore.Core.Messages;
 using EventStore.Core.Messaging;
 using EventStore.Core.Services.RequestManager.Managers;
 using EventStore.Core.Tests.Fakes;
-using NUnit.Framework;
+using Xunit;
 
 namespace EventStore.Core.Tests.Services.Replication.DeleteStream
 {
-    [TestFixture]
     public class when_delete_stream_gets_commit_timeout_after_commit : RequestManagerSpecification
     {
         protected override TwoPhaseRequestManagerBase OnManager(FakePublisher publisher)
@@ -30,10 +29,10 @@ namespace EventStore.Core.Tests.Services.Replication.DeleteStream
             return new StorageMessage.RequestManagerTimerTick(DateTime.UtcNow + TimeSpan.FromTicks(CommitTimeout.Ticks/2));
         }
 
-        [Test]
+        [Fact]
         public void no_messages_are_published()
         {
-            Assert.That(Produced.Count == 0);
+            Assert.True(Produced.Count == 0);
         }
     }
 }

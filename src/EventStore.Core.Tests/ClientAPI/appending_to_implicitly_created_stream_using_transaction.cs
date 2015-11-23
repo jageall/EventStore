@@ -4,28 +4,17 @@ using EventStore.ClientAPI;
 using EventStore.ClientAPI.Exceptions;
 using EventStore.Core.Tests.ClientAPI.Helpers;
 using EventStore.Core.Tests.Helpers;
-using NUnit.Framework;
+using Xunit;
 
 namespace EventStore.Core.Tests.ClientAPI
 {
-    [TestFixture, Category("LongRunning")]
-    public class appending_to_implicitly_created_stream_using_transaction : SpecificationWithDirectoryPerTestFixture
+    public class appending_to_implicitly_created_stream_using_transaction : SpecificationWithDirectoryPerTestFixture, IUseFixture<MiniNodeFixture>
     {
         private MiniNode _node;
 
-        [TestFixtureSetUp]
-        public override void TestFixtureSetUp()
+        public void SetFixture(MiniNodeFixture data)
         {
-            base.TestFixtureSetUp();
-            _node = new MiniNode(PathName);
-            _node.Start();
-        }
-
-        [TestFixtureTearDown]
-        public override void TestFixtureTearDown()
-        {
-            _node.Shutdown();
-            base.TestFixtureTearDown();
+            _node = data.Node;
         }
 
         virtual protected IEventStoreConnection BuildConnection(MiniNode node)
@@ -40,8 +29,8 @@ namespace EventStore.Core.Tests.ClientAPI
          * S_0em1_1em1_E - START bucket, two events in bucket, END bucket
         */
 
-        [Test]
-        [Category("Network")]
+        [Fact]
+        [Trait("Category", "Network"), Trait("Category", "LongRunning")]
         public void sequence_0em1_1e0_2e1_3e2_4e3_5e4_0em1_idempotent()
         {
             const string stream = "appending_to_implicitly_created_stream_using_transaction_sequence_0em1_1e0_2e1_3e2_4e3_5e4_0em1_idempotent";
@@ -52,16 +41,16 @@ namespace EventStore.Core.Tests.ClientAPI
                 var events = Enumerable.Range(0, 6).Select(x => TestEvent.NewTestEvent(Guid.NewGuid())).ToArray();
                 var writer = new TransactionalWriter(store, stream);
 
-                Assert.AreEqual(5, writer.StartTransaction(-1).Write(events).Commit().NextExpectedVersion);
-                Assert.AreEqual(0, writer.StartTransaction(-1).Write(events.First()).Commit().NextExpectedVersion);
+                Assert.Equal(5, writer.StartTransaction(-1).Write(events).Commit().NextExpectedVersion);
+                Assert.Equal(0, writer.StartTransaction(-1).Write(events.First()).Commit().NextExpectedVersion);
 
                 var total = EventsStream.Count(store, stream);
-                Assert.That(total, Is.EqualTo(events.Length));
+                Assert.Equal(events.Length, total);
             }
         }
 
-        [Test]
-        [Category("Network")]
+        [Fact]
+        [Trait("Category", "Network"), Trait("Category", "LongRunning")]
         public void sequence_0em1_1e0_2e1_3e2_4e3_5e4_0any_idempotent()
         {
             const string stream = "appending_to_implicitly_created_stream_using_transaction_sequence_0em1_1e0_2e1_3e2_4e3_5e4_0any_idempotent";
@@ -72,16 +61,16 @@ namespace EventStore.Core.Tests.ClientAPI
                 var events = Enumerable.Range(0, 6).Select(x => TestEvent.NewTestEvent(Guid.NewGuid())).ToArray();
                 var writer = new TransactionalWriter(store, stream);
 
-                Assert.AreEqual(5, writer.StartTransaction(-1).Write(events).Commit().NextExpectedVersion);
-                Assert.AreEqual(0, writer.StartTransaction(ExpectedVersion.Any).Write(events.First()).Commit().NextExpectedVersion);
+                Assert.Equal(5, writer.StartTransaction(-1).Write(events).Commit().NextExpectedVersion);
+                Assert.Equal(0, writer.StartTransaction(ExpectedVersion.Any).Write(events.First()).Commit().NextExpectedVersion);
 
                 var total = EventsStream.Count(store, stream);
-                Assert.That(total, Is.EqualTo(events.Length));
+                Assert.Equal(events.Length, total);
             }
         }
 
-        [Test]
-        [Category("Network")]
+        [Fact]
+        [Trait("Category", "Network"), Trait("Category", "LongRunning")]
         public void sequence_0em1_1e0_2e1_3e2_4e3_5e4_0e5_non_idempotent()
         {
             const string stream = "appending_to_implicitly_created_stream_using_transaction_sequence_0em1_1e0_2e1_3e2_4e3_5e4_0e5_non_idempotent";
@@ -92,16 +81,16 @@ namespace EventStore.Core.Tests.ClientAPI
                 var events = Enumerable.Range(0, 6).Select(x => TestEvent.NewTestEvent(Guid.NewGuid())).ToArray();
                 var writer = new TransactionalWriter(store, stream);
 
-                Assert.AreEqual(5, writer.StartTransaction(-1).Write(events).Commit().NextExpectedVersion);
-                Assert.AreEqual(6, writer.StartTransaction(5).Write(events.First()).Commit().NextExpectedVersion);
+                Assert.Equal(5, writer.StartTransaction(-1).Write(events).Commit().NextExpectedVersion);
+                Assert.Equal(6, writer.StartTransaction(5).Write(events.First()).Commit().NextExpectedVersion);
 
                 var total = EventsStream.Count(store, stream);
-                Assert.That(total, Is.EqualTo(events.Length + 1));
+                Assert.Equal(events.Length + 1, total);
             }
         }
 
-        [Test]
-        [Category("Network")]
+        [Fact]
+        [Trait("Category", "Network"), Trait("Category", "LongRunning")]
         public void sequence_0em1_1e0_2e1_3e2_4e3_5e4_0e6_wev()
         {
             const string stream = "appending_to_implicitly_created_stream_using_transaction_sequence_0em1_1e0_2e1_3e2_4e3_5e4_0e6_wev";
@@ -112,14 +101,15 @@ namespace EventStore.Core.Tests.ClientAPI
                 var events = Enumerable.Range(0, 6).Select(x => TestEvent.NewTestEvent(Guid.NewGuid())).ToArray();
                 var writer = new TransactionalWriter(store, stream);
 
-                Assert.AreEqual(5, writer.StartTransaction(-1).Write(events).Commit().NextExpectedVersion);
-                Assert.That(() => writer.StartTransaction(6).Write(events.First()).Commit(), 
-                            Throws.Exception.TypeOf<AggregateException>().With.InnerException.TypeOf<WrongExpectedVersionException>());
+                Assert.Equal(5, writer.StartTransaction(-1).Write(events).Commit().NextExpectedVersion);
+                
+                var thrown = Assert.Throws<AggregateException>(() => writer.StartTransaction(6).Write(events.First()).Commit());
+                Assert.IsType<WrongExpectedVersionException>(thrown.InnerException);
             }
         }
 
-        [Test]
-        [Category("Network")]
+        [Fact]
+        [Trait("Category", "Network"), Trait("Category", "LongRunning")]
         public void sequence_0em1_1e0_2e1_3e2_4e3_5e4_0e4_wev()
         {
             const string stream = "appending_to_implicitly_created_stream_using_transaction_sequence_0em1_1e0_2e1_3e2_4e3_5e4_0e4_wev";
@@ -130,14 +120,15 @@ namespace EventStore.Core.Tests.ClientAPI
                 var events = Enumerable.Range(0, 6).Select(x => TestEvent.NewTestEvent(Guid.NewGuid())).ToArray();
                 var writer = new TransactionalWriter(store, stream);
 
-                Assert.AreEqual(5, writer.StartTransaction(-1).Write(events).Commit().NextExpectedVersion);
-                Assert.That(() => writer.StartTransaction(4).Write(events.First()).Commit(), 
-                            Throws.Exception.TypeOf<AggregateException>().With.InnerException.TypeOf<WrongExpectedVersionException>());
+                Assert.Equal(5, writer.StartTransaction(-1).Write(events).Commit().NextExpectedVersion);
+                
+                var thrown = Assert.Throws<AggregateException>(() => writer.StartTransaction(4).Write(events.First()).Commit());
+                Assert.IsType<WrongExpectedVersionException>(thrown.InnerException);
             }
         }
 
-        [Test]
-        [Category("Network")]
+        [Fact]
+        [Trait("Category", "Network"), Trait("Category", "LongRunning")]
         public void sequence_0em1_0e0_non_idempotent()
         {
             const string stream = "appending_to_implicitly_created_stream_using_transaction_sequence_0em1_0e0_non_idempotent";
@@ -148,16 +139,16 @@ namespace EventStore.Core.Tests.ClientAPI
                 var events = Enumerable.Range(0, 1).Select(x => TestEvent.NewTestEvent(Guid.NewGuid())).ToArray();
                 var writer = new TransactionalWriter(store, stream);
 
-                Assert.AreEqual(0, writer.StartTransaction(-1).Write(events).Commit().NextExpectedVersion);
-                Assert.AreEqual(1, writer.StartTransaction(0).Write(events.First()).Commit().NextExpectedVersion);
+                Assert.Equal(0, writer.StartTransaction(-1).Write(events).Commit().NextExpectedVersion);
+                Assert.Equal(1, writer.StartTransaction(0).Write(events.First()).Commit().NextExpectedVersion);
 
                 var total = EventsStream.Count(store, stream);
-                Assert.That(total, Is.EqualTo(events.Length + 1));
+                Assert.Equal(events.Length + 1, total);
             }
         }
 
-        [Test]
-        [Category("Network")]
+        [Fact]
+        [Trait("Category", "Network"), Trait("Category", "LongRunning")]
         public void sequence_0em1_0any_idempotent()
         {
             const string stream = "appending_to_implicitly_created_stream_using_transaction_sequence_0em1_0any_idempotent";
@@ -168,16 +159,16 @@ namespace EventStore.Core.Tests.ClientAPI
                 var events = Enumerable.Range(0, 1).Select(x => TestEvent.NewTestEvent(Guid.NewGuid())).ToArray();
                 var writer = new TransactionalWriter(store, stream);
 
-                Assert.AreEqual(0, writer.StartTransaction(-1).Write(events).Commit().NextExpectedVersion);
-                Assert.AreEqual(0, writer.StartTransaction(ExpectedVersion.Any).Write(events.First()).Commit().NextExpectedVersion);
+                Assert.Equal(0, writer.StartTransaction(-1).Write(events).Commit().NextExpectedVersion);
+                Assert.Equal(0, writer.StartTransaction(ExpectedVersion.Any).Write(events.First()).Commit().NextExpectedVersion);
 
                 var total = EventsStream.Count(store, stream);
-                Assert.That(total, Is.EqualTo(events.Length));
+                Assert.Equal(events.Length, total);
             }
         }
 
-        [Test]
-        [Category("Network")]
+        [Fact]
+        [Trait("Category", "Network"), Trait("Category", "LongRunning")]
         public void sequence_0em1_0em1_idempotent()
         {
             const string stream = "appending_to_implicitly_created_stream_using_transaction_sequence_0em1_0em1_idempotent";
@@ -188,16 +179,16 @@ namespace EventStore.Core.Tests.ClientAPI
                 var events = Enumerable.Range(0, 1).Select(x => TestEvent.NewTestEvent(Guid.NewGuid())).ToArray();
                 var writer = new TransactionalWriter(store, stream);
 
-                Assert.AreEqual(0, writer.StartTransaction(-1).Write(events).Commit().NextExpectedVersion);
-                Assert.AreEqual(0, writer.StartTransaction(-1).Write(events.First()).Commit().NextExpectedVersion);
+                Assert.Equal(0, writer.StartTransaction(-1).Write(events).Commit().NextExpectedVersion);
+                Assert.Equal(0, writer.StartTransaction(-1).Write(events.First()).Commit().NextExpectedVersion);
 
                 var total = EventsStream.Count(store, stream);
-                Assert.That(total, Is.EqualTo(events.Length));
+                Assert.Equal(events.Length, total);
             }
         }
 
-        [Test]
-        [Category("Network")]
+        [Fact]
+        [Trait("Category", "Network"), Trait("Category", "LongRunning")]
         public void sequence_0em1_1e0_2e1_1any_1any_idempotent()
         {
             const string stream = "appending_to_implicitly_created_stream_using_transaction_sequence_0em1_1e0_2e1_1any_1any_idempotent";
@@ -208,16 +199,16 @@ namespace EventStore.Core.Tests.ClientAPI
                 var events = Enumerable.Range(0, 3).Select(x => TestEvent.NewTestEvent(Guid.NewGuid())).ToArray();
                 var writer = new TransactionalWriter(store, stream);
 
-                Assert.AreEqual(2, writer.StartTransaction(-1).Write(events).Commit().NextExpectedVersion);
-                Assert.AreEqual(1, writer.StartTransaction(ExpectedVersion.Any).Write(events[1]).Write(events[1]).Commit().NextExpectedVersion);
+                Assert.Equal(2, writer.StartTransaction(-1).Write(events).Commit().NextExpectedVersion);
+                Assert.Equal(1, writer.StartTransaction(ExpectedVersion.Any).Write(events[1]).Write(events[1]).Commit().NextExpectedVersion);
 
                 var total = EventsStream.Count(store, stream);
-                Assert.That(total, Is.EqualTo(events.Length));
+                Assert.Equal(events.Length, total);
             }
         }
 
-        [Test]
-        [Category("Network")]
+        [Fact]
+        [Trait("Category", "Network"), Trait("Category", "LongRunning")]
         public void sequence_S_0em1_1em1_E_S_0em1_1em1_2em1_E_idempotancy_fail()
         {
             const string stream = "appending_to_implicitly_created_stream_using_transaction_sequence_S_0em1_1em1_E_S_0em1_1em1_2em1_E_idempotancy_fail";
@@ -228,11 +219,11 @@ namespace EventStore.Core.Tests.ClientAPI
                 var events = Enumerable.Range(0, 2).Select(x => TestEvent.NewTestEvent(Guid.NewGuid())).ToArray();
                 var writer = new TransactionalWriter(store, stream);
 
-                Assert.AreEqual(1, writer.StartTransaction(-1).Write(events).Commit().NextExpectedVersion);
-                Assert.That(() => writer.StartTransaction(-1)
+                Assert.Equal(1, writer.StartTransaction(-1).Write(events).Commit().NextExpectedVersion);
+                var thrown = Assert.Throws<AggregateException>(() => writer.StartTransaction(-1)
                                         .Write(events.Concat(new[] { TestEvent.NewTestEvent(Guid.NewGuid()) }).ToArray())
-                                        .Commit(),
-                            Throws.Exception.TypeOf<AggregateException>().With.InnerException.TypeOf<WrongExpectedVersionException>());
+                                        .Commit());
+                Assert.IsType<WrongExpectedVersionException>(thrown.InnerException);
             }
         }
     }

@@ -5,14 +5,14 @@ using EventStore.Core.Messages;
 using EventStore.Core.Messaging;
 using EventStore.Projections.Core.Messages;
 using EventStore.Projections.Core.Services.Processing;
-using NUnit.Framework;
+using Xunit;
 using System.Linq;
 
 namespace EventStore.Projections.Core.Tests.Services.event_reader.multi_stream_reader
 {
     namespace reordering
     {
-        abstract class with_multi_stream_reader : TestFixtureWithEventReaderService
+        public abstract class with_multi_stream_reader : TestFixtureWithEventReaderService
         {
             protected Guid _subscriptionId;
             private QuerySourcesDefinition _sourceDefinition;
@@ -60,22 +60,22 @@ namespace EventStore.Projections.Core.Tests.Services.event_reader.multi_stream_r
                 return string.Format(@"{{""$c"":{0},""$p"":{1}}}", tfPos.CommitPosition, tfPos.PreparePosition);
             }
 
-            [Test]
+            [Fact]
             public void returns_all_events()
             {
                 var receivedEvents =
                     _consumer.HandledMessages.OfType<EventReaderSubscriptionMessage.CommittedEventReceived>().ToArray();
 
-                Assert.AreEqual(5, receivedEvents.Length);
+                Assert.Equal(5, receivedEvents.Length);
             }
 
-            [Test]
+            [Fact]
             public void returns_events_in_original_order()
             {
                 var receivedEvents =
                     _consumer.HandledMessages.OfType<EventReaderSubscriptionMessage.CommittedEventReceived>().ToArray();
 
-                Assert.That(
+                Assert.True(
                     (from e in receivedEvents
                      orderby e.Data.Position.PreparePosition
                      select e.Data.Position.PreparePosition).SequenceEqual(
@@ -84,8 +84,8 @@ namespace EventStore.Projections.Core.Tests.Services.event_reader.multi_stream_r
             }
         }
 
-        [TestFixture]
-        class when_event_commit_is_delayed : with_multi_stream_reader
+        
+        public class when_event_commit_is_delayed : with_multi_stream_reader
         {
             protected override void GivenOtherEvents()
             {

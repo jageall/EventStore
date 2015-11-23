@@ -1,8 +1,8 @@
-﻿using NUnit.Framework;
+﻿using Xunit;
 
 namespace EventStore.Projections.Core.Tests.Services.parallel_processing_load_balancer
 {
-    [TestFixture]
+    
     public class when_scheduling_first_task : specification_with_parallel_processing_load_balancer
     {
         private string _scheduledTask;
@@ -24,16 +24,16 @@ namespace EventStore.Projections.Core.Tests.Services.parallel_processing_load_ba
                 });
         }
 
-        [Test]
+        [Fact]
         public void schedules_correct_task()
         {
-            Assert.AreEqual("task1", _scheduledTask);
+            Assert.Equal("task1", _scheduledTask);
         }
 
-        [Test]
+        [Fact]
         public void schedules_on_any_worker()
         {
-            Assert.AreNotEqual(int.MinValue, _scheduledOnWorker);
+            Assert.NotEqual(int.MinValue, _scheduledOnWorker);
         }
     }
 }

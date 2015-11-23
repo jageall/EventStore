@@ -1,10 +1,9 @@
 ﻿using System;
 using EventStore.Core.TransactionLog.LogRecords;
-using NUnit.Framework;
+using Xunit;
 
 namespace EventStore.Core.Tests.Services.Storage.Scavenge
 {
-    [TestFixture]
     public class when_having_deleted_stream_spanning_two_chunks: ReadIndexTestScenario
     {
         private long[] _survivors;
@@ -14,10 +13,10 @@ namespace EventStore.Core.Tests.Services.Storage.Scavenge
         {
             long tmp;
 
-            var r2 = LogRecord.Prepare(WriterCheckpoint.ReadNonFlushed(),
+            var r2 = LogRecord.Prepare(Fixture.WriterCheckpoint.ReadNonFlushed(),
                                        Guid.NewGuid(),
                                        Guid.NewGuid(),
-                                       WriterCheckpoint.ReadNonFlushed(),
+                                       Fixture.WriterCheckpoint.ReadNonFlushed(),
                                        0,
                                        "s1",
                                        -1,
@@ -25,15 +24,15 @@ namespace EventStore.Core.Tests.Services.Storage.Scavenge
                                        "event-type",
                                        new byte[3],
                                        new byte[3]);
-            Assert.IsTrue(Writer.Write(r2, out tmp));
+            Assert.True(Fixture.Writer.Write(r2, out tmp));
 
-            var r4 = WritePrepare("s2", -1);
-            var r5 = WriteCommit(r4.LogPosition, "s2", 0);
-            var r6 = WriteDelete("s2");
+            var r4 = Fixture.WritePrepare("s2", -1);
+            var r5 = Fixture.WriteCommit(r4.LogPosition, "s2", 0);
+            var r6 = Fixture.WriteDelete("s2");
 
-            Writer.CompleteChunk();
+            Fixture.Writer.CompleteChunk();
 
-            var r7 = LogRecord.Prepare(WriterCheckpoint.ReadNonFlushed(),
+            var r7 = LogRecord.Prepare(Fixture.WriterCheckpoint.ReadNonFlushed(),
                                        Guid.NewGuid(),
                                        Guid.NewGuid(),
                                        r2.LogPosition,
@@ -44,16 +43,16 @@ namespace EventStore.Core.Tests.Services.Storage.Scavenge
                                        "event-type",
                                        new byte[3],
                                        new byte[3]);
-            Assert.IsTrue(Writer.Write(r7, out tmp));
-            
-            var r9 = WritePrepare("s3", -1);
-            var r10 = WriteCommit(r9.LogPosition, "s3", 0);
-            var r11 = WriteDelete("s3");
+            Assert.True(Fixture.Writer.Write(r7, out tmp));
 
-            var r12 = WriteCommit(r2.LogPosition, "s1", 0);
-            var r13 = WriteDelete("s1");
+            var r9 = Fixture.WritePrepare("s3", -1);
+            var r10 = Fixture.WriteCommit(r9.LogPosition, "s3", 0);
+            var r11 = Fixture.WriteDelete("s3");
 
-            Writer.CompleteChunk();
+            var r12 = Fixture.WriteCommit(r2.LogPosition, "s1", 0);
+            var r13 = Fixture.WriteDelete("s1");
+
+            Fixture.Writer.CompleteChunk();
 
             _survivors = new[]
                          {
@@ -72,22 +71,22 @@ namespace EventStore.Core.Tests.Services.Storage.Scavenge
                                  r12.LogPosition
                          };
 
-            Scavenge(completeLast: false, mergeChunks: true);
+            Fixture.Scavenge(completeLast: false, mergeChunks: true);
         }
 
-        [Test]
+        [Fact]
         public void stream_is_scavenged_after_merging_scavenge()
         {
             foreach (var logPos in _scavenged)
             {
                 var chunk = Db.Manager.GetChunkFor(logPos);
-                Assert.IsFalse(chunk.TryReadAt(logPos).Success);
+                Assert.False(chunk.TryReadAt(logPos).Success);
             }
 
             foreach (var logPos in _survivors)
             {
                 var chunk = Db.Manager.GetChunkFor(logPos);
-                Assert.IsTrue(chunk.TryReadAt(logPos).Success);
+                Assert.True(chunk.TryReadAt(logPos).Success);
             }
         }
     }

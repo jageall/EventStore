@@ -1,10 +1,9 @@
 ﻿using System.Collections.Generic;
 using EventStore.ClientAPI;
-using NUnit.Framework;
+using Xunit;
 
 namespace EventStore.Core.Tests.ClientAPI
 {
-    [TestFixture]
     public class read_all_events_forward_with_linkto_passed_max_count : SpecificationWithLinkToToMaxCountDeletedEvents
     {
         private StreamEventsSlice _read;
@@ -14,10 +13,10 @@ namespace EventStore.Core.Tests.ClientAPI
             _read = _conn.ReadStreamEventsForwardAsync(LinkedStreamName, 0, 1, true).Result;
         }
 
-        [Test]
+        [Fact]
         public void one_event_is_read()
         {
-            Assert.AreEqual(1, _read.Events.Length);
+            Assert.Equal(1, _read.Events.Length);
         }
     }
 }

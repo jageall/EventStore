@@ -3,14 +3,13 @@ using EventStore.Core.Exceptions;
 using EventStore.Core.TransactionLog.Checkpoint;
 using EventStore.Core.TransactionLog.Chunks;
 using EventStore.Core.TransactionLog.FileNamingStrategy;
-using NUnit.Framework;
+using Xunit;
 
 namespace EventStore.Core.Tests.TransactionLog.Validation
 {
-    [TestFixture]
     public class when_validating_tfchunk_db_with_multi_chunks : SpecificationWithDirectory
     {
-        [Test]
+        [Fact]
         public void with_not_enough_files_to_reach_checksum_throws()
         {
             var config = new TFChunkDbConfig(PathName,
@@ -24,13 +23,12 @@ namespace EventStore.Core.Tests.TransactionLog.Validation
             using (var db = new TFChunkDb(config))
             {
                 DbUtil.CreateMultiChunk(config, 0, 1, GetFilePathFor("chunk-000000.000000"));
-                Assert.That(() => db.Open(verifyHash: false),
-                            Throws.Exception.InstanceOf<CorruptDatabaseException>()
-                            .With.InnerException.InstanceOf<ChunkNotFoundException>());
+                var thrown = Assert.Throws<CorruptDatabaseException>(() => db.Open(verifyHash: false));
+                Assert.IsType<ChunkNotFoundException>(thrown.InnerException);
             }
         }
 
-        [Test]
+        [Fact]
         public void with_checksum_inside_multi_chunk_throws()
         {
             var config = new TFChunkDbConfig(PathName,
@@ -44,13 +42,12 @@ namespace EventStore.Core.Tests.TransactionLog.Validation
             using (var db = new TFChunkDb(config))
             {
                 DbUtil.CreateMultiChunk(config, 0, 2, GetFilePathFor("chunk-000000.000000"));
-                Assert.That(() => db.Open(verifyHash: false),
-                            Throws.Exception.InstanceOf<CorruptDatabaseException>()
-                            .With.InnerException.InstanceOf<ChunkNotFoundException>());
+                var thrown = Assert.Throws<CorruptDatabaseException>(() => db.Open(verifyHash: false));
+                Assert.IsType<ChunkNotFoundException>(thrown.InnerException);
             }
         }
 
-        [Test]
+        [Fact]
         public void allows_with_exactly_enough_file_to_reach_checksum_while_last_is_multi_chunk()
         {
             var config = new TFChunkDbConfig(PathName,
@@ -67,14 +64,14 @@ namespace EventStore.Core.Tests.TransactionLog.Validation
                 DbUtil.CreateMultiChunk(config, 1, 2, GetFilePathFor("chunk-000001.000000"));
                 Assert.DoesNotThrow(() => db.Open(verifyHash: false));
 
-                Assert.IsTrue(File.Exists(GetFilePathFor("chunk-000000.000000")));
-                Assert.IsTrue(File.Exists(GetFilePathFor("chunk-000001.000000")));
-                Assert.IsTrue(File.Exists(GetFilePathFor("chunk-000003.000000")));
-                Assert.AreEqual(3, Directory.GetFiles(PathName, "*").Length);
+                Assert.True(File.Exists(GetFilePathFor("chunk-000000.000000")));
+                Assert.True(File.Exists(GetFilePathFor("chunk-000001.000000")));
+                Assert.True(File.Exists(GetFilePathFor("chunk-000003.000000")));
+                Assert.Equal(3, Directory.GetFiles(PathName, "*").Length);
             }
         }
 
-        [Test]
+        [Fact]
         public void allows_next_new_chunk_when_checksum_is_exactly_in_between_two_chunks_if_last_is_ongoing_chunk()
         {
             var config = new TFChunkDbConfig(PathName,
@@ -91,13 +88,13 @@ namespace EventStore.Core.Tests.TransactionLog.Validation
                 DbUtil.CreateOngoingChunk(config, 2, GetFilePathFor("chunk-000002.000000"));
                 Assert.DoesNotThrow(() => db.Open(verifyHash: false));
 
-                Assert.IsTrue(File.Exists(GetFilePathFor("chunk-000000.000000")));
-                Assert.IsTrue(File.Exists(GetFilePathFor("chunk-000002.000000")));
-                Assert.AreEqual(2, Directory.GetFiles(PathName, "*").Length);
+                Assert.True(File.Exists(GetFilePathFor("chunk-000000.000000")));
+                Assert.True(File.Exists(GetFilePathFor("chunk-000002.000000")));
+                Assert.Equal(2, Directory.GetFiles(PathName, "*").Length);
             }
         }
 
-        [Test, Ignore("Due to truncation such situation can happen, so must be considered valid.")]
+        [Fact(Skip="Due to truncation such situation can happen, so must be considered valid.")]
         public void does_not_allow_next_new_chunk_when_checksum_is_exactly_in_between_two_chunks_and_last_is_multi_chunk()
         {
             var config = new TFChunkDbConfig(PathName,
@@ -112,14 +109,12 @@ namespace EventStore.Core.Tests.TransactionLog.Validation
             {
                 DbUtil.CreateSingleChunk(config, 0, GetFilePathFor("chunk-000000.000000"));
                 DbUtil.CreateMultiChunk(config, 1, 2, GetFilePathFor("chunk-000001.000000"));
-
-                Assert.That(() => db.Open(verifyHash: false),
-                            Throws.Exception.InstanceOf<CorruptDatabaseException>()
-                            .With.InnerException.InstanceOf<BadChunkInDatabaseException>());
+                var thrown = Assert.Throws<CorruptDatabaseException>(() => db.Open(verifyHash: false));
+                Assert.IsType<BadChunkInDatabaseException>(thrown.InnerException);
             }
         }
 
-        [Test]
+        [Fact]
         public void old_version_of_chunks_are_removed()
         {
             File.Create(GetFilePathFor("foo")).Close();
@@ -146,16 +141,16 @@ namespace EventStore.Core.Tests.TransactionLog.Validation
 
                 Assert.DoesNotThrow(() => db.Open(verifyHash: false));
 
-                Assert.IsTrue(File.Exists(GetFilePathFor("foo")));
-                Assert.IsTrue(File.Exists(GetFilePathFor("bla")));
-                Assert.IsTrue(File.Exists(GetFilePathFor("chunk-000000.000005")));
-                Assert.IsTrue(File.Exists(GetFilePathFor("chunk-000001.000001")));
-                Assert.IsTrue(File.Exists(GetFilePathFor("chunk-000003.000008")));
-                Assert.AreEqual(5, Directory.GetFiles(PathName, "*").Length);
+                Assert.True(File.Exists(GetFilePathFor("foo")));
+                Assert.True(File.Exists(GetFilePathFor("bla")));
+                Assert.True(File.Exists(GetFilePathFor("chunk-000000.000005")));
+                Assert.True(File.Exists(GetFilePathFor("chunk-000001.000001")));
+                Assert.True(File.Exists(GetFilePathFor("chunk-000003.000008")));
+                Assert.Equal(5, Directory.GetFiles(PathName, "*").Length);
             }
         }
 
-        [Test]
+        [Fact]
         public void when_checkpoint_is_exactly_on_the_boundary_of_chunk_the_last_chunk_could_be_not_present_but_should_be_created()
         {
             var config = new TFChunkDbConfig(PathName,
@@ -171,15 +166,15 @@ namespace EventStore.Core.Tests.TransactionLog.Validation
                 DbUtil.CreateMultiChunk(config, 0, 1, GetFilePathFor("chunk-000000.000000"));
 
                 Assert.DoesNotThrow(() => db.Open(verifyHash: false));
-                Assert.IsNotNull(db.Manager.GetChunk(2));
+                Assert.NotNull(db.Manager.GetChunk(2));
 
-                Assert.IsTrue(File.Exists(GetFilePathFor("chunk-000000.000000")));
-                Assert.IsTrue(File.Exists(GetFilePathFor("chunk-000002.000000")));
-                Assert.AreEqual(2, Directory.GetFiles(PathName, "*").Length);
+                Assert.True(File.Exists(GetFilePathFor("chunk-000000.000000")));
+                Assert.True(File.Exists(GetFilePathFor("chunk-000002.000000")));
+                Assert.Equal(2, Directory.GetFiles(PathName, "*").Length);
             }
         }
 
-        [Test]
+        [Fact]
         public void when_checkpoint_is_exactly_on_the_boundary_of_chunk_the_last_chunk_could_be_present()
         {
             var config = new TFChunkDbConfig(PathName,
@@ -196,15 +191,15 @@ namespace EventStore.Core.Tests.TransactionLog.Validation
                 DbUtil.CreateOngoingChunk(config, 2, GetFilePathFor("chunk-000002.000001"));
 
                 Assert.DoesNotThrow(() => db.Open(verifyHash: false));
-                Assert.IsNotNull(db.Manager.GetChunk(2));
+                Assert.NotNull(db.Manager.GetChunk(2));
 
-                Assert.IsTrue(File.Exists(GetFilePathFor("chunk-000000.000000")));
-                Assert.IsTrue(File.Exists(GetFilePathFor("chunk-000002.000001")));
-                Assert.AreEqual(2, Directory.GetFiles(PathName, "*").Length);
+                Assert.True(File.Exists(GetFilePathFor("chunk-000000.000000")));
+                Assert.True(File.Exists(GetFilePathFor("chunk-000002.000001")));
+                Assert.Equal(2, Directory.GetFiles(PathName, "*").Length);
             }
         }
 
-        [Test]
+        [Fact]
         public void when_checkpoint_is_on_boundary_of_new_chunk_and_last_chunk_is_truncated_no_exception_is_thrown()
         {
             var config = new TFChunkDbConfig(PathName,
@@ -221,16 +216,16 @@ namespace EventStore.Core.Tests.TransactionLog.Validation
                 DbUtil.CreateMultiChunk(config, 1, 2, GetFilePathFor("chunk-000001.000001"), physicalSize: 50, logicalSize: 150);
 
                 Assert.DoesNotThrow(() => db.Open(verifyHash: false));
-                Assert.IsNotNull(db.Manager.GetChunk(2));
+                Assert.NotNull(db.Manager.GetChunk(2));
 
-                Assert.IsTrue(File.Exists(GetFilePathFor("chunk-000000.000000")));
-                Assert.IsTrue(File.Exists(GetFilePathFor("chunk-000001.000001")));
-                Assert.IsTrue(File.Exists(GetFilePathFor("chunk-000003.000000")));
-                Assert.AreEqual(3, Directory.GetFiles(PathName, "*").Length);
+                Assert.True(File.Exists(GetFilePathFor("chunk-000000.000000")));
+                Assert.True(File.Exists(GetFilePathFor("chunk-000001.000001")));
+                Assert.True(File.Exists(GetFilePathFor("chunk-000003.000000")));
+                Assert.Equal(3, Directory.GetFiles(PathName, "*").Length);
             }
         }
 
-        [Test]
+        [Fact]
         public void does_not_allow_checkpoint_to_point_into_the_middle_of_multichunk_chunk()
         {
             var config = new TFChunkDbConfig(PathName,
@@ -246,13 +241,12 @@ namespace EventStore.Core.Tests.TransactionLog.Validation
                 DbUtil.CreateSingleChunk(config, 0, GetFilePathFor("chunk-000000.000000"));
                 DbUtil.CreateMultiChunk(config, 1, 10, GetFilePathFor("chunk-000001.000001"));
 
-                Assert.That(() => db.Open(verifyHash: false),
-                            Throws.Exception.InstanceOf<CorruptDatabaseException>()
-                            .With.InnerException.InstanceOf<BadChunkInDatabaseException>());
+                var thrown = Assert.Throws<CorruptDatabaseException>(() => db.Open(verifyHash: false));
+                Assert.IsType<BadChunkInDatabaseException>(thrown.InnerException);
             }
         }
 
-        [Test]
+        [Fact]
         public void allows_last_chunk_to_be_multichunk_when_checkpoint_point_at_the_start_of_next_chunk()
         {
             var config = new TFChunkDbConfig(PathName,
@@ -270,10 +264,10 @@ namespace EventStore.Core.Tests.TransactionLog.Validation
 
                 Assert.DoesNotThrow(() => db.Open(verifyHash: false));
 
-                Assert.IsTrue(File.Exists(GetFilePathFor("chunk-000000.000000")));
-                Assert.IsTrue(File.Exists(GetFilePathFor("chunk-000001.000001")));
-                Assert.IsTrue(File.Exists(GetFilePathFor("chunk-000004.000000")));
-                Assert.AreEqual(3, Directory.GetFiles(PathName, "*").Length);
+                Assert.True(File.Exists(GetFilePathFor("chunk-000000.000000")));
+                Assert.True(File.Exists(GetFilePathFor("chunk-000001.000001")));
+                Assert.True(File.Exists(GetFilePathFor("chunk-000004.000000")));
+                Assert.Equal(3, Directory.GetFiles(PathName, "*").Length);
             }
         }
     }

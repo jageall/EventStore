@@ -1,37 +1,37 @@
 ﻿using System;
 using EventStore.Projections.Core.Services.Processing;
-using NUnit.Framework;
+using Xunit;
 
 namespace EventStore.Projections.Core.Tests.Services.partition_state
 {
     public static class partition_state
     {
-        [TestFixture]
+        
         public class when_creating
         {
-            [Test, ExpectedException(typeof(ArgumentNullException))]
+            [Fact]
             public void throws_argument_null_exception_if_state_is_null()
             {
-                new PartitionState(null, "result", CheckpointTag.FromPosition(0, 100, 50));
+                Assert.Throws<ArgumentNullException>(() => new PartitionState(null, "result", CheckpointTag.FromPosition(0, 100, 50)));
             }
 
-            [Test, ExpectedException(typeof(ArgumentNullException))]
+            [Fact]
             public void throws_argument_null_exception_if_caused_by_is_null()
             {
-                new PartitionState("state", "result", null);
+                Assert.Throws<ArgumentNullException>(() => new PartitionState("state", "result", null));
             }
 
-            [Test]
+            [Fact]
             public void can_be_created()
             {
                 new PartitionState("state", "result", CheckpointTag.FromPosition(0, 100, 50));
             }
         }
 
-        [TestFixture]
+        
         public class can_be_deserialized_from_serialized_form
         {
-            [Test]
+            [Fact]
             public void simple_object()
             {
                 AssertCorrect(@"{""a"":""b""}");
@@ -39,7 +39,7 @@ namespace EventStore.Projections.Core.Tests.Services.partition_state
                 AssertCorrect(@"{""z"":null,""a"":""b"",""c"":1}");
             }
 
-            [Test]
+            [Fact]
             public void complex_object()
             {
                 AssertCorrect(@"{""a"":""b"",""c"":[1,2,3]}");
@@ -47,12 +47,12 @@ namespace EventStore.Projections.Core.Tests.Services.partition_state
                 AssertCorrect(@"{""a"":""b"",""c"":[{},[],null]}");
             }
 
-            [Test]
+            [Fact]
             public void null_deserialization()
             {
                 var deserialized = PartitionState.Deserialize(null, CheckpointTag.FromPosition(0, 100, 50));
-                Assert.AreEqual("", deserialized.State);
-                Assert.IsNull(deserialized.Result);
+                Assert.Equal("", deserialized.State);
+                Assert.Null(deserialized.Result);
             }
 
             private void AssertCorrect(string state, string result = null)
@@ -61,8 +61,8 @@ namespace EventStore.Projections.Core.Tests.Services.partition_state
                 var serialized = partitionState.Serialize();
                 var deserialized = PartitionState.Deserialize(serialized, CheckpointTag.FromPosition(0, 100, 50));
 
-                Assert.AreEqual(partitionState.State, deserialized.State);
-                Assert.AreEqual(partitionState.Result, deserialized.Result);
+                Assert.Equal(partitionState.State, deserialized.State);
+                Assert.Equal(partitionState.Result, deserialized.Result);
             }
         }
     }

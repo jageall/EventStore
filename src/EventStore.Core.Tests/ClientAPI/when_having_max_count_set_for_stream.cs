@@ -2,11 +2,10 @@
 using EventStore.ClientAPI;
 using EventStore.Core.Tests.ClientAPI.Helpers;
 using EventStore.Core.Tests.Helpers;
-using NUnit.Framework;
+using Xunit;
 
 namespace EventStore.Core.Tests.ClientAPI
 {
-    [TestFixture, Category("LongRunning")]
     public class when_having_max_count_set_for_stream : SpecificationWithDirectory
     {
         private const string Stream = "max-count-test-stream";
@@ -15,10 +14,8 @@ namespace EventStore.Core.Tests.ClientAPI
         private IEventStoreConnection _connection;
         private EventData[] _testEvents;
 
-        [SetUp]
-        public override void SetUp()
+        public when_having_max_count_set_for_stream()
         {
-            base.SetUp();
             _node = new MiniNode(PathName);
             _node.Start();
 
@@ -31,103 +28,108 @@ namespace EventStore.Core.Tests.ClientAPI
             _connection.AppendToStreamAsync(Stream, ExpectedVersion.EmptyStream, _testEvents).Wait();
         }
 
-        [TearDown]
-        public override void TearDown()
+        public override void Dispose()
         {
             _connection.Close();
             _node.Shutdown();
-            base.TearDown();
+            base.Dispose();
         }
 
-        [Test]
+        [Fact]
+        [Trait("Category", "LongRunning")]
         public void read_stream_forward_respects_max_count()
         {
             var res = _connection.ReadStreamEventsForwardAsync(Stream, 0, 100, false).Result;
-            Assert.AreEqual(SliceReadStatus.Success, res.Status);
-            Assert.AreEqual(3, res.Events.Length);
-            Assert.AreEqual(_testEvents.Skip(2).Select(x => x.EventId).ToArray(), 
+            Assert.Equal(SliceReadStatus.Success, res.Status);
+            Assert.Equal(3, res.Events.Length);
+            Assert.Equal(_testEvents.Skip(2).Select(x => x.EventId).ToArray(), 
                             res.Events.Select(x => x.Event.EventId).ToArray());
         }
 
-        [Test]
+        [Fact]
+        [Trait("Category", "LongRunning")]
         public void read_stream_backward_respects_max_count()
         {
             var res = _connection.ReadStreamEventsBackwardAsync(Stream, -1, 100, false).Result;
-            Assert.AreEqual(SliceReadStatus.Success, res.Status);
-            Assert.AreEqual(3, res.Events.Length);
-            Assert.AreEqual(_testEvents.Skip(2).Select(x => x.EventId).ToArray(),
+            Assert.Equal(SliceReadStatus.Success, res.Status);
+            Assert.Equal(3, res.Events.Length);
+            Assert.Equal(_testEvents.Skip(2).Select(x => x.EventId).ToArray(),
                             res.Events.Reverse().Select(x => x.Event.EventId).ToArray());
         }
 
-        [Test]
+        [Fact]
+        [Trait("Category", "LongRunning")]
         public void after_setting_less_strict_max_count_read_stream_forward_reads_more_events()
         {
             var res = _connection.ReadStreamEventsForwardAsync(Stream, 0, 100, false).Result;
-            Assert.AreEqual(SliceReadStatus.Success, res.Status);
-            Assert.AreEqual(3, res.Events.Length);
-            Assert.AreEqual(_testEvents.Skip(2).Select(x => x.EventId).ToArray(),
+            Assert.Equal(SliceReadStatus.Success, res.Status);
+            Assert.Equal(3, res.Events.Length);
+            Assert.Equal(_testEvents.Skip(2).Select(x => x.EventId).ToArray(),
                             res.Events.Select(x => x.Event.EventId).ToArray());
 
             _connection.SetStreamMetadataAsync(Stream, 0, StreamMetadata.Build().SetMaxCount(4)).Wait();
 
             res = _connection.ReadStreamEventsForwardAsync(Stream, 0, 100, false).Result;
-            Assert.AreEqual(SliceReadStatus.Success, res.Status);
-            Assert.AreEqual(4, res.Events.Length);
-            Assert.AreEqual(_testEvents.Skip(1).Select(x => x.EventId).ToArray(),
+            Assert.Equal(SliceReadStatus.Success, res.Status);
+            Assert.Equal(4, res.Events.Length);
+            Assert.Equal(_testEvents.Skip(1).Select(x => x.EventId).ToArray(),
                             res.Events.Select(x => x.Event.EventId).ToArray());
         }
 
-        [Test]
+        [Fact]
+        [Trait("Category", "LongRunning")]
         public void after_setting_more_strict_max_count_read_stream_forward_reads_less_events()
         {
             var res = _connection.ReadStreamEventsForwardAsync(Stream, 0, 100, false).Result;
-            Assert.AreEqual(SliceReadStatus.Success, res.Status);
-            Assert.AreEqual(3, res.Events.Length);
-            Assert.AreEqual(_testEvents.Skip(2).Select(x => x.EventId).ToArray(),
+            Assert.Equal(SliceReadStatus.Success, res.Status);
+            Assert.Equal(3, res.Events.Length);
+            Assert.Equal(_testEvents.Skip(2).Select(x => x.EventId).ToArray(),
                             res.Events.Select(x => x.Event.EventId).ToArray());
 
             _connection.SetStreamMetadataAsync(Stream, 0, StreamMetadata.Build().SetMaxCount(2)).Wait();
 
             res = _connection.ReadStreamEventsForwardAsync(Stream, 0, 100, false).Result;
-            Assert.AreEqual(SliceReadStatus.Success, res.Status);
-            Assert.AreEqual(2, res.Events.Length);
-            Assert.AreEqual(_testEvents.Skip(3).Select(x => x.EventId).ToArray(),
+            Assert.Equal(SliceReadStatus.Success, res.Status);
+            Assert.Equal(2, res.Events.Length);
+            Assert.Equal(_testEvents.Skip(3).Select(x => x.EventId).ToArray(),
                             res.Events.Select(x => x.Event.EventId).ToArray());
         }
 
-        [Test]
+        [Fact]
+        [Trait("Category", "LongRunning")]
         public void after_setting_less_strict_max_count_read_stream_backward_reads_more_events()
         {
             var res = _connection.ReadStreamEventsBackwardAsync(Stream, -1, 100, false).Result;
-            Assert.AreEqual(SliceReadStatus.Success, res.Status);
-            Assert.AreEqual(3, res.Events.Length);
-            Assert.AreEqual(_testEvents.Skip(2).Select(x => x.EventId).ToArray(),
+            Assert.Equal(SliceReadStatus.Success, res.Status);
+            Assert.Equal(3, res.Events.Length);
+            Assert.Equal(_testEvents.Skip(2).Select(x => x.EventId).ToArray(),
                             res.Events.Reverse().Select(x => x.Event.EventId).ToArray());
 
             _connection.SetStreamMetadataAsync(Stream, 0, StreamMetadata.Build().SetMaxCount(4)).Wait();
 
             res = _connection.ReadStreamEventsBackwardAsync(Stream, -1, 100, false).Result;
-            Assert.AreEqual(SliceReadStatus.Success, res.Status);
-            Assert.AreEqual(4, res.Events.Length);
-            Assert.AreEqual(_testEvents.Skip(1).Select(x => x.EventId).ToArray(),
+            Assert.Equal(SliceReadStatus.Success, res.Status);
+            Assert.Equal(4, res.Events.Length);
+            Assert.Equal(_testEvents.Skip(1).Select(x => x.EventId).ToArray(),
                             res.Events.Reverse().Select(x => x.Event.EventId).ToArray());
         }
 
-        [Test]
+        [Fact]
+        [Trait("Category", "LongRunning")]
         public void after_setting_more_strict_max_count_read_stream_backward_reads_less_events()
         {
             var res = _connection.ReadStreamEventsBackwardAsync(Stream, -1, 100, false).Result;
-            Assert.AreEqual(SliceReadStatus.Success, res.Status);
-            Assert.AreEqual(3, res.Events.Length);
-            Assert.AreEqual(_testEvents.Skip(2).Select(x => x.EventId).ToArray(),
+            Assert.Equal(SliceReadStatus.Success, res.Status);
+            Assert.Equal(3, res.Events.Length);
+            Assert.Equal(_testEvents.Skip(2).Select(x => x.EventId).ToArray(),
                             res.Events.Reverse().Select(x => x.Event.EventId).ToArray());
 
             _connection.SetStreamMetadataAsync(Stream, 0, StreamMetadata.Build().SetMaxCount(2)).Wait();
 
             res = _connection.ReadStreamEventsBackwardAsync(Stream, -1, 100, false).Result;
-            Assert.AreEqual(SliceReadStatus.Success, res.Status);
-            Assert.AreEqual(2, res.Events.Length);
-            Assert.AreEqual(_testEvents.Skip(3).Select(x => x.EventId).ToArray(),
+            Assert.Equal(SliceReadStatus.Success, res.Status);
+            Assert.Equal(2, res.Events.Length);
+            Assert.Equal(_testEvents.Skip(3).Select(x => x.EventId).ToArray(),
                             res.Events.Reverse().Select(x => x.Event.EventId).ToArray());
         }
     }

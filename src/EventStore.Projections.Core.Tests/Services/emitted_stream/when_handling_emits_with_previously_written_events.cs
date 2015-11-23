@@ -3,11 +3,11 @@ using System.Linq;
 using EventStore.Core.Messages;
 using EventStore.Projections.Core.Services.Processing;
 using EventStore.Projections.Core.Tests.Services.core_projection;
-using NUnit.Framework;
+using Xunit;
 
 namespace EventStore.Projections.Core.Tests.Services.emitted_stream
 {
-    [TestFixture]
+    
     public class when_handling_emits_with_previously_written_events : TestFixtureWithExistingEvents
     {
         private EmittedStream _stream;
@@ -21,8 +21,7 @@ namespace EventStore.Projections.Core.Tests.Services.emitted_stream
             ExistingEvent("test_stream", "type3", @"{""c"": 300, ""p"": 250}", "data");
         }
 
-        [SetUp]
-        public void setup()
+        public when_handling_emits_with_previously_written_events()
         {
             _readyHandler = new TestCheckpointManagerMessageHandler();
             _stream = new EmittedStream(
@@ -32,7 +31,7 @@ namespace EventStore.Projections.Core.Tests.Services.emitted_stream
             _stream.Start();
         }
 
-        [Test]
+        [Fact]
         public void does_not_publish_already_published_events()
         {
             _stream.EmitEvents(
@@ -47,10 +46,10 @@ namespace EventStore.Projections.Core.Tests.Services.emitted_stream
                     new EmittedDataEvent(
                         "test_stream", Guid.NewGuid(), "type3", true, "data", null, CheckpointTag.FromPosition(0, 300, 250), null)
                 });
-            Assert.AreEqual(0, _consumer.HandledMessages.OfType<ClientMessage.WriteEvents>().Count());
+            Assert.Equal(0, _consumer.HandledMessages.OfType<ClientMessage.WriteEvents>().Count());
         }
 
-        [Test]
+        [Fact]
         public void does_not_fail_the_projection_if_events_are_skipped()
         {
             _stream.EmitEvents(
@@ -59,11 +58,11 @@ namespace EventStore.Projections.Core.Tests.Services.emitted_stream
                     new EmittedDataEvent(
                         "test_stream", Guid.NewGuid(), "type3", true, "data", null, CheckpointTag.FromPosition(0, 300, 250), null)
                 });
-            Assert.AreEqual(0, _readyHandler.HandledFailedMessages.Count);
-            Assert.AreEqual(0, _consumer.HandledMessages.OfType<ClientMessage.WriteEvents>().Count());
+            Assert.Equal(0, _readyHandler.HandledFailedMessages.Count);
+            Assert.Equal(0, _consumer.HandledMessages.OfType<ClientMessage.WriteEvents>().Count());
         }
 
-        [Test]
+        [Fact]
         public void fails_the_projection_if_events_are_at_different_positions()
         {
             _stream.EmitEvents(
@@ -72,11 +71,11 @@ namespace EventStore.Projections.Core.Tests.Services.emitted_stream
                     new EmittedDataEvent(
                         "test_stream", Guid.NewGuid(), "type3", true, "data", null, CheckpointTag.FromPosition(0, 250, 220), null)
                 });
-            Assert.AreEqual(1, _readyHandler.HandledFailedMessages.Count);
-            Assert.AreEqual(0, _consumer.HandledMessages.OfType<ClientMessage.WriteEvents>().Count());
+            Assert.Equal(1, _readyHandler.HandledFailedMessages.Count);
+            Assert.Equal(0, _consumer.HandledMessages.OfType<ClientMessage.WriteEvents>().Count());
         }
 
-        [Test]
+        [Fact]
         public void publishes_not_yet_published_events()
         {
             _stream.EmitEvents(
@@ -85,10 +84,10 @@ namespace EventStore.Projections.Core.Tests.Services.emitted_stream
                     new EmittedDataEvent(
                         "test_stream", Guid.NewGuid(), "type", true, "data", null, CheckpointTag.FromPosition(0, 400, 350), null)
                 });
-            Assert.AreEqual(1, _consumer.HandledMessages.OfType<ClientMessage.WriteEvents>().Count());
+            Assert.Equal(1, _consumer.HandledMessages.OfType<ClientMessage.WriteEvents>().Count());
         }
 
-        [Test]
+        [Fact]
         public void replies_with_write_completed_message_for_existing_events()
         {
             _stream.EmitEvents(
@@ -97,10 +96,10 @@ namespace EventStore.Projections.Core.Tests.Services.emitted_stream
                     new EmittedDataEvent(
                         "test_stream", Guid.NewGuid(), "type2", true, "data", null, CheckpointTag.FromPosition(0, 200, 150), null)
                 });
-            Assert.AreEqual(1, _readyHandler.HandledWriteCompletedMessage.Count);
+            Assert.Equal(1, _readyHandler.HandledWriteCompletedMessage.Count);
         }
 
-        [Test]
+        [Fact]
         public void retrieves_event_number_for_previously_written_events()
         {
             int eventNumber = -1;
@@ -111,10 +110,10 @@ namespace EventStore.Projections.Core.Tests.Services.emitted_stream
                         (string) "test_stream", Guid.NewGuid(), (string) "type2", (bool) true,
                         (string) "data", (ExtraMetaData) null, CheckpointTag.FromPosition(0, 200, 150), (CheckpointTag) null, v => eventNumber = v)
                 });
-            Assert.AreEqual(1, eventNumber);
+            Assert.Equal(1, eventNumber);
         }
 
-        [Test]
+        [Fact]
         public void reply_with_write_completed_message_when_write_completes()
         {
             _stream.EmitEvents(
@@ -124,11 +123,11 @@ namespace EventStore.Projections.Core.Tests.Services.emitted_stream
                         "test_stream", Guid.NewGuid(), "type", true, "data", null, CheckpointTag.FromPosition(0, 400, 350), null)
                 });
             OneWriteCompletes();
-            Assert.IsTrue(_readyHandler.HandledWriteCompletedMessage.Any(v => v.StreamId == "test_stream"));
+            Assert.True(_readyHandler.HandledWriteCompletedMessage.Any(v => v.StreamId == "test_stream"));
                 // more than one is ok
         }
 
-        [Test]
+        [Fact]
         public void reports_event_number_for_new_events()
         {
             int eventNumber = -1;
@@ -140,7 +139,7 @@ namespace EventStore.Projections.Core.Tests.Services.emitted_stream
                         (string) "data", (ExtraMetaData) null, CheckpointTag.FromPosition(0, 400, 350), (CheckpointTag) null, v => eventNumber = v)
                 });
             OneWriteCompletes();
-            Assert.AreEqual(3, eventNumber);
+            Assert.Equal(3, eventNumber);
         }
     }
 }

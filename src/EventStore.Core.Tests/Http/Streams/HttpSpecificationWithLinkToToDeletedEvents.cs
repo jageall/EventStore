@@ -15,9 +15,9 @@ namespace EventStore.Core.Tests.Http.Streams
         protected override void Given()
         {
             var creds = DefaultData.AdminCredentials;
-            LinkedStreamName = Guid.NewGuid().ToString();
-            DeletedStreamName = Guid.NewGuid().ToString();
-            using (var conn = TestConnection.Create(_node.TcpEndPoint))
+            var linkedStreamName = LinkedStreamName = Guid.NewGuid().ToString();
+            var deletedStreamName = DeletedStreamName = Guid.NewGuid().ToString();
+            using (var conn = TestConnection.Create(Node.TcpEndPoint))
             {
                 conn.ConnectAsync().Wait();
                 conn.AppendToStreamAsync(DeletedStreamName, ExpectedVersion.Any, creds,
@@ -28,6 +28,12 @@ namespace EventStore.Core.Tests.Http.Streams
                         Encoding.UTF8.GetBytes("0@" + DeletedStreamName), new byte[0])).Wait();
                 conn.DeleteStreamAsync(DeletedStreamName, ExpectedVersion.Any).Wait();
             }
+
+            Fixture.AddStashedValueAssignment(this, instance =>
+            {
+                instance.LinkedStreamName = linkedStreamName;
+                instance.DeletedStreamName = deletedStreamName;
+            });
         }
     }
 }

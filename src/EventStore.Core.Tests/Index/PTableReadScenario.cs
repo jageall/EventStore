@@ -1,5 +1,5 @@
 using EventStore.Core.Index;
-using NUnit.Framework;
+using Xunit;
 
 namespace EventStore.Core.Tests.Index
 {
@@ -12,13 +12,6 @@ namespace EventStore.Core.Tests.Index
         protected PTableReadScenario(int midpointCacheDepth)
         {
             _midpointCacheDepth = midpointCacheDepth;
-        }
-
-        [SetUp]
-        public override void SetUp()
-        {
-            base.SetUp();
-
             var table = new HashListMemTable(maxSize: 50);
 
             AddItemsForScenario(table);
@@ -26,12 +19,11 @@ namespace EventStore.Core.Tests.Index
             PTable = PTable.FromMemtable(table, Filename, cacheDepth: _midpointCacheDepth);
         }
 
-        [TearDown]
-        public override void TearDown()
+        public override void Dispose()
         {
             PTable.Dispose();
             
-            base.TearDown();
+            base.Dispose();
         }
 
         protected abstract void AddItemsForScenario(IMemTable memTable);

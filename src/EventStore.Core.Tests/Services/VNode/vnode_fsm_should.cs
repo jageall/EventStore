@@ -5,7 +5,7 @@ using System.Text;
 using EventStore.Core.Data;
 using EventStore.Core.Messaging;
 using EventStore.Core.Services.VNode;
-using NUnit.Framework;
+using Xunit;
 
 namespace EventStore.Core.Tests.Services.VNode
 {
@@ -30,23 +30,22 @@ namespace EventStore.Core.Tests.Services.VNode
         public override int MsgTypeId { get { return TypeId; } }
     }
 
-    [TestFixture]
     public class vnode_fsm_should
     {
-        [Test]
+        [Fact]
         public void allow_ignoring_messages_by_common_ancestor()
         {
             var fsm = new VNodeFSMBuilder(() => VNodeState.Master)
                     .InAnyState()
                     .When<P>().Ignore()
-                    .WhenOther().Do(x => Assert.Fail("{0} slipped through", x.GetType().Name))
+                    .WhenOther().Do(x => Assert.True(false,string.Format("{0} slipped through", x.GetType().Name)))
                     .Build();
 
             fsm.Handle(new A());
             fsm.Handle(new B());
         }
 
-        [Test]
+        [Fact]
         public void handle_specific_message_even_if_base_message_is_ignored()
         {
             bool aHandled = false;
@@ -54,13 +53,13 @@ namespace EventStore.Core.Tests.Services.VNode
                     .InAnyState()
                     .When<P>().Ignore()
                     .When<A>().Do(x => aHandled = true)
-                    .WhenOther().Do(x => Assert.Fail("{0} slipped through", x.GetType().Name))
+                    .WhenOther().Do(x => Assert.True(false, string.Format("{0} slipped through", x.GetType().Name)))
                     .Build();
 
             fsm.Handle(new A());
             fsm.Handle(new B());
 
-            Assert.IsTrue(aHandled);
+            Assert.True(aHandled);
         }
 
     }

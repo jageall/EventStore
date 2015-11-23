@@ -1,13 +1,12 @@
 ﻿using EventStore.Core.Messaging;
 using EventStore.Projections.Core.Messages;
 using EventStore.Projections.Core.Messages.Persisted.Responses;
-using NUnit.Framework;
+using Xunit;
 
 namespace EventStore.Projections.Core.Tests.Services.projection_core_service_response_writer
 {
-    [TestFixture]
-    class 
-        when_delete_command : specification_with_projection_core_service_response_writer
+
+    public class when_delete_command : specification_with_projection_core_service_response_writer
     {
         private string _name;
         private ProjectionManagementMessage.RunAs _runAs;
@@ -33,14 +32,14 @@ namespace EventStore.Projections.Core.Tests.Services.projection_core_service_res
                     _deleteStateStream));
         }
 
-        [Test]
+        [Fact]
         public void publishes_delete_command()
         {
             var command = AssertParsedSingleCommand<DeleteCommand>("$delete");
-            Assert.AreEqual(_name, command.Name);
-            Assert.AreEqual(_runAs, (ProjectionManagementMessage.RunAs)command.RunAs);
-            Assert.AreEqual(_deleteCheckpointStream, command.DeleteCheckpointStream);
-            Assert.AreEqual(_deleteStateStream, command.DeleteStateStream);
+            Assert.Equal(_name, command.Name);
+            Assert.Equal(_runAs, (ProjectionManagementMessage.RunAs)command.RunAs);
+            Assert.Equal(_deleteCheckpointStream, command.DeleteCheckpointStream);
+            Assert.Equal(_deleteStateStream, command.DeleteStateStream);
         }
     }
 }

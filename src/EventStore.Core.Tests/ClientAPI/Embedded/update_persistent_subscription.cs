@@ -1,11 +1,10 @@
 ﻿using EventStore.ClientAPI;
 using EventStore.Core.Tests.ClientAPI.Helpers;
 using EventStore.Core.Tests.Helpers;
-using NUnit.Framework;
+using Xunit;
 
 namespace EventStore.Core.Tests.ClientAPI.Embedded
 {
-    [TestFixture, Category("LongRunning")]
     public class update_existing_persistent_subscription : ClientAPI.update_existing_persistent_subscription
     {
         protected override IEventStoreConnection BuildConnection(MiniNode node)
@@ -14,7 +13,6 @@ namespace EventStore.Core.Tests.ClientAPI.Embedded
         }
     }
 
-    [TestFixture, Category("LongRunning")]
     public class update_existing_persistent_subscription_with_subscribers :
         ClientAPI.update_existing_persistent_subscription_with_subscribers
     {
@@ -24,7 +22,6 @@ namespace EventStore.Core.Tests.ClientAPI.Embedded
         }
     }
 
-    [TestFixture, Category("LongRunning")]
     public class update_non_existing_persistent_subscription : ClientAPI.update_non_existing_persistent_subscription
     {
         protected override IEventStoreConnection BuildConnection(MiniNode node)
@@ -33,7 +30,6 @@ namespace EventStore.Core.Tests.ClientAPI.Embedded
         }
     }
 
-    [TestFixture, Category("LongRunning")]
     public class update_existing_persistent_subscription_without_permissions :
         ClientAPI.update_existing_persistent_subscription_without_permissions
     {
@@ -42,5 +38,4 @@ namespace EventStore.Core.Tests.ClientAPI.Embedded
             return EmbeddedTestConnection.To(node);
         }
     }
-
 }

@@ -6,14 +6,13 @@ using EventStore.Core.Messages;
 using EventStore.Core.Messaging;
 using EventStore.Projections.Core.Messages;
 using EventStore.Projections.Core.Services;
-using NUnit.Framework;
+using Xunit;
 using System.Linq;
 
 namespace EventStore.Projections.Core.Tests.Services.projections_manager.runas
 {
     namespace when_posting_a_persistent_projection
     {
-        [TestFixture, Ignore("Persistent projections are admin only")]
         public class authenticated : TestFixtureWithProjectionCoreAndManagementServices
         {
             private string _projectionName;
@@ -42,7 +41,7 @@ namespace EventStore.Projections.Core.Tests.Services.projections_manager.runas
                         checkpointsEnabled: true, emitEnabled: true, enableRunAs: true);
             }
 
-            [Test, Ignore]
+            [Fact(Skip = "Persistent projections are admin only")]
             public void anonymous_cannot_retrieve_projection_query()
             {
                 GetInputQueue()
@@ -51,10 +50,10 @@ namespace EventStore.Projections.Core.Tests.Services.projections_manager.runas
                             Envelope, _projectionName, ProjectionManagementMessage.RunAs.Anonymous));
                 _queue.Process();
 
-                Assert.IsTrue(HandledMessages.OfType<ProjectionManagementMessage.NotAuthorized>().Any());
+                Assert.True(HandledMessages.OfType<ProjectionManagementMessage.NotAuthorized>().Any());
             }
 
-            [Test]
+            [Fact(Skip = "Persistent projections are admin only")]
             public void projection_owner_can_retrieve_projection_query()
             {
                 GetInputQueue()
@@ -65,12 +64,12 @@ namespace EventStore.Projections.Core.Tests.Services.projections_manager.runas
 
                 var query = HandledMessages.OfType<ProjectionManagementMessage.ProjectionQuery>().FirstOrDefault();
                 Assert.NotNull(query);
-                Assert.AreEqual(_projectionBody, query.Query);
+                Assert.Equal(_projectionBody, query.Query);
             }
 
         }
 
-        [TestFixture]
+        
         public class anonymous : TestFixtureWithProjectionCoreAndManagementServices
         {
             private string _projectionName;
@@ -96,10 +95,10 @@ namespace EventStore.Projections.Core.Tests.Services.projections_manager.runas
                         checkpointsEnabled: true, emitEnabled: true, enableRunAs: true);
             }
 
-            [Test]
+            [Fact]
             public void replies_with_not_authorized()
             {
-                Assert.IsTrue(HandledMessages.OfType<ProjectionManagementMessage.NotAuthorized>().Any());
+                Assert.True(HandledMessages.OfType<ProjectionManagementMessage.NotAuthorized>().Any());
             }
 
         }
@@ -140,7 +139,6 @@ namespace EventStore.Projections.Core.Tests.Services.projections_manager.runas
 
         }
 
-        [TestFixture, Ignore("Persistent projections are admin only")]
         public class as_another_user : with_runas_projection
         {
             protected override IEnumerable<WhenStep> When()
@@ -151,7 +149,7 @@ namespace EventStore.Projections.Core.Tests.Services.projections_manager.runas
                         ProjectionManagementMessage.Command.SetRunAs.SetRemove.Set);
             }
 
-            [Test]
+            [Fact(Skip = "Persistent projections are admin only")]
             public void new_projection_owner_can_retrieve_projection_query()
             {
                 GetInputQueue()
@@ -162,7 +160,7 @@ namespace EventStore.Projections.Core.Tests.Services.projections_manager.runas
 
                 var query = HandledMessages.OfType<ProjectionManagementMessage.ProjectionQuery>().FirstOrDefault();
                 Assert.NotNull(query);
-                Assert.AreEqual(_projectionBody, query.Query);
+                Assert.Equal(_projectionBody, query.Query);
             }
 
         }

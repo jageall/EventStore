@@ -5,29 +5,24 @@ using EventStore.ClientAPI;
 using EventStore.ClientAPI.Internal;
 using EventStore.Core.Tests.ClientAPI.Helpers;
 using EventStore.Core.Tests.Helpers;
-using NUnit.Framework;
+using Xunit;
+using Xunit.Extensions;
 
 namespace EventStore.Core.Tests.ClientAPI
 {
-    [TestFixture(TcpType.Normal), TestFixture(TcpType.Ssl), Category("LongRunning")]
-    public class connect : SpecificationWithDirectoryPerTestFixture
+    public class connect
     {
-        private readonly TcpType _tcpType;
-
-        public connect(TcpType tcpType)
-        {
-            _tcpType = tcpType;
-        }
-
         //TODO GFY THESE NEED TO BE LOOKED AT IN LINUX
-        [Test, Category("Network"), Platform("WIN")]
-        public void should_not_throw_exception_when_server_is_down()
+        [Theory, Trait("Category", "LongRunning"), Trait("Category", "Network"), Trait("Platform", "WIN")]
+        [InlineData(TcpType.Normal)]
+        [InlineData(TcpType.Ssl)]
+        public void should_not_throw_exception_when_server_is_down(TcpType tcpType)
         {
             var ip = IPAddress.Loopback;
             int port = PortsHelper.GetAvailablePort(ip);
             try
             {
-                using (var connection = TestConnection.Create(new IPEndPoint(ip, port), _tcpType))
+                using (var connection = TestConnection.Create(new IPEndPoint(ip, port), tcpType))
                 {
                     Assert.DoesNotThrow(() => connection.ConnectAsync().Wait());
                 }
@@ -38,8 +33,10 @@ namespace EventStore.Core.Tests.ClientAPI
             }
         }
         //TODO GFY THESE NEED TO BE LOOKED AT IN LINUX
-        [Test, Category("Network"), Platform("WIN")]
-        public void should_throw_exception_when_trying_to_reopen_closed_connection()
+        [Theory, Trait("Category", "LongRunning"), Trait("Category", "Network"), Trait("Platform", "WIN")]
+        [InlineData(TcpType.Normal)]
+        [InlineData(TcpType.Ssl)]
+        public void should_throw_exception_when_trying_to_reopen_closed_connection(TcpType tcpType)
         {
             ClientApiLoggerBridge.Default.Info("Starting '{0}' test...", "should_throw_exception_when_trying_to_reopen_closed_connection");
 
@@ -51,7 +48,7 @@ namespace EventStore.Core.Tests.ClientAPI
                                              .WithConnectionTimeoutOf(TimeSpan.FromSeconds(10))
                                              .SetReconnectionDelayTo(TimeSpan.FromMilliseconds(0))
                                              .FailOnNoServerResponse();
-            if (_tcpType == TcpType.Ssl)
+            if (tcpType == TcpType.Ssl)
                 settings.UseSslConnection("ES", false);
 
             var ip = IPAddress.Loopback;
@@ -63,13 +60,9 @@ namespace EventStore.Core.Tests.ClientAPI
                     connection.Closed += (s, e) => closed.Set();
 
                     connection.ConnectAsync().Wait();
-
-                    if (!closed.Wait(TimeSpan.FromSeconds(120))) // TCP connection timeout might be even 60 seconds
-                        Assert.Fail("Connection timeout took too long.");
-
-                    Assert.That(() => connection.ConnectAsync().Wait(),
-                                Throws.Exception.InstanceOf<AggregateException>()
-                                      .With.InnerException.InstanceOf<InvalidOperationException>());
+                    Assert.True(closed.Wait(TimeSpan.FromSeconds(120))); // TCP connection timeout might be even 60 seconds
+                    var thrown = Assert.Throws<AggregateException>(() => connection.ConnectAsync().Wait());
+                    Assert.IsAssignableFrom<InvalidOperationException>(thrown.InnerException);
                 }
             }
             finally
@@ -79,8 +72,10 @@ namespace EventStore.Core.Tests.ClientAPI
         }
 
         //TODO GFY THIS TEST TIMES OUT IN LINUX.
-        [Test, Category("Network"), Platform("WIN")]
-        public void should_close_connection_after_configured_amount_of_failed_reconnections()
+        [Theory, Trait("Category", "LongRunning"), Trait("Category", "Network"), Trait("Platform", "WIN")]
+        [InlineData(TcpType.Normal)]
+        [InlineData(TcpType.Ssl)]
+        public void should_close_connection_after_configured_amount_of_failed_reconnections(TcpType tcpType)
         {
             var closed = new ManualResetEventSlim();
             var settings =
@@ -91,7 +86,7 @@ namespace EventStore.Core.Tests.ClientAPI
                                   .WithConnectionTimeoutOf(TimeSpan.FromSeconds(10))
                                   .SetReconnectionDelayTo(TimeSpan.FromMilliseconds(0))
                                   .FailOnNoServerResponse();
-            if (_tcpType == TcpType.Ssl)
+            if (tcpType == TcpType.Ssl)
                 settings.UseSslConnection("ES", false);
 
             var ip = IPAddress.Loopback;
@@ -108,12 +103,15 @@ namespace EventStore.Core.Tests.ClientAPI
 
                     connection.ConnectAsync().Wait();
 
-                    if (!closed.Wait(TimeSpan.FromSeconds(120))) // TCP connection timeout might be even 60 seconds
-                        Assert.Fail("Connection timeout took too long.");
+                    Assert.True(closed.Wait(TimeSpan.FromSeconds(120))); // TCP connection timeout might be even 60 seconds
 
-                    Assert.That(() => connection.AppendToStreamAsync("stream", ExpectedVersion.EmptyStream, TestEvent.NewTestEvent()).Wait(),
-                                Throws.Exception.InstanceOf<AggregateException>()
-                                .With.InnerException.InstanceOf<InvalidOperationException>());
+                    var thrown =
+                        Assert.Throws<AggregateException>(
+                            () =>
+                                connection.AppendToStreamAsync("stream", ExpectedVersion.EmptyStream,
+                                    TestEvent.NewTestEvent()).Wait());
+
+                    Assert.IsAssignableFrom<InvalidOperationException>(thrown.InnerException);
                 }
             }
             finally
@@ -124,13 +122,12 @@ namespace EventStore.Core.Tests.ClientAPI
 
     }
     
-    [TestFixture, Category("LongRunning")]
     public class not_connected_tests
     {
         private readonly TcpType _tcpType = TcpType.Normal;
 
-        
-        [Test]
+        [Fact]
+        [Trait("Category", "LongRunning")]
         public void should_timeout_connection_after_configured_amount_time_on_conenct()
         {
             var closed = new ManualResetEventSlim();
@@ -157,8 +154,7 @@ namespace EventStore.Core.Tests.ClientAPI
                 connection.ErrorOccurred += (s, e) => Console.WriteLine("EventStoreConnection '{0}': error = {1}", e.Connection.ConnectionName, e.Exception);
                 connection.ConnectAsync().Wait();
 
-                if (!closed.Wait(TimeSpan.FromSeconds(15)))
-                    Assert.Fail("Connection timeout took too long.");
+                Assert.True(closed.Wait(TimeSpan.FromSeconds(15)));
             }
 
         }

@@ -2,11 +2,10 @@
 using EventStore.Core.Bus;
 using EventStore.Core.Messaging;
 using EventStore.Core.Tests.Bus.Helpers;
-using NUnit.Framework;
+using Xunit;
 
 namespace EventStore.Core.Tests.Bus
 {
-    [TestFixture]
     public abstract class queued_handler_should : QueuedHandlerTestWithNoopConsumer
     {
         protected queued_handler_should(Func<IHandle<Message>, string, TimeSpan, IQueuedHandler> queuedHandlerFactory)
@@ -14,20 +13,19 @@ namespace EventStore.Core.Tests.Bus
         {
         }
 
-        [Test]
+        [Fact]
         public void throw_if_handler_is_null()
         {
             Assert.Throws<ArgumentNullException>(() => new QueuedHandler(null, "throwing", watchSlowMsg: false));
         }
 
-        [Test]
+        [Fact]
         public void throw_if_name_is_null()
         {
             Assert.Throws<ArgumentNullException>(() => new QueuedHandler(Consumer, null, watchSlowMsg: false));
         }
     }
 
-    [TestFixture]
     public class queued_handler_mres_should: queued_handler_should
     {
         public queued_handler_mres_should()
@@ -36,7 +34,6 @@ namespace EventStore.Core.Tests.Bus
         }
     }
 
-    [TestFixture]
     public class queued_handler_autoreset_should : queued_handler_should
     {
         public queued_handler_autoreset_should()
@@ -45,7 +42,6 @@ namespace EventStore.Core.Tests.Bus
         }
     }
 
-    [TestFixture]
     public class queued_handler_sleep_should : queued_handler_should
     {
         public queued_handler_sleep_should()
@@ -54,7 +50,6 @@ namespace EventStore.Core.Tests.Bus
         }
     }
 
-    [TestFixture]
     public class queued_handler_pulse_should : queued_handler_should
     {
         public queued_handler_pulse_should()
@@ -63,7 +58,6 @@ namespace EventStore.Core.Tests.Bus
         }
     }
 
-    [TestFixture]
     public class queued_handler_threadpool_should : queued_handler_should
     {
         public queued_handler_threadpool_should()

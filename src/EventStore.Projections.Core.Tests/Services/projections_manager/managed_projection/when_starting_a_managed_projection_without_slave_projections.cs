@@ -11,13 +11,13 @@ using EventStore.Projections.Core.Messages;
 using EventStore.Projections.Core.Services;
 using EventStore.Projections.Core.Services.Management;
 using EventStore.Projections.Core.Services.Processing;
-using NUnit.Framework;
+using Xunit;
 using TestFixtureWithExistingEvents =
     EventStore.Projections.Core.Tests.Services.core_projection.TestFixtureWithExistingEvents;
 
 namespace EventStore.Projections.Core.Tests.Services.projections_manager.managed_projection
 {
-    [TestFixture]
+    
     public class when_starting_a_managed_projection_without_slave_projections : TestFixtureWithExistingEvents
     {
         private new ITimeProvider _timeProvider;
@@ -26,8 +26,7 @@ namespace EventStore.Projections.Core.Tests.Services.projections_manager.managed
         private Guid _coreProjectionId;
         private string _projectionName;
 
-        [SetUp]
-        public new void SetUp()
+        public when_starting_a_managed_projection_without_slave_projections()
         {
             WhenLoop();
         }
@@ -95,19 +94,19 @@ namespace EventStore.Projections.Core.Tests.Services.projections_manager.managed
             yield break;
         }
 
-        [Test]
+        [Fact]
         public void does_not_publish_start_slave_projections_message()
         {
             var startSlaveProjectionsMessage =
                 HandledMessages.OfType<ProjectionManagementMessage.Command.StartSlaveProjections>().LastOrDefault();
-            Assert.IsNull(startSlaveProjectionsMessage);
+            Assert.Null(startSlaveProjectionsMessage);
         }
 
-        [Test]
+        [Fact]
         public void publishes_start_message()
         {
             var startMessage = HandledMessages.OfType<CoreProjectionManagementMessage.Start>().LastOrDefault();
-            Assert.IsNotNull(startMessage);
+            Assert.NotNull(startMessage);
             
         }
     }

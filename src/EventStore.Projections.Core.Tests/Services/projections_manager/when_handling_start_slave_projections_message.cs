@@ -5,11 +5,11 @@ using EventStore.Core.Bus;
 using EventStore.Core.Tests.Fakes;
 using EventStore.Projections.Core.Messages;
 using EventStore.Projections.Core.Services;
-using NUnit.Framework;
+using Xunit;
 
 namespace EventStore.Projections.Core.Tests.Services.projections_manager
 {
-    [TestFixture]
+    
     public class when_handling_start_slave_projections_message: specification_with_projection_management_service
     {
 
@@ -61,11 +61,11 @@ namespace EventStore.Projections.Core.Tests.Services.projections_manager
             return "native:" + handlerType.Namespace + "." + handlerType.Name;
         }
 
-        [Test, Ignore("test framework.")]
+        [Fact(Skip = "test framework.")]
         public void publishes_slave_projections_started_message()
         {
             var startedMessages = HandledMessages.OfType<ProjectionManagementMessage.SlaveProjectionsStarted>().ToArray();
-            Assert.AreEqual(1, startedMessages);
+            Assert.Equal(1, startedMessages.Length);
         }
 
     }

@@ -4,11 +4,11 @@ using EventStore.Projections.Core.Services;
 using EventStore.Projections.Core.Services.Management;
 using EventStore.Projections.Core.Services.v8;
 using EventStore.Projections.Core.v8;
-using NUnit.Framework;
+using Xunit;
 
 namespace EventStore.Projections.Core.Tests.Services.v8
 {
-    [TestFixture]
+    
     public class when_compiling_v8_projection
     {
         private List<string> _logged;
@@ -19,7 +19,7 @@ namespace EventStore.Projections.Core.Tests.Services.v8
         private readonly Js1.LogDelegate _logDelegate = Console.WriteLine;
         private Js1.LoadModuleDelegate _loadModuleDelegate;
 
-        [Test, Category("v8"), Category("Manual"), Explicit]
+        [Fact][Trait("Category", "v8"), Trait("Category","Manual"), Trait("Category", "Explicit")]
         public void can_compile_million_times()
         {
             for (var i = 0; i < 10000000; i++)
@@ -56,7 +56,7 @@ namespace EventStore.Projections.Core.Tests.Services.v8
             }
         }
 
-        [Test, Category("v8"), Category("Manual"), Explicit]
+        [Fact][Trait("Category", "v8"), Trait("Category", "Manual"), Trait("Category", "Explicit")]
         public void can_compile_prelude_million_times()
         {
             _logger = (s, _) =>
@@ -85,7 +85,7 @@ namespace EventStore.Projections.Core.Tests.Services.v8
             }
         }
 
-        [Test, Category("v8"), Category("Manual"), Explicit]
+        [Fact][Trait("Category", "v8"), Trait("Category", "Manual"), Trait("Category", "Explicit")]
         public void can_compile_script_million_times()
         {
             _loadModuleDelegate = name => IntPtr.Zero;

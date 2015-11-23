@@ -6,31 +6,26 @@ using EventStore.ClientAPI;
 using EventStore.Common.Log;
 using EventStore.Core.Tests.ClientAPI.Helpers;
 using EventStore.Core.Tests.Helpers;
-using NUnit.Framework;
+using Xunit;
 
 namespace EventStore.Core.Tests.ClientAPI
 {
-    [TestFixture, Category("LongRunning")]
-    public class subscribe_to_stream_catching_up_should : SpecificationWithDirectoryPerTestFixture
+    public class subscribe_to_stream_catching_up_should : IUseFixture<SpecificationWithDirectoryPerTestFixture>, IDisposable
     {
         private static readonly EventStore.Common.Log.ILogger Log = LogManager.GetLoggerFor<subscribe_to_stream_catching_up_should>();
         private static readonly TimeSpan Timeout = TimeSpan.FromSeconds(500);
 
         private MiniNode _node;
 
-        [TestFixtureSetUp]
-        public override void TestFixtureSetUp()
+        public void SetFixture(SpecificationWithDirectoryPerTestFixture data)
         {
-            base.TestFixtureSetUp();
-            _node = new MiniNode(PathName);
+            _node = new MiniNode(data.PathName);
             _node.Start();
         }
 
-        [TestFixtureTearDown]
-        public override void TestFixtureTearDown()
+        public void Dispose()
         {
             _node.Shutdown();
-            base.TestFixtureTearDown();
         }
 
         virtual protected IEventStoreConnection BuildConnection(MiniNode node)
@@ -38,7 +33,7 @@ namespace EventStore.Core.Tests.ClientAPI
             return TestConnection.Create(node.TcpEndPoint);
         }
 
-        [Test, Category("LongRunning")]
+        [Fact][Trait("Category", "LongRunning")]
         public void be_able_to_subscribe_to_non_existing_stream()
         {
             const string stream = "be_able_to_subscribe_to_non_existing_stream";
@@ -58,14 +53,14 @@ namespace EventStore.Core.Tests.ClientAPI
                 Thread.Sleep(100); // give time for first pull phase
                 store.SubscribeToStreamAsync(stream, false, (s, x) => { }, (s, r, e) => { }).Wait();
                 Thread.Sleep(100);
-                Assert.IsFalse(appeared.Wait(0), "Some event appeared.");
-                Assert.IsFalse(dropped.Wait(0), "Subscription was dropped prematurely.");
+                Assert.False(appeared.Wait(0), "Some event appeared.");
+                Assert.False(dropped.Wait(0), "Subscription was dropped prematurely.");
                 subscription.Stop(Timeout);
-                Assert.IsTrue(dropped.Wait(Timeout));
+                Assert.True(dropped.Wait(Timeout));
             }
         }
 
-        [Test, Category("LongRunning")]
+        [Fact][Trait("Category", "LongRunning")]
         public void be_able_to_subscribe_to_non_existing_stream_and_then_catch_event()
         {
             const string stream = "be_able_to_subscribe_to_non_existing_stream_and_then_catch_event";
@@ -86,17 +81,17 @@ namespace EventStore.Core.Tests.ClientAPI
 
                 if (!appeared.Wait(Timeout))
                 {
-                    Assert.IsFalse(dropped.Wait(0), "Subscription was dropped prematurely.");
-                    Assert.Fail("Appeared countdown event timed out.");
+                    Assert.False(dropped.Wait(0), "Subscription was dropped prematurely.");
+                    Assert.True(false, "Appeared countdown event timed out.");
                 }
 
-                Assert.IsFalse(dropped.Wait(0));
+                Assert.False(dropped.Wait(0));
                 subscription.Stop(Timeout);
-                Assert.IsTrue(dropped.Wait(Timeout));
+                Assert.True(dropped.Wait(Timeout));
             }
         }
 
-        [Test, Category("LongRunning")]
+        [Fact][Trait("Category", "LongRunning")]
         public void allow_multiple_subscriptions_to_same_stream()
         {
             const string stream = "allow_multiple_subscriptions_to_same_stream";
@@ -124,22 +119,22 @@ namespace EventStore.Core.Tests.ClientAPI
 
                 if (!appeared.Wait(Timeout))
                 {
-                    Assert.IsFalse(dropped1.Wait(0), "Subscription1 was dropped prematurely.");
-                    Assert.IsFalse(dropped2.Wait(0), "Subscription2 was dropped prematurely.");
-                    Assert.Fail("Could not wait for all events.");
+                    Assert.False(dropped1.Wait(0), "Subscription1 was dropped prematurely.");
+                    Assert.False(dropped2.Wait(0), "Subscription2 was dropped prematurely.");
+                    Assert.True(false, "Could not wait for all events.");
                 }
 
-                Assert.IsFalse(dropped1.Wait(0));
+                Assert.False(dropped1.Wait(0));
                 sub1.Stop(Timeout);
-                Assert.IsTrue(dropped1.Wait(Timeout));
+                Assert.True(dropped1.Wait(Timeout));
 
-                Assert.IsFalse(dropped2.Wait(0));
+                Assert.False(dropped2.Wait(0));
                 sub2.Stop(Timeout);
-                Assert.IsTrue(dropped2.Wait(Timeout));
+                Assert.True(dropped2.Wait(Timeout));
             }
         }
 
-        [Test, Category("LongRunning")]
+        [Fact][Trait("Category", "LongRunning")]
         public void call_dropped_callback_after_stop_method_call()
         {
             const string stream = "call_dropped_callback_after_stop_method_call";
@@ -154,13 +149,13 @@ namespace EventStore.Core.Tests.ClientAPI
                                                                (x, y) => { },
                                                                _ => Log.Info("Live processing started."),
                                                                (x, y, z) => dropped.Signal());
-                Assert.IsFalse(dropped.Wait(0));
+                Assert.False(dropped.Wait(0));
                 subscription.Stop(Timeout);
-                Assert.IsTrue(dropped.Wait(Timeout));
+                Assert.True(dropped.Wait(Timeout));
             }
         }
 
-        [Test, Category("LongRunning")]
+        [Fact][Trait("Category", "LongRunning")]
         public void read_all_existing_events_and_keep_listening_to_new_ones()
         {
             const string stream = "read_all_existing_events_and_keep_listening_to_new_ones";
@@ -194,23 +189,23 @@ namespace EventStore.Core.Tests.ClientAPI
 
                 if (!appeared.Wait(Timeout))
                 {
-                    Assert.IsFalse(dropped.Wait(0), "Subscription was dropped prematurely.");
-                    Assert.Fail("Could not wait for all events.");
+                    Assert.False(dropped.Wait(0), "Subscription was dropped prematurely.");
+                    Assert.True(false, "Could not wait for all events.");
                 }
 
-                Assert.AreEqual(20, events.Count);
+                Assert.Equal(20, events.Count);
                 for (int i = 0; i < 20; ++i)
                 {
-                    Assert.AreEqual("et-" + i.ToString(), events[i].OriginalEvent.EventType);
+                    Assert.Equal("et-" + i.ToString(), events[i].OriginalEvent.EventType);
                 }
 
-                Assert.IsFalse(dropped.Wait(0));
+                Assert.False(dropped.Wait(0));
                 subscription.Stop(Timeout);
-                Assert.IsTrue(dropped.Wait(Timeout));
+                Assert.True(dropped.Wait(Timeout));
             }
         }
 
-        [Test, Category("LongRunning")]
+        [Fact][Trait("Category", "LongRunning")]
         public void filter_events_and_keep_listening_to_new_ones()
         {
             const string stream = "filter_events_and_keep_listening_to_new_ones";
@@ -244,27 +239,27 @@ namespace EventStore.Core.Tests.ClientAPI
 
                 if (!appeared.Wait(Timeout))
                 {
-                    Assert.IsFalse(dropped.Wait(0), "Subscription was dropped prematurely.");
-                    Assert.Fail("Could not wait for all events.");
+                    Assert.False(dropped.Wait(0), "Subscription was dropped prematurely.");
+                    Assert.True(false, "Could not wait for all events.");
                 }
 
-                Assert.AreEqual(20, events.Count);
+                Assert.Equal(20, events.Count);
                 for (int i = 0; i < 20; ++i)
                 {
-                    Assert.AreEqual("et-" + (i + 10).ToString(), events[i].OriginalEvent.EventType);
+                    Assert.Equal("et-" + (i + 10).ToString(), events[i].OriginalEvent.EventType);
                 }
 
-                Assert.IsFalse(dropped.Wait(0));
+                Assert.False(dropped.Wait(0));
                 subscription.Stop(Timeout);
-                Assert.IsTrue(dropped.Wait(Timeout));
+                Assert.True(dropped.Wait(Timeout));
 
-                Assert.AreEqual(events.Last().OriginalEventNumber, subscription.LastProcessedEventNumber);
+                Assert.Equal(events.Last().OriginalEventNumber, subscription.LastProcessedEventNumber);
 
                 subscription.Stop(TimeSpan.FromSeconds(0));
             }
         }
 
-        [Test, Category("LongRunning")]
+        [Fact][Trait("Category", "LongRunning")]
         public void filter_events_and_work_if_nothing_was_written_after_subscription()
         {
             const string stream = "filter_events_and_work_if_nothing_was_written_after_subscription";
@@ -293,21 +288,21 @@ namespace EventStore.Core.Tests.ClientAPI
                                                                (x, y, z) => dropped.Signal());
                 if (!appeared.Wait(Timeout))
                 {
-                    Assert.IsFalse(dropped.Wait(0), "Subscription was dropped prematurely.");
-                    Assert.Fail("Could not wait for all events.");
+                    Assert.False(dropped.Wait(0), "Subscription was dropped prematurely.");
+                    Assert.True(false, "Could not wait for all events.");
                 }
 
-                Assert.AreEqual(10, events.Count);
+                Assert.Equal(10, events.Count);
                 for (int i = 0; i < 10; ++i)
                 {
-                    Assert.AreEqual("et-" + (i + 10).ToString(), events[i].OriginalEvent.EventType);
+                    Assert.Equal("et-" + (i + 10).ToString(), events[i].OriginalEvent.EventType);
                 }
 
-                Assert.IsFalse(dropped.Wait(0));
+                Assert.False(dropped.Wait(0));
                 subscription.Stop(Timeout);
-                Assert.IsTrue(dropped.Wait(Timeout));
+                Assert.True(dropped.Wait(Timeout));
 
-                Assert.AreEqual(events.Last().OriginalEventNumber, subscription.LastProcessedEventNumber);
+                Assert.Equal(events.Last().OriginalEventNumber, subscription.LastProcessedEventNumber);
             }
         }
     }

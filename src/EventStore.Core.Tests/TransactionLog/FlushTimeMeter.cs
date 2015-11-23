@@ -2,14 +2,13 @@
 using System.Diagnostics;
 using System.IO;
 using EventStore.Common.Utils;
-using NUnit.Framework;
+using Xunit;
 
 namespace EventStore.Core.Tests.TransactionLog
 {
-    [TestFixture]
     public class FlushTimeMeter: SpecificationWithFile
     {
-        [Test, Ignore]
+        [Fact(Skip = "No reason given")]
         public void Test()
         {
             var rnd = new Random();

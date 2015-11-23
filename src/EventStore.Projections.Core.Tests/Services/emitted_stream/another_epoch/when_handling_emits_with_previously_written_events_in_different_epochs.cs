@@ -4,11 +4,11 @@ using EventStore.Core.Messages;
 using EventStore.Core.Services;
 using EventStore.Projections.Core.Services.Processing;
 using EventStore.Projections.Core.Tests.Services.core_projection;
-using NUnit.Framework;
+using Xunit;
 
 namespace EventStore.Projections.Core.Tests.Services.emitted_stream.another_epoch
 {
-    [TestFixture]
+    
     public class when_handling_emits_with_previously_written_events_in_different_epochs : TestFixtureWithExistingEvents
     {
         private EmittedStream _stream;
@@ -41,8 +41,7 @@ namespace EventStore.Projections.Core.Tests.Services.emitted_stream.another_epoc
             };
         }
 
-        [SetUp]
-        public void setup()
+        public when_handling_emits_with_previously_written_events_in_different_epochs()
         {
             _readyHandler = new TestCheckpointManagerMessageHandler();
             _stream = new EmittedStream(
@@ -54,33 +53,33 @@ namespace EventStore.Projections.Core.Tests.Services.emitted_stream.another_epoc
             OneWriteCompletes();
         }
 
-        [Test]
+        [Fact]
         public void publishes_all_events()
         {
             var writtenEvents =
                 _consumer.HandledMessages.OfType<ClientMessage.WriteEvents>().SelectMany(v => v.Events).ToArray();
-            Assert.AreEqual(2, writtenEvents.Length);
-            Assert.AreEqual("type2", writtenEvents[0].EventType);
-            Assert.AreEqual("type3", writtenEvents[1].EventType);
+            Assert.Equal(2, writtenEvents.Length);
+            Assert.Equal("type2", writtenEvents[0].EventType);
+            Assert.Equal("type3", writtenEvents[1].EventType);
         }
 
-        [Test]
+        [Fact]
         public void updates_stream_metadata()
         {
             var writes =
                 HandledMessages.OfType<ClientMessage.WriteEvents>()
                     .OfEventType(SystemEventTypes.StreamMetadata)
                     .ToArray();
-            Assert.AreEqual(0, writes.Length);
+            Assert.Equal(0, writes.Length);
         }
 
 
-        [Test]
+        [Fact]
         public void reports_correct_event_numbers()
         {
-            Assert.AreEqual(1, _1);
-            Assert.AreEqual(2, _2);
-            Assert.AreEqual(3, _3);
+            Assert.Equal(1, _1);
+            Assert.Equal(2, _2);
+            Assert.Equal(3, _3);
         }
     }
 }

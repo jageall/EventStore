@@ -4,22 +4,21 @@ using EventStore.Common.Utils;
 using EventStore.Core.Data;
 using EventStore.Projections.Core.Services.Processing;
 using Newtonsoft.Json.Linq;
-using NUnit.Framework;
+using Xunit;
 
 namespace EventStore.Projections.Core.Tests.Other
 {
-    [TestFixture]
-    class can_serialize_and_deserialize
+
+    public class can_serialize_and_deserialize
     {
         private ProjectionVersion _version;
 
-        [SetUp]
-        public void setup()
+        public can_serialize_and_deserialize()
         {
             _version = new ProjectionVersion(1, 0, 0);
         }
 
-        [Test]
+        [Fact]
         public void position_based_checkpoint_tag()
         {
             CheckpointTag tag = CheckpointTag.FromPosition(1, -1, 0);
@@ -28,10 +27,10 @@ namespace EventStore.Projections.Core.Tests.Other
             Console.WriteLine(instring);
 
             CheckpointTag back = instring.ParseCheckpointTagJson();
-            Assert.AreEqual(tag, back);
+            Assert.Equal(tag, back);
         }
 
-        [Test]
+        [Fact]
         public void prepare_position_based_checkpoint_tag_zero()
         {
             CheckpointTag tag = CheckpointTag.FromPreparePosition(1, 0);
@@ -40,10 +39,10 @@ namespace EventStore.Projections.Core.Tests.Other
             Console.WriteLine(instring);
 
             CheckpointTag back = instring.ParseCheckpointTagJson();
-            Assert.AreEqual(tag, back);
+            Assert.Equal(tag, back);
         }
 
-        [Test]
+        [Fact]
         public void prepare_position_based_checkpoint_tag_minus_one()
         {
             CheckpointTag tag = CheckpointTag.FromPreparePosition(1, -1);
@@ -52,10 +51,10 @@ namespace EventStore.Projections.Core.Tests.Other
             Console.WriteLine(instring);
 
             CheckpointTag back = instring.ParseCheckpointTagJson();
-            Assert.AreEqual(tag, back);
+            Assert.Equal(tag, back);
         }
 
-        [Test]
+        [Fact]
         public void prepare_position_based_checkpoint_tag()
         {
             CheckpointTag tag = CheckpointTag.FromPreparePosition(1, 1234);
@@ -64,10 +63,10 @@ namespace EventStore.Projections.Core.Tests.Other
             Console.WriteLine(instring);
 
             CheckpointTag back = instring.ParseCheckpointTagJson();
-            Assert.AreEqual(tag, back);
+            Assert.Equal(tag, back);
         }
 
-        [Test]
+        [Fact]
         public void stream_based_checkpoint_tag()
         {
             CheckpointTag tag = CheckpointTag.FromStreamPosition(1, "$ce-account", 12345);
@@ -76,11 +75,11 @@ namespace EventStore.Projections.Core.Tests.Other
             Console.WriteLine(instring);
 
             CheckpointTag back = instring.ParseCheckpointTagJson();
-            Assert.AreEqual(tag, back);
-            Assert.IsNull(back.CommitPosition);
+            Assert.Equal(tag, back);
+            Assert.Null(back.CommitPosition);
         }
 
-        [Test]
+        [Fact]
         public void streams_based_checkpoint_tag()
         {
             CheckpointTag tag = CheckpointTag.FromStreamPositions(1, new Dictionary<string, int> {{"a", 1}, {"b", 2}});
@@ -89,11 +88,11 @@ namespace EventStore.Projections.Core.Tests.Other
             Console.WriteLine(instring);
 
             CheckpointTag back = instring.ParseCheckpointTagJson();
-            Assert.AreEqual(tag, back);
-            Assert.IsNull(back.CommitPosition);
+            Assert.Equal(tag, back);
+            Assert.Null(back.CommitPosition);
         }
 
-        [Test]
+        [Fact]
         public void event_by_type_index_based_checkpoint_tag()
         {
             CheckpointTag tag = CheckpointTag.FromEventTypeIndexPositions(
@@ -103,10 +102,10 @@ namespace EventStore.Projections.Core.Tests.Other
             Console.WriteLine(instring);
 
             CheckpointTag back = instring.ParseCheckpointTagJson();
-            Assert.AreEqual(tag, back);
+            Assert.Equal(tag, back);
         }
 
-        [Test]
+        [Fact]
         public void phase_based_checkpoint_tag_completed()
         {
             CheckpointTag tag = CheckpointTag.FromPhase(2, completed: false);
@@ -115,10 +114,10 @@ namespace EventStore.Projections.Core.Tests.Other
             Console.WriteLine(instring);
 
             CheckpointTag back = instring.ParseCheckpointTagJson();
-            Assert.AreEqual(tag, back);
+            Assert.Equal(tag, back);
         }
 
-        [Test]
+        [Fact]
         public void phase_based_checkpoint_tag_incomplete()
         {
             CheckpointTag tag = CheckpointTag.FromPhase(0, completed: true);
@@ -127,10 +126,10 @@ namespace EventStore.Projections.Core.Tests.Other
             Console.WriteLine(instring);
 
             CheckpointTag back = instring.ParseCheckpointTagJson();
-            Assert.AreEqual(tag, back);
+            Assert.Equal(tag, back);
         }
 
-        [Test]
+        [Fact]
         public void by_stream_based_checkpoint_tag()
         {
             CheckpointTag tag = CheckpointTag.FromByStreamPosition(0, "catalog", 1, "data", 2, 12345);
@@ -139,10 +138,10 @@ namespace EventStore.Projections.Core.Tests.Other
             Console.WriteLine(instring);
 
             CheckpointTag back = instring.ParseCheckpointTagJson();
-            Assert.AreEqual(tag, back);
+            Assert.Equal(tag, back);
         }
 
-        [Test]
+        [Fact]
         public void by_stream_based_checkpoint_tag_zero()
         {
             CheckpointTag tag = CheckpointTag.FromByStreamPosition(0, "catalog", -1, null, -1, 12345);
@@ -151,10 +150,10 @@ namespace EventStore.Projections.Core.Tests.Other
             Console.WriteLine(instring);
 
             CheckpointTag back = instring.ParseCheckpointTagJson();
-            Assert.AreEqual(tag, back);
+            Assert.Equal(tag, back);
         }
 
-        [Test]
+        [Fact]
         public void extra_metadata_are_preserved()
         {
             CheckpointTag tag = CheckpointTag.FromPosition(0, -1, 0);
@@ -164,15 +163,15 @@ namespace EventStore.Projections.Core.Tests.Other
             Console.WriteLine(instring);
 
             CheckpointTagVersion back = instring.ParseCheckpointTagVersionExtraJson(_version);
-            Assert.IsNotNull(back.ExtraMetadata);
+            Assert.NotNull(back.ExtraMetadata);
             JToken v;
-            Assert.IsTrue(back.ExtraMetadata.TryGetValue("$$a", out v));
-            Assert.AreEqual("b", (string) ((JValue) v).Value);
-            Assert.IsTrue(back.ExtraMetadata.TryGetValue("$$c", out v));
-            Assert.AreEqual("d", (string) ((JValue) v).Value);
+            Assert.True(back.ExtraMetadata.TryGetValue("$$a", out v));
+            Assert.Equal("b", (string) ((JValue) v).Value);
+            Assert.True(back.ExtraMetadata.TryGetValue("$$c", out v));
+            Assert.Equal("d", (string) ((JValue) v).Value);
         }
 
-        [Test]
+        [Fact]
         public void can_deserialize_readonly_fields()
         {
             TestData data = new TestData("123");
@@ -181,7 +180,7 @@ namespace EventStore.Projections.Core.Tests.Other
             Console.WriteLine(instring);
 
             TestData back = instring.ParseJson<TestData>();
-            Assert.AreEqual(data, back);
+            Assert.Equal(data, back);
         }
 
         private class TestData

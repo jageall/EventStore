@@ -9,11 +9,11 @@ using EventStore.Core.Messaging;
 using EventStore.Projections.Core.Messages;
 using EventStore.Projections.Core.Services;
 using EventStore.Projections.Core.Services.Management;
-using NUnit.Framework;
+using Xunit;
 
 namespace EventStore.Projections.Core.Tests.Services.projections_manager
 {
-    [TestFixture]
+    
     public class when_deleting_a_persistent_projection_and_not_authorised : TestFixtureWithProjectionCoreAndManagementServices
     {
         private string _projectionName;
@@ -42,12 +42,12 @@ namespace EventStore.Projections.Core.Tests.Services.projections_manager
                     ProjectionManagementMessage.RunAs.Anonymous, false, false);
         }
 
-        [Test, Category("v8")]
+        [Fact][Trait("Category", "v8")]
         public void a_projection_deleted_event_is_not_written()
         {
-            Assert.AreNotEqual(
+            Assert.NotEqual(
                 "$ProjectionDeleted",
-                _consumer.HandledMessages.OfType<ClientMessage.WriteEvents>().Last().Events[0].EventType, "$ProjectionDeleted event was not supposed to be written");
+                _consumer.HandledMessages.OfType<ClientMessage.WriteEvents>().Last().Events[0].EventType);
         }
     }
 }

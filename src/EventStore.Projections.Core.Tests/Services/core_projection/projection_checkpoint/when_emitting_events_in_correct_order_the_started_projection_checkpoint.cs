@@ -3,11 +3,11 @@ using System.Linq;
 using EventStore.Core.Messages;
 using EventStore.Core.Services;
 using EventStore.Projections.Core.Services.Processing;
-using NUnit.Framework;
+using Xunit;
 
 namespace EventStore.Projections.Core.Tests.Services.core_projection.projection_checkpoint
 {
-    [TestFixture]
+    
     public class when_emitting_events_in_correct_order_the_started_projection_checkpoint : TestFixtureWithExistingEvents
     {
         private ProjectionCheckpoint _checkpoint;
@@ -22,8 +22,7 @@ namespace EventStore.Projections.Core.Tests.Services.core_projection.projection_
             NoOtherStreams();
         }
 
-        [SetUp]
-        public void setup()
+        public when_emitting_events_in_correct_order_the_started_projection_checkpoint()
         {
             _readyHandler = new TestCheckpointManagerMessageHandler();
             _checkpoint = new ProjectionCheckpoint(
@@ -52,39 +51,39 @@ namespace EventStore.Projections.Core.Tests.Services.core_projection.projection_
                 });
         }
 
-        [Test]
+        [Fact]
         public void should_publish_write_events()
         {
             var writeEvents =
                 _consumer.HandledMessages.OfType<ClientMessage.WriteEvents>()
                          .ExceptOfEventType(SystemEventTypes.StreamMetadata);
-            Assert.AreEqual(4, writeEvents.Count());
+            Assert.Equal(4, writeEvents.Count());
         }
 
-        [Test]
+        [Fact]
         public void should_publish_write_events_to_correct_streams()
         {
-            Assert.IsTrue(
+            Assert.True(
                 _consumer.HandledMessages.OfType<ClientMessage.WriteEvents>().Any(v => v.EventStreamId == "stream1"));
-            Assert.IsTrue(
+            Assert.True(
                 _consumer.HandledMessages.OfType<ClientMessage.WriteEvents>().Any(v => v.EventStreamId == "stream2"));
-            Assert.IsTrue(
+            Assert.True(
                 _consumer.HandledMessages.OfType<ClientMessage.WriteEvents>().Any(v => v.EventStreamId == "stream3"));
         }
 
-        [Test]
+        [Fact]
         public void should_group_events_to_the_same_stream_caused_by_the_same_event()
         {
             // this is important for the projection to be able to recover by CausedBy.  Unless we commit all the events
             // to the stream in a single transaction we can get into situation when only part of events CausedBy the same event
             // are present in a stream
-            Assert.AreEqual(
+            Assert.Equal(
                 2,
                 _consumer.HandledMessages.OfType<ClientMessage.WriteEvents>().Single(v => v.EventStreamId == "stream2").
                     Events.Length);
         }
 
-        [Test]
+        [Fact]
         public void should_not_write_a_secong_group_until_the_first_write_completes()
         {
             _checkpoint.ValidateOrderAndEmitEvents(
@@ -98,7 +97,7 @@ namespace EventStore.Projections.Core.Tests.Services.core_projection.projection_
                 _consumer.HandledMessages.OfType<ClientMessage.WriteEvents>().Where(v => v.EventStreamId == "stream1");
             var writeEvents = writeRequests.Single();
             writeEvents.Envelope.ReplyWith(new ClientMessage.WriteEventsCompleted(writeEvents.CorrelationId, 0, 0, -1, -1));
-            Assert.AreEqual(2, writeRequests.Count());
+            Assert.Equal(2, writeRequests.Count());
         }
     }
 }

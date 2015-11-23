@@ -32,7 +32,7 @@ using EventStore.ClientAPI.Common.Utils;
 using EventStore.Core.Data;
 using EventStore.Projections.Core.Messages;
 using Newtonsoft.Json.Linq;
-using NUnit.Framework;
+using Xunit;
 
 namespace EventStore.Projections.Core.Tests.Services.projection_core_service_command_reader
 {
@@ -47,11 +47,11 @@ namespace EventStore.Projections.Core.Tests.Services.projection_core_service_com
             yield return new ProjectionCoreServiceMessage.StartCore();
             List<EventRecord> stream;
             _streams.TryGetValue("$projections-$master", out stream);
-            Assume.That(stream != null);
+            Assert.NotNull(stream);
             var lastEvent = stream.Last();
             var parsed = lastEvent.Data.ParseJson<JObject>();
             _serviceId = (string)((JValue) parsed.GetValue("id")).Value;
-            Assume.That(!string.IsNullOrEmpty(_serviceId));
+            Assert.False(string.IsNullOrEmpty(_serviceId));
         }
 
     }

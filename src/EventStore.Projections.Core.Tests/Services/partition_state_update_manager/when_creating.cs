@@ -1,23 +1,23 @@
 ﻿using System;
 using EventStore.Projections.Core.Services.Processing;
-using NUnit.Framework;
+using Xunit;
 
 namespace EventStore.Projections.Core.Tests.Services.partition_state_update_manager
 {
-    [TestFixture]
+    
     public class when_creating
     {
 
-        [Test]
+        [Fact]
         public void no_exceptions_are_thrown()
         {
-            new PartitionStateUpdateManager(ProjectionNamesBuilder.CreateForTest("projection"));
+            Assert.DoesNotThrow(() =>new PartitionStateUpdateManager(ProjectionNamesBuilder.CreateForTest("projection")));
         }
 
-        [Test, ExpectedException(typeof (ArgumentNullException))]
+        [Fact]
         public void null_naming_builder_throws_argument_null_exception()
         {
-            new PartitionStateUpdateManager(null);
+            Assert.Throws<ArgumentNullException>(() => new PartitionStateUpdateManager(null));
         }
     }
 }

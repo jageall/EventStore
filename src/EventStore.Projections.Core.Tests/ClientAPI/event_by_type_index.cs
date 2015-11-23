@@ -1,5 +1,5 @@
 ﻿using System;
-using NUnit.Framework;
+using Xunit;
 
 namespace EventStore.Projections.Core.Tests.ClientAPI
 {
@@ -22,7 +22,7 @@ namespace EventStore.Projections.Core.Tests.ClientAPI
 
         }
 
-        [TestFixture]
+        
         public class when_creating : with_existing_events
         {
             protected override void When()
@@ -43,7 +43,9 @@ function count(s,e) {
 ");
             }
 
-            [Test, Category("Network")]
+            [DebugBuildFact]
+            [Trait("Category", "Network")]
+            [Trait("Category", "ClientAPI")]
             public void result_is_correct()
             {
                 AssertStreamTail("$projections-test-projection-result", "Result:{\"c\":4}");
@@ -51,7 +53,7 @@ function count(s,e) {
 
         }
 
-        [TestFixture]
+        
         public class when_posting_more_events : with_existing_events
         {
             protected override void When()
@@ -75,7 +77,9 @@ function count(s,e) {
                 WaitIdle();
             }
 
-            [Test, Category("Network")]
+            [DebugBuildFact]
+            [Trait("Category", "Network")]
+            [Trait("Category", "ClientAPI")]
             public void result_is_correct()
             {
                 AssertStreamTail("$projections-test-projection-result", "Result:{\"c\":5}");

@@ -3,24 +3,20 @@ using System.IO;
 using System.Linq;
 using EventStore.Core.Index;
 using EventStore.Core.Util;
-using NUnit.Framework;
+using Xunit;
 
 namespace EventStore.Core.Tests.Index
 {
-    [TestFixture]
-    public class saving_index_with_single_item_to_a_file: SpecificationWithDirectoryPerTestFixture
+    public class saving_index_with_single_item_to_a_fileFixture : SpecificationWithDirectoryPerTestFixture
     {
-        private string _filename;
-        private IndexMap _map;
-        private string _tablename;
-        private string _mergeFile;
-        private MergeResult _result;
+        public readonly string _filename;
+        public readonly IndexMap _map;
+        public readonly string _tablename;
+        public readonly string _mergeFile;
+        public readonly MergeResult _result;
 
-        [TestFixtureSetUp]
-        public override void TestFixtureSetUp()
+        public saving_index_with_single_item_to_a_fileFixture()
         {
-            base.TestFixtureSetUp();
-
             _filename = GetFilePathFor("indexfile");
             _tablename = GetTempFilePath();
             _mergeFile = GetFilePathFor("outputfile");
@@ -35,23 +31,38 @@ namespace EventStore.Core.Tests.Index
             _result.MergedMap.InOrder().ToList().ForEach(x => x.Dispose());
             table.Dispose();
         }
-
-        [TestFixtureTearDown]
-        public override void TestFixtureTearDown()
+        public override void Dispose()
         {
             _result.ToDelete.ForEach(x => x.MarkForDestruction());
             _result.MergedMap.InOrder().ToList().ForEach(x => x.MarkForDestruction());
             _result.MergedMap.InOrder().ToList().ForEach(x => x.WaitForDisposal(1000));
-            base.TestFixtureTearDown();
+            base.Dispose();
+        }
+    }
+    public class saving_index_with_single_item_to_a_file : IUseFixture<saving_index_with_single_item_to_a_fileFixture>
+    {
+        private string _filename;
+        private IndexMap _map;
+        private string _tablename;
+        private string _mergeFile;
+        private MergeResult _result;
+
+        public void SetFixture(saving_index_with_single_item_to_a_fileFixture data)
+        {
+            _filename = data._filename;
+            _map = data._map;
+            _tablename = data._tablename;
+            _mergeFile = data._mergeFile;
+            _result = data._result;
         }
 
-        [Test]
+        [Fact]
         public void the_file_exists()
         {
-            Assert.IsTrue(File.Exists(_filename));
+            Assert.True(File.Exists(_filename));
         }
 
-        [Test]
+        [Fact]
         public void the_file_contains_correct_data()
         {
             using (var fs = File.OpenRead(_filename))
@@ -64,23 +75,23 @@ namespace EventStore.Core.Tests.Index
                 var md5 = MD5Hash.GetHashFor(fs);
                 var md5String = BitConverter.ToString(md5).Replace("-", "");
 
-                Assert.AreEqual(5, lines.Count());
-                Assert.AreEqual(md5String, lines[0]);
-                Assert.AreEqual(PTable.Version.ToString(), lines[1]);
-                Assert.AreEqual("7/11", lines[2]);
-                Assert.AreEqual("0,0," + Path.GetFileName(_tablename), lines[3]);
-                Assert.AreEqual("", lines[4]);
+                Assert.Equal(5, lines.Count());
+                Assert.Equal(md5String, lines[0]);
+                Assert.Equal(PTable.Version.ToString(), lines[1]);
+                Assert.Equal("7/11", lines[2]);
+                Assert.Equal("0,0," + Path.GetFileName(_tablename), lines[3]);
+                Assert.Equal("", lines[4]);
             }
         }
 
-        [Test]
+        [Fact]
         public void saved_file_could_be_read_correctly_and_without_errors()
         {
             var map = IndexMap.FromFile(_filename);
             map.InOrder().ToList().ForEach(x => x.Dispose());
 
-            Assert.AreEqual(7, map.PrepareCheckpoint);
-            Assert.AreEqual(11, map.CommitCheckpoint);
+            Assert.Equal(7, map.PrepareCheckpoint);
+            Assert.Equal(11, map.CommitCheckpoint);
         }
     }
 }

@@ -3,12 +3,12 @@ using System.Text;
 using EventStore.Common.Utils;
 using EventStore.Core.Data;
 using EventStore.Projections.Core.Messages;
-using NUnit.Framework;
+using Xunit;
 using ResolvedEvent = EventStore.Projections.Core.Services.Processing.ResolvedEvent;
 
 namespace EventStore.Projections.Core.Tests.Services.core_projection
 {
-    [TestFixture]
+    
     public class when_the_state_handler_does_process_an_event_the_projection_should :
         TestFixtureWithCoreProjectionStarted
     {
@@ -34,22 +34,22 @@ namespace EventStore.Projections.Core.Tests.Services.core_projection
                         "metadata"), _subscriptionId, 0));
         }
 
-        [Test]
+        [Fact]
         public void write_the_new_state_snapshot()
         {
-            Assert.AreEqual(1, _writeEventHandler.HandledMessages.OfEventType("Result").Count);
+            Assert.Equal(1, _writeEventHandler.HandledMessages.OfEventType("Result").Count);
 
             var data = Helper.UTF8NoBom.GetString(_writeEventHandler.HandledMessages.OfEventType("Result")[0].Data);
-            Assert.AreEqual("data", data);
+            Assert.Equal("data", data);
         }
 
-        [Test]
+        [Fact]
         public void emit_a_state_updated_event()
         {
-            Assert.AreEqual(1, _writeEventHandler.HandledMessages.OfEventType("Result").Count);
+            Assert.Equal(1, _writeEventHandler.HandledMessages.OfEventType("Result").Count);
 
             var @event = _writeEventHandler.HandledMessages.OfEventType("Result")[0];
-            Assert.AreEqual("Result", @event.EventType);
+            Assert.Equal("Result", @event.EventType);
         }
     }
 }

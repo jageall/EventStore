@@ -8,11 +8,12 @@ using EventStore.Core.TransactionLog.LogRecords;
 using EventStore.Projections.Core.Messages;
 using EventStore.Projections.Core.Services.Processing;
 using EventStore.Projections.Core.Tests.Services.core_projection;
-using NUnit.Framework;
+using Xunit;
+using ResolvedEvent = EventStore.Core.Data.ResolvedEvent;
 
 namespace EventStore.Projections.Core.Tests.Services.event_reader.multi_stream_reader
 {
-    [TestFixture]
+    
     public class when_handling_read_completed_for_all_streams_after_pause_requested : TestFixtureWithExistingEvents
     {
         private MultiStreamEventReader _edp;
@@ -31,8 +32,7 @@ namespace EventStore.Projections.Core.Tests.Services.event_reader.multi_stream_r
         private string[] _abStreams;
         private Dictionary<string, int> _ab12Tag;
 
-        [SetUp]
-        public new void When()
+        public when_handling_read_completed_for_all_streams_after_pause_requested()
         {
             _ab12Tag = new Dictionary<string, int> {{"a", 1}, {"b", 2}};
             _abStreams = new[] {"a", "b"};
@@ -82,39 +82,42 @@ namespace EventStore.Projections.Core.Tests.Services.event_reader.multi_stream_r
                     }, null, false, "", 4, 3, true, 200));
         }
 
-        [Test]
+        [Fact]
         public void can_be_resumed()
         {
             _edp.Resume();
         }
 
-        [Test, ExpectedException(typeof(InvalidOperationException))]
+        [Fact]
         public void cannot_be_paused()
         {
-            _edp.Pause();
+            Assert.Throws<InvalidOperationException>(() => { _edp.Pause(); });
         }
 
-        [Test]
+        [Fact]
         public void publishes_correct_number_of_committed_event_received_messages()
         {
-            Assert.AreEqual(
+            Assert.Equal(
                 3, _consumer.HandledMessages.OfType<ReaderSubscriptionMessage.CommittedEventDistributed>().Count());
         }
 
-        [Test, ExpectedException(typeof(InvalidOperationException))]
+        [Fact]
         public void cannot_handle_following_read_events_completed() 
         {
-            _edp.Handle(
-                new ClientMessage.ReadStreamEventsForwardCompleted(
-                    _distibutionPointCorrelationId, "a", 100, 100, ReadStreamResult.Success,
-                    new[]
-                    {
-                        EventStore.Core.Data.ResolvedEvent.ForUnresolvedEvent(
-                            new EventRecord(
-                                3, 250, Guid.NewGuid(), Guid.NewGuid(), 250, 0, "a", ExpectedVersion.Any, DateTime.UtcNow,
-                                PrepareFlags.SingleWrite | PrepareFlags.TransactionBegin | PrepareFlags.TransactionEnd,
-                                "event_type", new byte[0], new byte[0]))
-                    }, null, false, "", 4, 4, false, 300));
+            Assert.Throws<InvalidOperationException>(() =>
+            {
+                _edp.Handle(
+                    new ClientMessage.ReadStreamEventsForwardCompleted(
+                        _distibutionPointCorrelationId, "a", 100, 100, ReadStreamResult.Success,
+                        new[]
+                        {
+                            ResolvedEvent.ForUnresolvedEvent(
+                                new EventRecord(
+                                    3, 250, Guid.NewGuid(), Guid.NewGuid(), 250, 0, "a", ExpectedVersion.Any, DateTime.UtcNow,
+                                    PrepareFlags.SingleWrite | PrepareFlags.TransactionBegin | PrepareFlags.TransactionEnd,
+                                    "event_type", new byte[0], new byte[0]))
+                        }, null, false, "", 4, 4, false, 300));
+            });
         }
 
     }

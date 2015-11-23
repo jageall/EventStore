@@ -10,7 +10,7 @@ using EventStore.Projections.Core.Services.Processing;
 
 namespace EventStore.Projections.Core.Tests.Services.core_projection.multi_phase
 {
-    abstract class specification_with_multi_phase_core_projection: TestFixtureWithCoreProjection
+    public abstract class specification_with_multi_phase_core_projection: TestFixtureWithCoreProjection
     {
         private FakeCheckpointManager _phase1checkpointManager;
         private FakeCheckpointManager _phase2checkpointManager;
@@ -93,7 +93,7 @@ namespace EventStore.Projections.Core.Tests.Services.core_projection.multi_phase
             }
         }
 
-        internal class FakeProjectionProcessingPhase : IProjectionProcessingPhase
+        public class FakeProjectionProcessingPhase : IProjectionProcessingPhase
         {
             private readonly int _phase;
             private readonly specification_with_multi_phase_core_projection _specification;
@@ -230,7 +230,7 @@ namespace EventStore.Projections.Core.Tests.Services.core_projection.multi_phase
             }
         }
 
-        internal class FakeCheckpointManager : ICoreProjectionCheckpointManager, IEmittedEventWriter
+        public class FakeCheckpointManager : ICoreProjectionCheckpointManager, IEmittedEventWriter
         {
             private readonly IPublisher _publisher;
             private readonly Guid _projectionCorrelationId;

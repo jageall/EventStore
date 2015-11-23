@@ -1,10 +1,10 @@
 ﻿using System.Collections.Generic;
 using EventStore.Core.Services;
-using NUnit.Framework;
+using Xunit;
 
 namespace EventStore.Projections.Core.Tests.Integration.system_projections
 {
-    [TestFixture]
+    
     public class when_running_system_projections : specification_with_a_v8_query_posted
     {
         protected override void GivenEvents()
@@ -44,7 +44,7 @@ namespace EventStore.Projections.Core.Tests.Integration.system_projections
             return "";
         }
 
-        [Test]
+        [Fact]
         public void streams_are_categorized()
         {
             AssertStreamTail("$category-stream", "stream-1");
@@ -52,7 +52,7 @@ namespace EventStore.Projections.Core.Tests.Integration.system_projections
             AssertStreamTail("$category-account", "account-01", "account-02", "account-000-02");
         }
 
-        [Test]
+        [Fact]
         public void streams_are_indexed()
         {
             AssertStreamContains(
@@ -60,7 +60,7 @@ namespace EventStore.Projections.Core.Tests.Integration.system_projections
                 "0@account-000-02");
         }
 
-        [Test]
+        [Fact]
         public void events_are_categorized()
         {
             AssertStreamTail("$ce-stream", "1@account-01");

@@ -4,11 +4,11 @@ using System.Linq;
 using EventStore.Core.Messages;
 using EventStore.Core.Messaging;
 using EventStore.Projections.Core.Messages;
-using NUnit.Framework;
+using Xunit;
 
 namespace EventStore.Projections.Core.Tests.Services.projections_manager
 {
-    [TestFixture]
+    
     public class when_posting_an_onetime_projection: TestFixtureWithProjectionCoreAndManagementServices
     {
         protected override void Given()
@@ -25,10 +25,10 @@ namespace EventStore.Projections.Core.Tests.Services.projections_manager
                     @"fromAll().whenAny(function(s,e){return s;});", enabled: true));
         }
 
-        [Test, Category("v8")]
+        [Fact][Trait("Category", "v8")]
         public void projection_updated_is_published()
         {
-            Assert.AreEqual(1, _consumer.HandledMessages.OfType<ProjectionManagementMessage.Updated>().Count());
+            Assert.Equal(1, _consumer.HandledMessages.OfType<ProjectionManagementMessage.Updated>().Count());
         }
     }
 }

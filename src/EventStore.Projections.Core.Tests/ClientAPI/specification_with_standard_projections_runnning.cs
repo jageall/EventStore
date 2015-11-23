@@ -11,77 +11,135 @@ using EventStore.Core.Bus;
 using EventStore.Core.Tests;
 using EventStore.Core.Tests.Helpers;
 using EventStore.Projections.Core.Services.Processing;
-using NUnit.Framework;
+using Xunit;
 using ResolvedEvent = EventStore.ClientAPI.ResolvedEvent;
 using EventStore.ClientAPI.Projections;
 
 namespace EventStore.Projections.Core.Tests.ClientAPI
 {
-    [Category("ClientAPI")]
-    public class specification_with_standard_projections_runnning : SpecificationWithDirectoryPerTestFixture
+    public class specification_with_standard_projections_runnning : IUseFixture<specification_with_standard_projections_runnning.SpecificationFixture>
     {
-        protected MiniNode _node;
-        protected IEventStoreConnection _conn;
-        protected ProjectionsSubsystem _projections;
+
         protected UserCredentials _admin = DefaultData.AdminCredentials;
-        protected ProjectionsManager _manager;
 
-        [TestFixtureSetUp]
-        public override void TestFixtureSetUp()
+        private SpecificationFixture _fixture;
+        protected SpecificationFixture Fixture { get { return _fixture; } }
+        protected IEventStoreConnection _conn {get { return _fixture.Connection; }}
+        protected ProjectionsManager _manager{get { return _fixture._manager; }}
+        public class SpecificationFixture : SpecificationWithDirectoryPerTestFixture
         {
-            base.TestFixtureSetUp();
-#if (!DEBUG)
-            Assert.Ignore("These tests require DEBUG conditional");
-#else
-            QueueStatsCollector.InitializeIdleDetection();
-            CreateNode();
-            try
-            {
-                _conn = EventStoreConnection.Create(_node.TcpEndPoint);
-                _conn.ConnectAsync().Wait();
+            private MiniNode _node;
+            public IEventStoreConnection Connection { get; private set; }
+            
+            private ProjectionsSubsystem _projections;
+            public ProjectionsManager _manager;
+            private Action<int, Action, Action, Action> _initialize;
+            private Action<specification_with_standard_projections_runnning> _assignStashedValues;
 
-                _manager = new ProjectionsManager(
-                    new ConsoleLogger(),
-                    _node.ExtHttpEndPoint,
-                    TimeSpan.FromMilliseconds(10000));
-                WaitIdle();
-                if (GivenStandardProjectionsRunning())
-                    EnableStandardProjections();
-                QueueStatsCollector.WaitIdle();
-                Given();
-                When();
-            }
-            catch
+            public SpecificationFixture()
             {
-                try
-                {
-                    if (_conn != null)
-                        _conn.Close();
-                }
-                catch
-                {
-                }
-                try
-                {
-                    if (_node != null)
-                        _node.Shutdown();
-                }
-                catch
-                {
-                }
 
-                throw;
-            }
+                _assignStashedValues = _ => { };
+                _initialize = (workerThreads, standardProjections, given, when) =>
+                {
+                    _initialize = (_, __, ___, ____) => { };
+#if DEBUG
+                    QueueStatsCollector.InitializeIdleDetection();
 #endif
+                    _node = CreateNode(workerThreads);
+                    try
+                    {
+                        Connection = EventStoreConnection.Create(_node.TcpEndPoint);
+                        Connection.ConnectAsync().Wait();
+
+                        _manager = new ProjectionsManager(
+                            new ConsoleLogger(),
+                            _node.ExtHttpEndPoint,
+                            TimeSpan.FromMilliseconds(10000));
+                        WaitIdle();
+                        standardProjections();
+                        QueueStatsCollector.WaitIdle();
+                        given();
+                        when();
+                    } catch
+                    {
+                        try
+                        {
+                            if (Connection != null)
+                                Connection.Close();
+                        } catch
+                        {
+                        }
+                        try
+                        {
+                            if (_node != null)
+                                _node.Shutdown();
+                        } catch
+                        {
+                        }
+
+                        throw;
+                    }
+                };
+
+            }
+
+            private MiniNode CreateNode(int projectionWorkerThreadCount)
+            {
+                _projections = new ProjectionsSubsystem(projectionWorkerThreadCount, runProjections: ProjectionType.All,
+                    startStandardProjections: false);
+                var node = new MiniNode(
+                    PathName, inMemDb: true, skipInitializeStandardUsersCheck: false,
+                    subsystems: new ISubsystem[] { _projections });
+                node.Start();
+                return node;
+            }
+
+            public override void Dispose()
+            {
+                if (Connection != null)
+                    Connection.Close();
+
+                if (_node != null)
+                    _node.Shutdown();
+
+                base.Dispose();
+#if DEBUG
+                QueueStatsCollector.InitializeIdleDetection(false);
+#endif
+            }
+            public void EnsureInitialized(int projectionThreadCount, Action runStandardProjections, Action given, Action when)
+            {
+                _initialize(projectionThreadCount, runStandardProjections, given, when);
+            }
+
+            public void AddStashedValueAssignment<T>(T ignored, Action<T> assignStashedValues)
+            where T : specification_with_standard_projections_runnning
+            {
+                _assignStashedValues += instance => assignStashedValues((T)instance);
+            }
+
+            public void AssignStashedValues(specification_with_standard_projections_runnning scenario)
+            {
+                _assignStashedValues(scenario);
+            }
         }
 
-        private void CreateNode()
+        public void SetFixture(SpecificationFixture fixture)
         {
-            var projectionWorkerThreadCount = GivenWorkerThreadCount();
-            _projections = new ProjectionsSubsystem(projectionWorkerThreadCount, runProjections: ProjectionType.All, startStandardProjections: false);
-            _node = new MiniNode(
-                PathName, inMemDb: true, skipInitializeStandardUsersCheck: false, subsystems: new ISubsystem[] { _projections });
-            _node.Start();
+            #if (!DEBUG)
+                throw new InvalidOperationException("These tests require DEBUG conditional, use [DebugBuildFact] instead of [Fact]");
+#else
+            
+            _fixture = fixture;
+            fixture.EnsureInitialized(GivenWorkerThreadCount(),
+                () =>
+                {
+                    if (GivenStandardProjectionsRunning())
+                        EnableStandardProjections();
+                }, Given, When);
+            fixture.AssignStashedValues(this);
+#endif
         }
 
         protected virtual int GivenWorkerThreadCount()
@@ -89,12 +147,11 @@ namespace EventStore.Projections.Core.Tests.ClientAPI
             return 1;
         }
 
-        [TearDown]
-        public void PostTestAsserts()
+        public void Dispose()
         {
             var all = _manager.ListAllAsync(_admin).Result;
             if (all.Any(p => p.Name == "Faulted"))
-                Assert.Fail("Projections faulted while running the test" + "\r\n" + all);
+                Assert.True(false, string.Format("Projections faulted while running the test" + "\r\n" + all));
         }
 
         protected void EnableStandardProjections()
@@ -128,20 +185,6 @@ namespace EventStore.Projections.Core.Tests.ClientAPI
             _manager.DisableAsync(name, _admin).Wait();
         }
 
-        [TestFixtureTearDown]
-        public override void TestFixtureTearDown()
-        {
-            if (_conn != null)
-                _conn.Close();
-
-            if (_node != null)
-                _node.Shutdown();
-
-            base.TestFixtureTearDown();
-#if DEBUG
-            QueueStatsCollector.InitializeIdleDetection(false);
-#endif
-        }
 
         protected virtual void When()
         {
@@ -184,10 +227,10 @@ namespace EventStore.Projections.Core.Tests.ClientAPI
             switch (result.Status)
             {
                 case SliceReadStatus.StreamDeleted:
-                    Assert.Fail("Stream '{0}' is deleted", streamId);
+                    Assert.True(false, string.Format("Stream '{0}' is deleted", streamId));
                     break;
                 case SliceReadStatus.StreamNotFound:
-                    Assert.Fail("Stream '{0}' does not exist", streamId);
+                    Assert.True(false, string.Format("Stream '{0}' does not exist", streamId));
                     break;
                 case SliceReadStatus.Success:
                     var resultEventsReversed = result.Events.Reverse().ToArray();
@@ -221,10 +264,10 @@ namespace EventStore.Projections.Core.Tests.ClientAPI
             switch (result.Status)
             {
                 case SliceReadStatus.StreamDeleted:
-                    Assert.Fail("Stream '{0}' is deleted", streamId);
+                    Assert.True(false, string.Format("Stream '{0}' is deleted", streamId));
                     break;
                 case SliceReadStatus.StreamNotFound:
-                    Assert.Fail("Stream '{0}' does not exist", streamId);
+                    Assert.True(false, string.Format("Stream '{0}' does not exist", streamId));
                     break;
                 case SliceReadStatus.Success:
                     Dump("Dumping..", streamId, result.Events.Reverse().ToArray());
@@ -244,9 +287,9 @@ namespace EventStore.Projections.Core.Tests.ClientAPI
                 "", (a, v) => a + "\r\n" + v.Event.EventType + ":" + v.Event.DebugMetadataView);
 
 
-            Assert.Fail(
+            Assert.True(false, string.Format(
                 "Stream: '{0}'\r\n{1}\r\n\r\nExisting events: \r\n{2}\r\n Expected events: \r\n{3}\r\n\r\nActual metas:{4}", streamId,
-                message, actual, expected, actualMeta);
+                message, actual, expected, actualMeta));
 
         }
 

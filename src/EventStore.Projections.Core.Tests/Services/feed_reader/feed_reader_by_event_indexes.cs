@@ -7,15 +7,15 @@ using EventStore.Core.Services.UserManagement;
 using EventStore.Projections.Core.Messages;
 using EventStore.Projections.Core.Messages.EventReaders.Feeds;
 using EventStore.Projections.Core.Services.Processing;
-using NUnit.Framework;
+using Xunit;
 
 namespace EventStore.Projections.Core.Tests.Services.feed_reader
 {
     namespace feed_reader_by_event_indexes
     {
 
-        [TestFixture]
-        class when_reading_the_first_event: TestFixtureWithFeedReaderService
+        
+        public class when_reading_the_first_event: TestFixtureWithFeedReaderService
         {
             private QuerySourcesDefinition _querySourcesDefinition;
             private CheckpointTag _fromPosition;
@@ -61,24 +61,24 @@ namespace EventStore.Projections.Core.Tests.Services.feed_reader
                         _querySourcesDefinition, _fromPosition, _maxEvents);
             }
 
-            [Test]
+            [Fact]
             public void publishes_feed_page_message()
             {
                 var feedPage = _consumer.HandledMessages.OfType<FeedReaderMessage.FeedPage>().ToArray();
-                Assert.AreEqual(1, feedPage.Length);
+                Assert.Equal(1, feedPage.Length);
             }
 
-            [Test]
+            [Fact]
             public void returns_correct_last_reader_position()
             {
                 var feedPage = _consumer.HandledMessages.OfType<FeedReaderMessage.FeedPage>().Single();
-                Assert.AreEqual(
+                Assert.Equal(
                     CheckpointTag.FromEventTypeIndexPositions(0, _tfPos1, new Dictionary<string, int> {{"type1", 0}, {"type2", -1}}), feedPage.LastReaderPosition);
             }
         }
 
-        [TestFixture]
-        class when_reading_the_reordered_events_from_the_same_stream: TestFixtureWithFeedReaderService
+        
+        public class when_reading_the_reordered_events_from_the_same_stream: TestFixtureWithFeedReaderService
         {
             private QuerySourcesDefinition _querySourcesDefinition;
             private CheckpointTag _fromPosition;
@@ -122,26 +122,26 @@ namespace EventStore.Projections.Core.Tests.Services.feed_reader
                         _querySourcesDefinition, _fromPosition, _maxEvents);
             }
 
-            [Test]
+            [Fact]
             public void publishes_feed_page_message()
             {
                 var feedPage = _consumer.HandledMessages.OfType<FeedReaderMessage.FeedPage>().ToArray();
-                Assert.AreEqual(1, feedPage.Length);
+                Assert.Equal(1, feedPage.Length);
             }
 
-            [Test]
+            [Fact]
             public void returns_correct_last_reader_position()
             {
                 var feedPage = _consumer.HandledMessages.OfType<FeedReaderMessage.FeedPage>().Single();
-                Assert.AreEqual(
+                Assert.Equal(
                     CheckpointTag.FromEventTypeIndexPositions(0, _tfPos3, new Dictionary<string, int> {{"type1", 1}, {"type2", 0}}), feedPage.LastReaderPosition);
             }
 
-            [Test]
+            [Fact]
             public void returns_correct_event_sequence()
             {
                 var feedPage = _consumer.HandledMessages.OfType<FeedReaderMessage.FeedPage>().Single();
-                Assert.That(
+                Assert.True(
                     new[] {0, 1, 2}.SequenceEqual(
                         feedPage.Events.Select(e => e.ResolvedEvent.EventSequenceNumber).OrderBy(v => v)));
             }

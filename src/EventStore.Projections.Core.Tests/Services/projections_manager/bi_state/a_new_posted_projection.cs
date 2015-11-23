@@ -10,7 +10,7 @@ using EventStore.Projections.Core.Messages;
 using EventStore.Projections.Core.Services;
 using EventStore.Projections.Core.Services.Management;
 using EventStore.Projections.Core.Tests.Services.core_projection;
-using NUnit.Framework;
+using Xunit;
 
 namespace EventStore.Projections.Core.Tests.Services.projections_manager.bi_state
 {
@@ -51,7 +51,7 @@ namespace EventStore.Projections.Core.Tests.Services.projections_manager.bi_stat
             }
         }
 
-        [TestFixture]
+        
         public class when_get_state : Base
         {
             protected override IEnumerable<WhenStep> When()
@@ -61,20 +61,20 @@ namespace EventStore.Projections.Core.Tests.Services.projections_manager.bi_stat
                     new ProjectionManagementMessage.Command.GetState(new PublishEnvelope(_bus), _projectionName, ""));
             }
 
-            [Test]
+            [Fact]
             public void returns_correct_state()
             {
-                Assert.AreEqual(
+                Assert.Equal(
                     1, _consumer.HandledMessages.OfType<ProjectionManagementMessage.ProjectionState>().Count());
-                Assert.AreEqual(
+                Assert.Equal(
                     _projectionName,
                     _consumer.HandledMessages.OfType<ProjectionManagementMessage.ProjectionState>().Single().Name);
-                Assert.AreEqual(
+                Assert.Equal(
                     "", _consumer.HandledMessages.OfType<ProjectionManagementMessage.ProjectionState>().Single().State);
             }
         }
 
-        [TestFixture]
+        
         public class when_stopping : Base
         {
             private Guid _reader;
@@ -85,7 +85,7 @@ namespace EventStore.Projections.Core.Tests.Services.projections_manager.bi_stat
 
                 var readerAssignedMessage =
                     _consumer.HandledMessages.OfType<EventReaderSubscriptionMessage.ReaderAssignedReader>().LastOrDefault();
-                Assert.IsNotNull(readerAssignedMessage);
+                Assert.NotNull(readerAssignedMessage);
                 _reader = readerAssignedMessage.ReaderId;
 
                 yield return
@@ -103,7 +103,7 @@ namespace EventStore.Projections.Core.Tests.Services.projections_manager.bi_stat
                         new PublishEnvelope(_bus), _projectionName, ProjectionManagementMessage.RunAs.System);
             }
 
-            [Test]
+            [Fact]
             public void writes_both_stream_and_shared_partition_checkpoints()
             {
                 var writeProjectionCheckpoints =
@@ -111,11 +111,11 @@ namespace EventStore.Projections.Core.Tests.Services.projections_manager.bi_stat
                 var writeCheckpoints =
                     HandledMessages.OfType<ClientMessage.WriteEvents>().OfEventType("$Checkpoint").ToArray();
 
-                Assert.AreEqual(1, writeProjectionCheckpoints.Length);
-                Assert.AreEqual(@"[{""data"": 2}]", Encoding.UTF8.GetString(writeProjectionCheckpoints[0].Data));
-                Assert.AreEqual(2, writeCheckpoints.Length);
+                Assert.Equal(1, writeProjectionCheckpoints.Length);
+                Assert.Equal(@"[{""data"": 2}]", Encoding.UTF8.GetString(writeProjectionCheckpoints[0].Data));
+                Assert.Equal(2, writeCheckpoints.Length);
 
-                Assert.That(
+                Assert.True(
                     writeCheckpoints.All(
                         v => Encoding.UTF8.GetString(v.Data) == @"[{""data"": 1},{""data"": 1}]"));
             }

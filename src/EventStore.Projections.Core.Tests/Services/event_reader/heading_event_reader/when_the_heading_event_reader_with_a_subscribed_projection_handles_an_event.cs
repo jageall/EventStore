@@ -6,33 +6,23 @@ using EventStore.Core.Tests.Helpers;
 using EventStore.Projections.Core.Messages;
 using EventStore.Projections.Core.Services.Processing;
 using EventStore.Projections.Core.Tests.Services.projections_manager.managed_projection;
-using NUnit.Framework;
+using Xunit;
 
 namespace EventStore.Projections.Core.Tests.Services.event_reader.heading_event_reader
 {
-    [TestFixture]
+
     public class when_the_heading_event_reader_with_a_subscribed_projection_handles_an_event :
         TestFixtureWithReadWriteDispatchers
     {
         private HeadingEventReader _point;
-        private Exception _exception;
         private Guid _distibutionPointCorrelationId;
         private FakeReaderSubscription _subscription;
         private Guid _projectionSubscriptionId;
 
-        [SetUp]
-        public void setup()
+        public when_the_heading_event_reader_with_a_subscribed_projection_handles_an_event()
         {
-            _exception = null;
-            try
-            {
-                _point = new HeadingEventReader(10);
-            }
-            catch (Exception ex)
-            {
-                _exception = ex;
-            }
-            Assume.That(_exception == null);
+
+            _point = new HeadingEventReader(10);
 
             _distibutionPointCorrelationId = Guid.NewGuid();
             _point.Start(
@@ -56,22 +46,22 @@ namespace EventStore.Projections.Core.Tests.Services.event_reader.heading_event_
         }
 
 
-        [Test]
+        [Fact]
         public void projection_receives_events_after_the_subscription_point()
         {
-            Assert.AreEqual(50, _subscription.ReceivedEvents.Last().Data.Position.PreparePosition);
+            Assert.Equal(50, _subscription.ReceivedEvents.Last().Data.Position.PreparePosition);
         }
 
-        [Test]
+        [Fact]
         public void it_can_be_unsubscribed()
         {
             _point.Unsubscribe(_projectionSubscriptionId);
         }
 
-        [Test, ExpectedException(typeof (InvalidOperationException))]
+        [Fact]
         public void no_other_projection_can_subscribe_with_the_same_projection_id()
         {
-            _point.TrySubscribe(_projectionSubscriptionId, _subscription, 30);
+            Assert.Throws<InvalidOperationException>(() => { _point.TrySubscribe(_projectionSubscriptionId, _subscription, 30); });
         }
     }
 }

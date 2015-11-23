@@ -5,13 +5,13 @@ using EventStore.Core.Services.UserManagement;
 using EventStore.Projections.Core.Messages;
 using EventStore.Projections.Core.Services.Processing;
 using EventStore.Projections.Core.Tests.Services.core_projection;
-using NUnit.Framework;
+using Xunit;
 
 namespace EventStore.Projections.Core.Tests.Services.event_reader.externally_fed_by_stream_event_reader
 {
     namespace when_reading_catalog
     {
-        abstract class with_externally_fed_reader: TestFixtureWithEventReaderService
+        public abstract class with_externally_fed_reader: TestFixtureWithEventReaderService
         {
             protected const int TailLength = 10;
             protected Guid _subscriptionId;
@@ -51,8 +51,8 @@ namespace EventStore.Projections.Core.Tests.Services.event_reader.externally_fed
 
         }
 
-        [TestFixture]
-        class when_starting_from_the_beginning : with_externally_fed_reader
+        
+        public class when_starting_from_the_beginning : with_externally_fed_reader
         {
             protected override IEnumerable<WhenStep> When()
             {
@@ -62,16 +62,16 @@ namespace EventStore.Projections.Core.Tests.Services.event_reader.externally_fed
                         _subscriptionId, fromZeroPosition, _readerStrategy, _readerSubscriptionOptions);
             }
 
-            [Test]
+            [Fact]
             public void publishes_reader_idle_message()
             {
-                Assert.IsNotEmpty(HandledMessages.OfType<ReaderSubscriptionMessage.EventReaderIdle>());
+                Assert.NotEmpty(HandledMessages.OfType<ReaderSubscriptionMessage.EventReaderIdle>());
             }
         }
 
 
-        [TestFixture]
-        class when_handling_first_spool_stream_reading_message : with_externally_fed_reader
+        
+        public class when_handling_first_spool_stream_reading_message : with_externally_fed_reader
         {
             protected override IEnumerable<WhenStep> When()
             {
@@ -86,29 +86,29 @@ namespace EventStore.Projections.Core.Tests.Services.event_reader.externally_fed
                         10000);
             }
 
-            [Test]
+            [Fact]
             public void publishes_all_events_from_the_stream()
             {
                 var events = HandledMessages.OfType<EventReaderSubscriptionMessage.CommittedEventReceived>().ToArray();
-                Assert.AreEqual(2, events.Length);
-                Assert.That(events.All(v => v.Data.PositionStreamId == "test-stream"));
+                Assert.Equal(2, events.Length);
+                Assert.True(events.All(v => v.Data.PositionStreamId == "test-stream"));
             }
 
-            [Test]
+            [Fact]
             public void publishes_partition_eof_message_at_the_end()
             {
                 var events = HandledMessages.OfType<EventReaderSubscriptionMessageBase>();
                 var lastEvent = events.LastOrDefault();
 
-                Assert.IsNotNull(lastEvent);
+                Assert.NotNull(lastEvent);
 
                 Assert.IsAssignableFrom<EventReaderSubscriptionMessage.PartitionEofReached>(lastEvent);
             }
 
         }
 
-        [TestFixture]
-        class when_handling_sequence_of_spool_stream_reading_messages : with_externally_fed_reader
+        
+        public class when_handling_sequence_of_spool_stream_reading_messages : with_externally_fed_reader
         {
             protected override IEnumerable<WhenStep> When()
             {
@@ -128,17 +128,17 @@ namespace EventStore.Projections.Core.Tests.Services.event_reader.externally_fed
                             10000));
             }
 
-            [Test]
+            [Fact]
             public void publishes_all_events_from_the_stream()
             {
                 var events = HandledMessages.OfType<EventReaderSubscriptionMessage.CommittedEventReceived>().ToArray();
-                Assert.AreEqual(4, events.Length);
-                Assert.That(
+                Assert.Equal(4, events.Length);
+                Assert.True(
                     events.Select(v => v.Data.PositionStreamId)
                         .SequenceEqual(new[] {"test-stream", "test-stream", "test-stream2", "test-stream2"}));
             }
 
-            [Test]
+            [Fact]
             public void publishes_partition_eof_message_at_the_end_of_each_stream()
             {
                 var events =
@@ -152,8 +152,8 @@ namespace EventStore.Projections.Core.Tests.Services.event_reader.externally_fed
 
         }
 
-        [TestFixture]
-        class when_handling_sequence_of_spool_stream_reading_messages_with_delays : with_externally_fed_reader
+        
+        public class when_handling_sequence_of_spool_stream_reading_messages_with_delays : with_externally_fed_reader
         {
             protected override IEnumerable<WhenStep> When()
             {
@@ -171,7 +171,7 @@ namespace EventStore.Projections.Core.Tests.Services.event_reader.externally_fed
                         10000);
                 yield return Yield;
 
-                Assert.AreEqual(
+                Assert.Equal(
                     2,
                     HandledMessages.OfType<EventReaderSubscriptionMessage.CommittedEventReceived>().Count());
 
@@ -182,17 +182,17 @@ namespace EventStore.Projections.Core.Tests.Services.event_reader.externally_fed
                         10000);
             }
 
-            [Test]
+            [Fact]
             public void publishes_all_events_from_the_stream()
             {
                 var events = HandledMessages.OfType<EventReaderSubscriptionMessage.CommittedEventReceived>().ToArray();
-                Assert.AreEqual(4, events.Length);
-                Assert.That(
+                Assert.Equal(4, events.Length);
+                Assert.True(
                     events.Select(v => v.Data.PositionStreamId)
                         .SequenceEqual(new[] { "test-stream", "test-stream", "test-stream2", "test-stream2" }));
             }
 
-            [Test]
+            [Fact]
             public void publishes_partition_eof_message_at_the_end_of_each_stream()
             {
                 var events =
@@ -206,8 +206,8 @@ namespace EventStore.Projections.Core.Tests.Services.event_reader.externally_fed
 
         }
 
-        [TestFixture]
-        class when_handling_sequence_of_spool_stream_reading_messages_followed_by_completed_spooled_reading : with_externally_fed_reader
+        
+        public class when_handling_sequence_of_spool_stream_reading_messages_followed_by_completed_spooled_reading : with_externally_fed_reader
         {
             protected override IEnumerable<WhenStep> When()
             {
@@ -228,17 +228,17 @@ namespace EventStore.Projections.Core.Tests.Services.event_reader.externally_fed
                         new ReaderSubscriptionManagement.CompleteSpooledStreamReading(_subscriptionId));
             }
 
-            [Test]
+            [Fact]
             public void publishes_all_events_from_the_stream()
             {
                 var events = HandledMessages.OfType<EventReaderSubscriptionMessage.CommittedEventReceived>().ToArray();
-                Assert.AreEqual(4, events.Length);
-                Assert.That(
+                Assert.Equal(4, events.Length);
+                Assert.True(
                     events.Select(v => v.Data.PositionStreamId)
                         .SequenceEqual(new[] { "test-stream", "test-stream", "test-stream2", "test-stream2" }));
             }
 
-            [Test]
+            [Fact]
             public void publishes_partition_eof_message_at_the_end_of_each_stream()
             {
                 var events =
@@ -250,13 +250,13 @@ namespace EventStore.Projections.Core.Tests.Services.event_reader.externally_fed
                 Assert.IsAssignableFrom<EventReaderSubscriptionMessage.PartitionEofReached>(events[5]);
             }
 
-            [Test]
+            [Fact]
             public void publishes_eof_message()
             {
                 var lastEvent =
                     HandledMessages.OfType<EventReaderSubscriptionMessageBase>()
                         .LastOrDefault(v => !(v is EventReaderSubscriptionMessage.ReaderAssignedReader));
-                Assert.IsNotNull(lastEvent);
+                Assert.NotNull(lastEvent);
                 Assert.IsAssignableFrom<EventReaderSubscriptionMessage.EofReached>(lastEvent);
             }
 

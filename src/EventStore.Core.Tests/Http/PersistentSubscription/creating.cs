@@ -1,13 +1,13 @@
 ﻿using System.Net;
 using EventStore.Core.Tests.Http.Users.users;
-using NUnit.Framework;
+
 using System.Collections.Generic;
 using System;
+using Xunit;
 
 namespace EventStore.Core.Tests.Http.PersistentSubscription
 {
-    [TestFixture, Category("LongRunning")]
-    class when_creating_a_subscription : with_admin_user
+    public class when_creating_a_subscription : with_admin_user
     {
         private HttpWebResponse _response;
 
@@ -17,29 +17,31 @@ namespace EventStore.Core.Tests.Http.PersistentSubscription
 
         protected override void When()
         {
-            _response = MakeJsonPut(
+            var response = MakeJsonPut(
                 "/subscriptions/stream/groupname334",
                 new
                 {
                     ResolveLinkTos = true
                 }, _admin);
+            Fixture.AddStashedValueAssignment(this, instance =>instance._response = response);
         }
 
-        [Test]
-        public void returns_created()
+        [Fact]
+        [Trait("Category", "LongRunning")]
+        public void returns_create()
         {
-            Assert.AreEqual(HttpStatusCode.Created, _response.StatusCode);
+            Assert.Equal(HttpStatusCode.Created, _response.StatusCode);
         }
 
-        [Test]
+        [Fact]
+        [Trait("Category", "LongRunning")]
         public void returns_location_header()
         {
-            Assert.AreEqual("http://" + _node.ExtHttpEndPoint + "/subscriptions/stream/groupname334", _response.Headers["location"]);
+            Assert.Equal("http://" + Node.ExtHttpEndPoint + "/subscriptions/stream/groupname334",_response.Headers["location"]);
         }
     }
 
-    [TestFixture, Category("LongRunning")]
-    class when_creating_a_subscription_without_permissions : with_admin_user
+    public class when_creating_a_subscription_without_permissions : with_admin_user
     {
         private HttpWebResponse _response;
 
@@ -49,55 +51,59 @@ namespace EventStore.Core.Tests.Http.PersistentSubscription
 
         protected override void When()
         {
-            _response = MakeJsonPut(
+            var response = MakeJsonPut(
                 "/subscriptions/stream/groupname337",
                 new
                 {
                     ResolveLinkTos = true
                 }, null);
+            Fixture.AddStashedValueAssignment(this, instance => instance._response = response);
         }
 
-        [Test]
+        [Fact]
+        [Trait("Category", "LongRunning")]
         public void returns_unauthorised()
         {
-            Assert.AreEqual(HttpStatusCode.Unauthorized, _response.StatusCode);
+            Assert.Equal(HttpStatusCode.Unauthorized, _response.StatusCode);
         }
     }
 
-    [TestFixture, Category("LongRunning")]
-    class when_creating_a_duplicate_subscription : with_admin_user
+    public class when_creating_a_duplicate_subscription : with_admin_user
     {
         private HttpWebResponse _response;
 
         protected override void Given()
         {
-            _response = MakeJsonPut(
+            var response = MakeJsonPut(
                 "/subscriptions/stream/groupname453",
                 new
                 {
                     ResolveLinkTos = true
                 }, _admin);
+            Fixture.AddStashedValueAssignment(this, instance => instance._response = response);
         }
 
         protected override void When()
         {
-            _response = MakeJsonPut(
+            var response = MakeJsonPut(
                 "/subscriptions/stream/groupname453",
                 new
                 {
                     ResolveLinkTos = true
                 }, _admin);
+            Fixture.AddStashedValueAssignment(this, instance => instance._response = response);
         }
 
-        [Test]
+        [Fact]
+        [Trait("Category", "LongRunning")]
         public void returns_conflict()
         {
-            Assert.AreEqual(HttpStatusCode.Conflict, _response.StatusCode);
+            Assert.Equal(HttpStatusCode.Conflict, _response.StatusCode);
         }
     }
 
-    [TestFixture, Category("LongRunning")]
-    class when_creating_a_subscription_with_bad_config : with_admin_user
+    
+    public class when_creating_a_subscription_with_bad_config : with_admin_user
     {
         protected List<object> Events;
         protected string SubscriptionPath;
@@ -106,7 +112,7 @@ namespace EventStore.Core.Tests.Http.PersistentSubscription
 
         protected override void Given()
         {
-            Events = new List<object>
+            var events = new List<object>
             {
                 new {EventId = Guid.NewGuid(), EventType = "event-type", Data = new {A = "1"}},
                 new {EventId = Guid.NewGuid(), EventType = "event-type", Data = new {B = "2"}},
@@ -114,19 +120,23 @@ namespace EventStore.Core.Tests.Http.PersistentSubscription
                 new {EventId = Guid.NewGuid(), EventType = "event-type", Data = new {D = "4"}}
             };
 
-            Response = MakeArrayEventsPost(
+            var response = MakeArrayEventsPost(
                          TestStream,
-                         Events,
+                         events,
                          _admin);
-            Assert.AreEqual(HttpStatusCode.Created, Response.StatusCode);
+            Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+            Fixture.AddStashedValueAssignment(this, instance =>
+            {
+                instance.Events = events;
+                instance.Response = response;
+            });
         }
 
         protected override void When()
         {
-
-            GroupName = Guid.NewGuid().ToString();
-            SubscriptionPath = string.Format("/subscriptions/{0}/{1}", TestStream.Substring(9), GroupName);
-            Response = MakeJsonPut(SubscriptionPath,
+            var groupName = Guid.NewGuid().ToString();
+            var subscriptionPath = string.Format("/subscriptions/{0}/{1}", TestStream.Substring(9), groupName);
+            var response = MakeJsonPut(subscriptionPath,
                 new
                 {
                     ResolveLinkTos = true,
@@ -134,12 +144,18 @@ namespace EventStore.Core.Tests.Http.PersistentSubscription
                     ReadBatchSize = 11
                 },
                 _admin);
+            Fixture.AddStashedValueAssignment(this, instance =>
+            {
+                instance.GroupName =groupName;
+                instance.SubscriptionPath = subscriptionPath;
+                instance.Response = response;
+            });
         }
 
-        [Test]
+        [Fact]
         public void returns_bad_request()
         {
-            Assert.AreEqual(HttpStatusCode.BadRequest, Response.StatusCode);
+            Assert.Equal(HttpStatusCode.BadRequest, Response.StatusCode);
         }
     }
 }

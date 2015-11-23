@@ -1,52 +1,58 @@
 using System;
 using EventStore.Core.TransactionLog.Chunks.TFChunk;
 using EventStore.Core.TransactionLog.LogRecords;
-using NUnit.Framework;
+using Xunit;
 
 namespace EventStore.Core.Tests.TransactionLog
 {
-    [TestFixture]
-    public class when_opening_existing_tfchunk: SpecificationWithFilePerTestFixture
+    public class when_opening_existing_tfchunk : IUseFixture<when_opening_existing_tfchunk.FixtureData> 
     {
-        private TFChunk _chunk;
         private TFChunk _testChunk;
 
-        [TestFixtureSetUp]
-        public override void TestFixtureSetUp()
+        public class FixtureData : SpecificationWithFilePerTestFixture
         {
-            base.TestFixtureSetUp();
-            _chunk = TFChunk.CreateNew(Filename, 4096, 0, 0, false);
-            _chunk.Complete();
-            _testChunk = TFChunk.FromCompletedFile(Filename, verifyHash: true);
+            private readonly TFChunk _chunk;
+            public readonly TFChunk _testChunk;
+
+            public FixtureData()
+            {
+                _chunk = TFChunk.CreateNew(Filename, 4096, 0, 0, false);
+                _chunk.Complete();
+                _testChunk = TFChunk.FromCompletedFile(Filename, verifyHash: true);
+            }
+
+            public override void Dispose()
+            {
+                _chunk.Dispose();
+                _testChunk.Dispose();
+                base.Dispose();
+            }
         }
 
-        [TearDown]
-        public override void TestFixtureTearDown()
+        public void SetFixture(FixtureData data)
         {
-            _chunk.Dispose();
-            _testChunk.Dispose();
-            base.TestFixtureTearDown();
+            _testChunk = data._testChunk;
         }
 
-        [Test]
+        [Fact]
         public void the_chunk_is_not_cached()
         {
-            Assert.IsFalse(_testChunk.IsCached);
+            Assert.False(_testChunk.IsCached);
         }
 
-        [Test]
+        [Fact]
         public void the_chunk_is_readonly()
         {
-            Assert.IsTrue(_testChunk.IsReadOnly);
+            Assert.True(_testChunk.IsReadOnly);
         }
 
-        [Test]
+        [Fact]
         public void append_throws_invalid_operation_exception()
         {
             Assert.Throws<InvalidOperationException>(() => _testChunk.TryAppend(new CommitLogRecord(0, Guid.NewGuid(), 0, DateTime.UtcNow, 0)));
         }
 
-        [Test]
+        [Fact]
         public void flush_throws_invalid_operation_exception()
         {
             Assert.Throws<InvalidOperationException>(() => _testChunk.Flush());

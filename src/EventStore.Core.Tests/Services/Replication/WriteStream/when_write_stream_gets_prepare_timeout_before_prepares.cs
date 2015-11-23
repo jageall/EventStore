@@ -6,11 +6,10 @@ using EventStore.Core.Messaging;
 using EventStore.Core.Services.RequestManager.Managers;
 using EventStore.Core.Tests.Fakes;
 using EventStore.Core.Tests.Helpers;
-using NUnit.Framework;
+using Xunit;
 
 namespace EventStore.Core.Tests.Services.Replication.WriteStream
 {
-    [TestFixture, Ignore("WriteStream operation is not 2-phase now, it does not expect PrepareAck anymore.")]
     public class when_write_stream_gets_prepare_timeout_before_prepares : RequestManagerSpecification
     {
         protected override TwoPhaseRequestManagerBase OnManager(FakePublisher publisher)
@@ -28,17 +27,17 @@ namespace EventStore.Core.Tests.Services.Replication.WriteStream
             return new StorageMessage.RequestManagerTimerTick(DateTime.UtcNow + PrepareTimeout + TimeSpan.FromMinutes(1));
         }
 
-        [Test]
+        [Fact(Skip = "WriteStream operation is not 2-phase now, it does not expect PrepareAck anymore.")]
         public void failed_request_message_is_published()
         {
-            Assert.That(Produced.ContainsSingle<StorageMessage.RequestCompleted>(
+            Assert.True(Produced.ContainsSingle<StorageMessage.RequestCompleted>(
                 x => x.CorrelationId == InternalCorrId && x.Success == false));
         }
 
-        [Test]
+        [Fact(Skip = "WriteStream operation is not 2-phase now, it does not expect PrepareAck anymore.")]
         public void the_envelope_is_replied_to_with_failure()
         {
-            Assert.That(Envelope.Replies.ContainsSingle<ClientMessage.WriteEventsCompleted>(
+            Assert.True(Envelope.Replies.ContainsSingle<ClientMessage.WriteEventsCompleted>(
                 x => x.CorrelationId == ClientCorrId && x.Result == OperationResult.PrepareTimeout));
         }
     }

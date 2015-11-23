@@ -5,11 +5,10 @@ using EventStore.Core.Messaging;
 using EventStore.Core.Services.RequestManager.Managers;
 using EventStore.Core.Tests.Fakes;
 using EventStore.Core.Tests.Helpers;
-using NUnit.Framework;
+using Xunit;
 
 namespace EventStore.Core.Tests.Services.Replication.TransactionCommit
 {
-    [TestFixture]
     public class when_transaction_commit_gets_prepare_timeout_before_prepares : RequestManagerSpecification
     {
         protected override TwoPhaseRequestManagerBase OnManager(FakePublisher publisher)
@@ -27,17 +26,17 @@ namespace EventStore.Core.Tests.Services.Replication.TransactionCommit
             return new StorageMessage.RequestManagerTimerTick(DateTime.UtcNow + PrepareTimeout + TimeSpan.FromMinutes(5));
         }
 
-        [Test]
+        [Fact]
         public void failed_request_message_is_published()
         {
-            Assert.That(Produced.ContainsSingle<StorageMessage.RequestCompleted>(
+            Assert.True(Produced.ContainsSingle<StorageMessage.RequestCompleted>(
                 x => x.CorrelationId == InternalCorrId && x.Success == false));
         }
 
-        [Test]
+        [Fact]
         public void the_envelope_is_replied_to_with_failure()
         {
-            Assert.That(Envelope.Replies.ContainsSingle<ClientMessage.TransactionCommitCompleted>(
+            Assert.True(Envelope.Replies.ContainsSingle<ClientMessage.TransactionCommitCompleted>(
                 x => x.CorrelationId == ClientCorrId && x.Result == OperationResult.PrepareTimeout));
         }
     }

@@ -1,16 +1,15 @@
 using System;
 using System.Linq;
-using NUnit.Framework;
+using Xunit;
+using Xunit.Extensions;
 
 namespace EventStore.Core.Tests.Services.ElectionsService.Randomized
 {
-    [TestFixture]
     public class elections_service_5_nodes_full_gossip_no_http_loss_no_dup
     {
         private RandomizedElectionsTestCase _randomCase;
 
-        [SetUp]
-        public void SetUp()
+        public elections_service_5_nodes_full_gossip_no_http_loss_no_dup()
         {
             _randomCase = new RandomizedElectionsTestCase(ElectionParams.MaxIterationCount,
                                                           instancesCnt: 5,
@@ -22,8 +21,12 @@ namespace EventStore.Core.Tests.Services.ElectionsService.Randomized
             _randomCase.Init();
         }
 
-        [Test, Category("LongRunning"), Category("Network"), Explicit]
-        public void should_always_arrive_at_coherent_results([Range(0, ElectionParams.TestRunCount - 1)]int run)
+        [Theory]
+        [Trait("Category", "LongRunning")]
+        [Trait("Category", "Network")]
+        [Trait("Category", "Explicit")]
+        [PropertyData("TestRuns", PropertyType = typeof(ElectionParams))]
+        public void should_always_arrive_at_coherent_results(int run)
         {
             var success = _randomCase.Run();
             if (!success)
@@ -32,8 +35,11 @@ namespace EventStore.Core.Tests.Services.ElectionsService.Randomized
             Assert.True(success);
         }
 
-        [Test, Category("LongRunning"), Category("Network")]
-        public void should_always_arrive_at_coherent_results2([Range(0, 9)]int run)
+        [Theory]
+        [Trait("Category", "LongRunning")]
+        [Trait("Category", "Network")]
+        [PropertyData("TenRuns", PropertyType = typeof(ElectionParams))]
+        public void should_always_arrive_at_coherent_results2(int run)
         {
             var success = _randomCase.Run();
             if (!success)

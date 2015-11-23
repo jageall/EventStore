@@ -3,11 +3,11 @@ using System.Linq;
 using EventStore.Core.Messages;
 using EventStore.Projections.Core.Services.Processing;
 using EventStore.Projections.Core.Tests.Services.core_projection;
-using NUnit.Framework;
+using Xunit;
 
 namespace EventStore.Projections.Core.Tests.Services.emitted_stream
 {
-    [TestFixture]
+    
     public class when_handling_an_emit_the_not_started_stream : TestFixtureWithExistingEvents
     {
         private EmittedStream _stream;
@@ -20,8 +20,7 @@ namespace EventStore.Projections.Core.Tests.Services.emitted_stream
             NoStream("test");
         }
 
-        [SetUp]
-        public void setup()
+        public when_handling_an_emit_the_not_started_stream()
         {
             _readyHandler = new TestCheckpointManagerMessageHandler();
             ;
@@ -36,17 +35,17 @@ namespace EventStore.Projections.Core.Tests.Services.emitted_stream
                 });
         }
 
-        [Test]
+        [Fact]
         public void does_not_publish_write_events()
         {
-            Assert.AreEqual(0, _consumer.HandledMessages.OfType<ClientMessage.WriteEvents>().Count());
+            Assert.Equal(0, _consumer.HandledMessages.OfType<ClientMessage.WriteEvents>().Count());
         }
 
-        [Test]
+        [Fact]
         public void publishes_write_events_when_started()
         {
             _stream.Start();
-            Assert.AreEqual(1, _consumer.HandledMessages.OfType<ClientMessage.WriteEvents>().Count());
+            Assert.Equal(1, _consumer.HandledMessages.OfType<ClientMessage.WriteEvents>().Count());
         }
     }
 }

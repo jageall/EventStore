@@ -3,28 +3,17 @@ using EventStore.ClientAPI;
 using EventStore.ClientAPI.Exceptions;
 using EventStore.Core.Tests.ClientAPI.Helpers;
 using EventStore.Core.Tests.Helpers;
-using NUnit.Framework;
+using Xunit;
 
 namespace EventStore.Core.Tests.ClientAPI
 {
-    [TestFixture, Category("LongRunning")]
-    public class deleting_stream : SpecificationWithDirectoryPerTestFixture
+    public class deleting_stream : IUseFixture<MiniNodeFixture>
     {
         private MiniNode _node;
 
-        [TestFixtureSetUp]
-        public override void TestFixtureSetUp()
+        public void SetFixture(MiniNodeFixture data)
         {
-            base.TestFixtureSetUp();
-            _node = new MiniNode(PathName);
-            _node.Start();
-        }
-
-        [TestFixtureTearDown]
-        public override void TestFixtureTearDown()
-        {
-            _node.Shutdown();
-            base.TestFixtureTearDown();
+            _node = data.Node;
         }
 
         virtual protected IEventStoreConnection BuildConnection(MiniNode node)
@@ -32,8 +21,9 @@ namespace EventStore.Core.Tests.ClientAPI
             return TestConnection.Create(node.TcpEndPoint);
         }
 
-        [Test]
-        [Category("Network")]
+        [Fact]
+        [Trait("Category", "Network")]
+        [Trait("Category", "LongRunning")]
         public void which_doesnt_exists_should_success_when_passed_empty_stream_expected_version()
         {
             const string stream = "which_already_exists_should_success_when_passed_empty_stream_expected_version";
@@ -45,8 +35,9 @@ namespace EventStore.Core.Tests.ClientAPI
             }
         }
 
-        [Test]
-        [Category("Network")]
+        [Fact]
+        [Trait("Category", "Network")]
+        [Trait("Category", "LongRunning")]
         public void which_doesnt_exists_should_success_when_passed_any_for_expected_version()
         {
             const string stream = "which_already_exists_should_success_when_passed_any_for_expected_version";
@@ -59,20 +50,25 @@ namespace EventStore.Core.Tests.ClientAPI
             }
         }
 
-        [Test]
-        [Category("Network")]
+        [Fact]
+        [Trait("Category", "Network")]
+        [Trait("Category", "LongRunning")]
         public void with_invalid_expected_version_should_fail()
         {
             const string stream = "with_invalid_expected_version_should_fail";
-                        using (var connection = BuildConnection(_node))
+            using (var connection = BuildConnection(_node))
             {
                 connection.ConnectAsync().Wait();
 
                 var delete = connection.DeleteStreamAsync(stream, 1, hardDelete: true);
-                Assert.That(() => delete.Wait(), Throws.Exception.TypeOf<AggregateException>().With.InnerException.TypeOf<WrongExpectedVersionException>());
+                var thrown = Assert.Throws<AggregateException>(() => delete.Wait());
+                Assert.IsType<WrongExpectedVersionException>(thrown.InnerException);
             }
         }
 
+        [Fact]
+        [Trait("Category", "Network")]
+        [Trait("Category", "LongRunning")]
         public void should_return_log_position_when_writing()
         {
             const string stream = "delete_should_return_log_position_when_writing";
@@ -81,15 +77,16 @@ namespace EventStore.Core.Tests.ClientAPI
                 connection.ConnectAsync().Wait();
 
                 var result = connection.AppendToStreamAsync(stream, ExpectedVersion.EmptyStream, TestEvent.NewTestEvent()).Result;
-                var delete = connection.DeleteStreamAsync(stream, 1, hardDelete: true).Result;
+                var delete = connection.DeleteStreamAsync(stream, 0, hardDelete: true).Result;
                 
-                Assert.IsTrue(0 < result.LogPosition.PreparePosition);
-                Assert.IsTrue(0 < result.LogPosition.CommitPosition);
+                Assert.True(0 < result.LogPosition.PreparePosition);
+                Assert.True(0 < result.LogPosition.CommitPosition);
             }
         }
 
-        [Test]
-        [Category("Network")]
+        [Fact]
+        [Trait("Category", "Network")]
+        [Trait("Category", "LongRunning")]
         public void which_was_already_deleted_should_fail()
         {
             const string stream = "which_was_allready_deleted_should_fail";
@@ -101,7 +98,8 @@ namespace EventStore.Core.Tests.ClientAPI
                 Assert.DoesNotThrow(delete.Wait);
 
                 var secondDelete = connection.DeleteStreamAsync(stream, ExpectedVersion.Any, hardDelete: true);
-                Assert.That(() => secondDelete.Wait(), Throws.Exception.TypeOf<AggregateException>().With.InnerException.TypeOf<StreamDeletedException>());
+                var thrown = Assert.Throws<AggregateException>(() => secondDelete.Wait());
+                Assert.IsType<StreamDeletedException>(thrown.InnerException);
             }
         }
     }

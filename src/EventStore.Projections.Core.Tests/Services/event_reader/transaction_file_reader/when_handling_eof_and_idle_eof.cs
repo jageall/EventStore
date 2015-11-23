@@ -8,11 +8,11 @@ using EventStore.Core.TransactionLog.LogRecords;
 using EventStore.Projections.Core.Messages;
 using EventStore.Projections.Core.Services.Processing;
 using EventStore.Projections.Core.Tests.Services.core_projection;
-using NUnit.Framework;
+using Xunit;
 
 namespace EventStore.Projections.Core.Tests.Services.event_reader.transaction_file_reader
 {
-    [TestFixture]
+    
     public class when_handling_eof_and_idle_eof : TestFixtureWithExistingEvents
     {
         private TransactionFileEventReader _edp;
@@ -27,10 +27,8 @@ namespace EventStore.Projections.Core.Tests.Services.event_reader.transaction_fi
 
         private FakeTimeProvider _fakeTimeProvider;
 
-        [SetUp]
-        public new void When()
+        public when_handling_eof_and_idle_eof()
         {
-
             _distibutionPointCorrelationId = Guid.NewGuid();
             _fakeTimeProvider = new FakeTimeProvider();
             _edp = new TransactionFileEventReader(_bus, _distibutionPointCorrelationId, null, new TFPos(100, 50), _fakeTimeProvider,
@@ -69,10 +67,10 @@ namespace EventStore.Projections.Core.Tests.Services.event_reader.transaction_fi
                     new EventStore.Core.Data.ResolvedEvent[0], null, false, 100, new TFPos(), new TFPos(), new TFPos(), 500));
         }
 
-        [Test]
+        [Fact]
         public void publishes_event_distribution_idle_messages()
         {
-            Assert.AreEqual(
+            Assert.Equal(
                 2, _consumer.HandledMessages.OfType<ReaderSubscriptionMessage.EventReaderIdle>().Count());
             var first =
                 _consumer.HandledMessages.OfType<ReaderSubscriptionMessage.EventReaderIdle>().First();
@@ -81,10 +79,10 @@ namespace EventStore.Projections.Core.Tests.Services.event_reader.transaction_fi
                          .Skip(1)
                          .First();
 
-            Assert.AreEqual(first.CorrelationId, _distibutionPointCorrelationId);
-            Assert.AreEqual(second.CorrelationId, _distibutionPointCorrelationId);
+            Assert.Equal(first.CorrelationId, _distibutionPointCorrelationId);
+            Assert.Equal(second.CorrelationId, _distibutionPointCorrelationId);
 
-            Assert.AreEqual(TimeSpan.FromMilliseconds(500), second.IdleTimestampUtc - first.IdleTimestampUtc);
+            Assert.Equal(TimeSpan.FromMilliseconds(500), second.IdleTimestampUtc - first.IdleTimestampUtc);
         }
 
     }

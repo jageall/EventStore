@@ -1,17 +1,16 @@
 using System;
 using EventStore.Projections.Core.Services.Processing;
-using NUnit.Framework;
+using Xunit;
 
 namespace EventStore.Projections.Core.Tests.Services.core_projection.projection_checkpoint
 {
-    [TestFixture]
+    
     public class the_non_started_checkpoint : TestFixtureWithExistingEvents
     {
         private ProjectionCheckpoint _checkpoint;
         private TestCheckpointManagerMessageHandler _readyHandler;
 
-        [SetUp]
-        public void setup()
+        public the_non_started_checkpoint()
         {
             _readyHandler = new TestCheckpointManagerMessageHandler();
             _checkpoint = new ProjectionCheckpoint(
@@ -19,10 +18,11 @@ namespace EventStore.Projections.Core.Tests.Services.core_projection.projection_
                 CheckpointTag.FromPosition(0, 100, 50), new TransactionFilePositionTagger(0), 250);
         }
 
-        [Test, ExpectedException(typeof (InvalidOperationException))]
+        [Fact]
         public void prepare_throws_invalid_operation_exception()
         {
-            _checkpoint.Prepare(CheckpointTag.FromPosition(0, 200, 150));
+            Assert.Throws<InvalidOperationException>(() =>
+                _checkpoint.Prepare(CheckpointTag.FromPosition(0, 200, 150)));
         }
     }
 }

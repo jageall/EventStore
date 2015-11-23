@@ -2,12 +2,12 @@
 using EventStore.Projections.Core.Messages;
 using EventStore.Projections.Core.Messages.Persisted.Commands;
 using EventStore.Projections.Core.Services.Processing;
-using NUnit.Framework;
+using Xunit;
 
 namespace EventStore.Projections.Core.Tests.Services.projections_manager.command_writer
 {
-    [TestFixture]
-    class when_handling_get_result_message : specification_with_projection_manager_command_writer
+
+    public class when_handling_get_result_message : specification_with_projection_manager_command_writer
     {
         private Guid _projectionId;
         private Guid _correlationId;
@@ -28,15 +28,15 @@ namespace EventStore.Projections.Core.Tests.Services.projections_manager.command
                 new CoreProjectionManagementMessage.GetResult(_correlationId, _projectionId, _partition, _workerId));
         }
 
-        [Test]
+        [Fact]
         public void publishes_get_state_command()
         {
             var command = AssertParsedSingleCommand<GetResultCommand>(
                 "$get-result",
                 _workerId);
-            Assert.AreEqual(_projectionId.ToString("N"), command.Id);
-            Assert.AreEqual(_correlationId.ToString("N"), command.CorrelationId);
-            Assert.AreEqual(_partition, command.Partition);
+            Assert.Equal(_projectionId.ToString("N"), command.Id);
+            Assert.Equal(_correlationId.ToString("N"), command.CorrelationId);
+            Assert.Equal(_partition, command.Partition);
         }
 
     }

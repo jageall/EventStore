@@ -2,11 +2,10 @@
 using System.Text;
 using EventStore.ClientAPI;
 using EventStore.ClientAPI.Exceptions;
-using NUnit.Framework;
+using Xunit;
 
 namespace EventStore.Core.Tests.ClientAPI
 {
-    [TestFixture, Category("LongRunning")]
     public class create_persistent_subscription_on_existing_stream : SpecificationWithMiniNode
     {
         private readonly string _stream = Guid.NewGuid().ToString();
@@ -21,7 +20,8 @@ namespace EventStore.Core.Tests.ClientAPI
                 new EventData(Guid.NewGuid(), "whatever", true, Encoding.UTF8.GetBytes("{'foo' : 2}"), new Byte[0]));
         }
 
-        [Test]
+        [Fact]
+        [Trait("Category", "LongRunning")]
         public void the_completion_succeeds()
         {
             Assert.DoesNotThrow(
@@ -31,8 +31,6 @@ namespace EventStore.Core.Tests.ClientAPI
         }
     }
 
-
-    [TestFixture, Category("LongRunning")]
     public class create_persistent_subscription_on_non_existing_stream : SpecificationWithMiniNode
     {
         private readonly string _stream = Guid.NewGuid().ToString();
@@ -44,14 +42,14 @@ namespace EventStore.Core.Tests.ClientAPI
             
         }
 
-        [Test]
+        [Fact]
+        [Trait("Category", "LongRunning")]
         public void the_completion_succeeds()
         {
             Assert.DoesNotThrow(() => _conn.CreatePersistentSubscriptionAsync(_stream, "nonexistinggroup", _settings, DefaultData.AdminCredentials).Wait());
         }
     }
 
-    [TestFixture, Category("LongRunning")]
     public class create_duplicate_persistent_subscription_group : SpecificationWithMiniNode
     {
         private readonly string _stream = Guid.NewGuid().ToString();
@@ -63,7 +61,8 @@ namespace EventStore.Core.Tests.ClientAPI
             _conn.CreatePersistentSubscriptionAsync(_stream, "group32", _settings, DefaultData.AdminCredentials).Wait();
         }
 
-        [Test]
+        [Fact]
+        [Trait("Category", "LongRunning")]
         public void the_completion_fails_with_invalid_operation_exception()
         {
 
@@ -74,14 +73,13 @@ namespace EventStore.Core.Tests.ClientAPI
             }
             catch (Exception ex)
             {
-                Assert.IsInstanceOf(typeof(AggregateException), ex);
+                Assert.IsType<AggregateException>(ex);
                 var inner = ex.InnerException;
-                Assert.IsInstanceOf(typeof(InvalidOperationException), inner);
+                Assert.IsType<InvalidOperationException>(inner);
             }
         }
     }
 
-    [TestFixture, Category("LongRunning")]
     public class can_create_duplicate_persistent_subscription_group_name_on_different_streams : SpecificationWithMiniNode
     {
         private readonly string _stream = Guid.NewGuid().ToString();
@@ -94,14 +92,14 @@ namespace EventStore.Core.Tests.ClientAPI
             
         }
 
-        [Test]
+        [Fact]
+        [Trait("Category", "LongRunning")]
         public void the_completion_succeeds()
         {
             Assert.DoesNotThrow(() => _conn.CreatePersistentSubscriptionAsync("someother" + _stream, "group3211", _settings, DefaultData.AdminCredentials).Wait());
         }
     }
 
-    [TestFixture, Category("LongRunning")]
     public class create_persistent_subscription_group_without_permissions : SpecificationWithMiniNode
     {
         private readonly string _stream = Guid.NewGuid().ToString();
@@ -112,7 +110,8 @@ namespace EventStore.Core.Tests.ClientAPI
         {
         }
 
-        [Test]
+        [Fact]
+        [Trait("Category", "LongRunning")]
         public void the_completion_succeeds()
         {
             try
@@ -122,15 +121,14 @@ namespace EventStore.Core.Tests.ClientAPI
             }
             catch (Exception ex)
             {
-                Assert.IsInstanceOf(typeof(AggregateException), ex);
+                Assert.IsType<AggregateException>(ex);
                 var inner = ex.InnerException;
-                Assert.IsInstanceOf(typeof(AccessDeniedException), inner);
+                Assert.IsType<AccessDeniedException>(inner);
             }
         }
     }
 
 
-    [TestFixture, Category("LongRunning")]
     public class create_persistent_subscription_after_deleting_the_same : SpecificationWithMiniNode
     {
         private readonly string _stream = Guid.NewGuid().ToString();
@@ -146,7 +144,8 @@ namespace EventStore.Core.Tests.ClientAPI
             
         }
 
-        [Test]
+        [Fact]
+        [Trait("Category", "LongRunning")]
         public void the_completion_succeeds()
         {
             Assert.DoesNotThrow(() => _conn.CreatePersistentSubscriptionAsync(_stream, "existing", _settings, DefaultData.AdminCredentials).Wait());
@@ -169,10 +168,10 @@ namespace EventStore.Core.Tests.ClientAPI
             _result = _conn.CreatePersistentSubscriptionForAllAsync("group", _settings, DefaultData.AdminCredentials).Result;
         }
 
-        [Test]
+        [Fact]
         public void the_completion_succeeds()
         {
-            Assert.AreEqual(PersistentSubscriptionCreateStatus.Success, _result.Status);
+            Assert.Equal(PersistentSubscriptionCreateStatus.Success, _result.Status);
         }
     }
 
@@ -188,7 +187,7 @@ namespace EventStore.Core.Tests.ClientAPI
             _conn.CreatePersistentSubscriptionForAllAsync("group32", _settings, DefaultData.AdminCredentials).Wait();
         }
 
-        [Test]
+        [Fact]
         public void the_completion_fails_with_invalid_operation_exception()
         {
             try
@@ -198,9 +197,9 @@ namespace EventStore.Core.Tests.ClientAPI
             }
             catch (Exception ex)
             {
-                Assert.IsInstanceOf(typeof(AggregateException), ex);
+                Assert.IsType(typeof(AggregateException), ex);
                 var inner = ex.InnerException;
-                Assert.IsInstanceOf(typeof(InvalidOperationException), inner);
+                Assert.IsType(typeof(InvalidOperationException), inner);
             }
         }
     }
@@ -215,7 +214,7 @@ namespace EventStore.Core.Tests.ClientAPI
         {
         }
 
-        [Test]
+        [Fact]
         public void the_completion_succeeds()
         {
             try
@@ -225,9 +224,9 @@ namespace EventStore.Core.Tests.ClientAPI
             }
             catch (Exception ex)
             {
-                Assert.IsInstanceOf(typeof(AggregateException), ex);
+                Assert.IsType(typeof(AggregateException), ex);
                 var inner = ex.InnerException;
-                Assert.IsInstanceOf(typeof(AccessDeniedException), inner);
+                Assert.IsType(typeof(AccessDeniedException), inner);
             }
         }
     }
