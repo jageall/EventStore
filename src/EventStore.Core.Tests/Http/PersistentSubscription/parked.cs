@@ -26,8 +26,8 @@ namespace EventStore.Core.Tests.Http.PersistentSubscription
         {
             NumberOfEventsToCreate = 1;
             base.Given();
-            var json = GetJson<JObject>(
-               SubscriptionPath + "/1?embed=rich",
+            var json = GetJson2<JObject>(
+               SubscriptionPath + "/1", "embed=rich",
                ContentType.CompetingJson,
                _admin);
             Assert.Equal(HttpStatusCode.OK, LastResponse.StatusCode);
@@ -84,8 +84,8 @@ namespace EventStore.Core.Tests.Http.PersistentSubscription
             NumberOfEventsToCreate = 1;
             base.Given();
 
-            var json = GetJson<JObject>(
-               SubscriptionPath + "/1?embed=rich",
+            var json = GetJson2<JObject>(
+               SubscriptionPath + "/1", "embed=rich",
                ContentType.CompetingJson,
                _admin);
 

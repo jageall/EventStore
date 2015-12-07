@@ -132,13 +132,19 @@ namespace EventStore.Core.Tests.Http.PersistentSubscription
 
             var groupName = Guid.NewGuid().ToString();
             var subscriptionPath = SubscriptionPath = string.Format("/subscriptions/{0}/{1}", TestStream.Substring(9), groupName);
-            response = MakeJsonPut(subscriptionPath,
+            response = MakeJsonPut(SubscriptionPath,
                 new
                 {
                     ResolveLinkTos = true,
                     MessageTimeoutMilliseconds = 10000
                 },
                 _admin);
+            Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+
+            response = MakeArrayEventsPost(
+                         TestStream,
+                         events,
+                         _admin);
             Assert.Equal(HttpStatusCode.Created, response.StatusCode);
 
             //pull all events out.

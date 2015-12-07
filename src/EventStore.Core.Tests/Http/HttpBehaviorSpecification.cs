@@ -327,6 +327,25 @@ namespace EventStore.Core.Tests.Http
             }
         }
 
+        protected T GetJsonWithoutAcceptHeader<T>(string path)
+        {
+            var request = CreateRequest(path, "", "GET", null);
+            Fixture.LastResponse = GetRequestResponse(request);
+            var memoryStream = new MemoryStream();
+            Fixture.LastResponse.GetResponseStream().CopyTo(memoryStream);
+            var bytes = memoryStream.ToArray();
+            Fixture.LastResponseBody = Helper.UTF8NoBom.GetString(bytes);
+            try
+            {
+                return Fixture.LastResponseBody.ParseJson<T>();
+            }
+            catch (JsonException ex)
+            {
+                Fixture.LastJsonException = ex;
+                return default(T);
+            }
+        }
+
         protected void Get(string path, string extra, string accept = null, ICredentials credentials = null)
         {
             var request = CreateRequest(path, extra, "GET", null, credentials);

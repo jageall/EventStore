@@ -182,15 +182,17 @@ namespace EventStore.Core.Tests.Http.PersistentSubscription
         [Fact][Trait("Category", "LongRunning")]
         public void the_ackAll_link_is_to_correct_uri()
         {
-            var ackAllLink = String.Format("subscriptions/{0}/{1}/ack?ids={2}", TestStreamName, SubscriptionGroupName, String.Join(",", _eventIds.ToArray()));
-            Assert.Equal(MakeUrl(ackAllLink).ToString(), GetLink(_feed, "ackAll"));
+            var ids = String.Format("ids={0}", String.Join(",", _eventIds.ToArray()));
+            var ackAllLink = String.Format("subscriptions/{0}/{1}/ack", TestStreamName, SubscriptionGroupName);
+            Assert.Equal(MakeUrl(ackAllLink, ids).ToString(), GetLink(_feed, "ackAll"));
         }
 
         [Fact][Trait("Category", "LongRunning")]
         public void the_nackAll_link_is_to_correct_uri()
         {
-            var nackAllLink = String.Format("subscriptions/{0}/{1}/nack?ids={2}", TestStreamName, SubscriptionGroupName, String.Join(",", _eventIds.ToArray()));
-            Assert.Equal(MakeUrl(nackAllLink).ToString(), GetLink(_feed, "nackAll"));
+            var ids = String.Format("ids={0}", String.Join(",", _eventIds.ToArray()));
+            var nackAllLink = String.Format("subscriptions/{0}/{1}/nack", TestStreamName, SubscriptionGroupName);
+            Assert.Equal(MakeUrl(nackAllLink, ids).ToString(), GetLink(_feed, "nackAll"));
         }
     }
 
@@ -289,15 +291,18 @@ namespace EventStore.Core.Tests.Http.PersistentSubscription
         [Fact][Trait("Category", "LongRunning")]
         public void the_ackAll_link_is_to_correct_uri()
         {
-            var ackAllLink = String.Format("subscriptions/{0}/{1}/ack?ids={2}", TestStreamName, SubscriptionGroupName, String.Join(",", _eventIds[0]));
-            Assert.Equal(MakeUrl(ackAllLink).ToString(), _document.Element(XDocumentAtomExtensions.AtomNamespace + "feed").GetLink("ackAll"));
+            var ids = String.Format("ids={0}", _eventIds[0]);
+            var ackAllLink = String.Format("subscriptions/{0}/{1}/ack", TestStreamName, SubscriptionGroupName);
+            Assert.Equal(MakeUrl(ackAllLink, ids).ToString(), _document.Element(XDocumentAtomExtensions.AtomNamespace + "feed").GetLink("ackAll"));
+
         }
 
         [Fact][Trait("Category", "LongRunning")]
         public void the_nackAll_link_is_to_correct_uri()
         {
-            var nackAllLink = String.Format("subscriptions/{0}/{1}/nack?ids={2}", TestStreamName, SubscriptionGroupName, String.Join(",", _eventIds[0]));
-            Assert.Equal(MakeUrl(nackAllLink).ToString(), _document.Element(XDocumentAtomExtensions.AtomNamespace + "feed").GetLink("nackAll"));
+            var ids = String.Format("ids={0}", _eventIds[0]);
+            var nackAllLink = String.Format("subscriptions/{0}/{1}/nack", TestStreamName, SubscriptionGroupName);
+            Assert.Equal(MakeUrl(nackAllLink, ids).ToString(), _document.Element(XDocumentAtomExtensions.AtomNamespace + "feed").GetLink("nackAll"));
         }
 
         [Fact][Trait("Category", "LongRunning")]

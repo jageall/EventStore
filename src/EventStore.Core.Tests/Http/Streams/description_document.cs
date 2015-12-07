@@ -23,12 +23,11 @@ namespace EventStore.Core.Tests.Http.Streams
 
         protected override void When()
         {
-            var descriptionDocument = GetJson<JObject>(TestStream, "", null);
+            var descriptionDocument = GetJsonWithoutAcceptHeader<JObject>(TestStream);
             Fixture.AddStashedValueAssignment(this, instance =>
             {
                 instance._descriptionDocument = descriptionDocument;
             });
-
         }
 
         [Fact][Trait("Category", "LongRunning")]
