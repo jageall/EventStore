@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Net.Http;
 using System.Threading;
 using EventStore.Common.Utils;
 using EventStore.Core.Bus;
@@ -13,6 +14,7 @@ using EventStore.Transport.Http;
 using EventStore.Transport.Http.Client;
 using EventStore.Transport.Http.Codecs;
 using NUnit.Framework;
+using HttpMethod = EventStore.Transport.Http.HttpMethod;
 
 namespace EventStore.Core.Tests.Services.Transport.Http
 {
@@ -150,7 +152,7 @@ namespace EventStore.Core.Tests.Services.Transport.Http
             var rnd = new Random();
             var sw = Stopwatch.StartNew();
 
-            var httpClient = new HttpAsyncClient();
+            var httpClient = new HttpClient();
             for (int i = 0; i < iterations; ++i)
             {
                 var route = fakeController.BoundRoutes[rnd.Next(0, fakeController.BoundRoutes.Count)];

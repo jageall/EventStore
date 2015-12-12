@@ -4,6 +4,9 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Text;
 using System.Threading;
 using Newtonsoft.Json.Linq;
 
@@ -23,10 +26,10 @@ namespace esquery
         {
             var ret = new List<string>();
             var current = 0;
-            for (int i = 0; i < n;i++)
+            for (int i = 0; i < n; i++)
             {
                 var next = s.IndexOfAfter(current, char.IsWhiteSpace);
-                if(next < 0) { return null; }
+                if (next < 0) { return null; }
                 ret.Add(s.Substring(current, next - current));
                 current = next + 1;
             }
@@ -64,8 +67,7 @@ namespace esquery
                     default:
                         return new InvalidCommandResult(command);
                 }
-            }
-            catch(Exception ex)
+            } catch (Exception ex)
             {
                 return new ExceptionResult(command, ex);
             }
@@ -73,70 +75,73 @@ namespace esquery
 
         private static Uri PostQuery(Uri baseUri, string query, NetworkCredential credential)
         {
-            
-            var request = WebRequest.Create(baseUri.AbsoluteUri +"projections/transient?enabled=yes");
-            request.Method = "POST";
-            request.ContentType = "application/json";
-            request.ContentLength = query.Length;
-            //TODO take from args
-            request.Credentials = credential;
-            using (var sw = new StreamWriter(request.GetRequestStream()))
+            var request = new HttpRequestMessage(HttpMethod.Post, baseUri.AbsoluteUri + "projections/transient?enabled=yes");
+            request.Content = new StringContent(query, Encoding.UTF8, "application/json");
+
+            var client = CreateClient(credential);
+            var response = client.SendAsync(request).Result;
+            var s = response.Content.ReadAsStringAsync().Result;
+
+            if (response.StatusCode != HttpStatusCode.Created)
             {
-                sw.Write(query);
+                throw new Exception("Query Failed with Status Code: " + response.StatusCode + "\n" + s);
             }
-            using (var response = (HttpWebResponse)request.GetResponse())
+            return response.Headers.Location;
+        }
+
+        public static HttpClient CreateClient(NetworkCredential credential)
+        {
+            var handler = new HttpClientHandler
             {
-                var s = new StreamReader(response.GetResponseStream()).ReadToEnd();
-                
-                if(response.StatusCode != HttpStatusCode.Created)
-                {
-                    throw new Exception("Query Failed with Status Code: " + response.StatusCode + "\n" + s);
-                }
-                return new Uri(response.Headers["Location"]);
-            }
+                PreAuthenticate = true,
+                //TODO take from args
+                Credentials = credential
+            };
+
+            var client = new HttpClient(handler);
+            return client;
         }
 
         private static QueryInformation CheckQueryStatus(Uri toCheck, NetworkCredential credential)
         {
-            var request = (HttpWebRequest) WebRequest.Create(toCheck);
-            request.Method = "GET";
-            request.Accept = "application/json";
             //TODO take from args
-            request.Credentials = credential;
-            using (var response = (HttpWebResponse)request.GetResponse())
+            var client = CreateClient(credential);
+            var request = new HttpRequestMessage(HttpMethod.Get, toCheck);
+            using (var response = client.SendAsync(request).Result)
             {
-                var s = new StreamReader(response.GetResponseStream()).ReadToEnd();
+                var s = response.Content.ReadAsStringAsync().Result;
                 JObject json = JObject.Parse(s);
                 if (response.StatusCode != HttpStatusCode.OK)
                 {
                     throw new Exception("Query Polling Failed with Status Code: " + response.StatusCode + "\n" + s);
                 }
-                var faulted = json["status"].Value<string>().StartsWith( "Faulted");
-                var completed = json["status"].Value<string>().StartsWith("Completed");   
+                var faulted = json["status"].Value<string>().StartsWith("Faulted");
+                var completed = json["status"].Value<string>().StartsWith("Completed");
                 var faultReason = json["stateReason"].Value<string>();
                 var streamurl = json["resultStreamUrl"];
                 var resulturl = json["resultUrl"];
                 var cancelurl = json["disableCommandUrl"];
                 Uri resultstreamuri = null;
-                if(streamurl != null)
+                if (streamurl != null)
                     resultstreamuri = new Uri(streamurl.Value<string>());
                 Uri resulturi = null;
                 if (resulturl != null)
                     resulturi = new Uri(resulturl.Value<string>());
 
                 Uri canceluri = null;
-                if(cancelurl != null)
+                if (cancelurl != null)
                     canceluri = new Uri(cancelurl.Value<string>());
                 var progress = json["progress"].Value<decimal>();
-               
-                return new QueryInformation() {
-                    Faulted = faulted, 
-                    FaultReason = faultReason, 
+
+                return new QueryInformation()
+                {
+                    Faulted = faulted,
+                    FaultReason = faultReason,
                     IsStreamResult = streamurl != null,
                     ResultStreamUrl = resultstreamuri,
-                    ResultUrl = resulturi, 
-                    Progress=progress, 
-                    Completed=completed,
+                    ResultUrl = resulturi,
+                    Progress = progress,
+                    Completed = completed,
                     CancelUri = canceluri
                 };
             }
@@ -153,14 +158,14 @@ namespace esquery
 
         private static Uri GetLast(Uri head, NetworkCredential credential)
         {
-            var request = (HttpWebRequest)WebRequest.Create(head);
-            request.Credentials = credential;
-            request.Accept = "application/vnd.eventstore.atom+json";
+            var client = CreateClient(credential);
+            var request = new HttpRequestMessage(HttpMethod.Get, head);
+            request.Headers.Accept.ParseAdd("application/vnd.eventstore.atom+json");
 
-            using (var response = (HttpWebResponse)request.GetResponse())
+            using (var response = client.SendAsync(request).Result)
             {
 
-                var json = JObject.Parse(new StreamReader(response.GetResponseStream()).ReadToEnd());
+                var json = JObject.Parse(response.Content.ReadAsStringAsync().Result);
                 var last = GetNamedLink(json, "last");
                 return last ?? GetNamedLink(json, "self");
             }
@@ -168,14 +173,15 @@ namespace esquery
 
         private static string GetResult(Uri head, NetworkCredential credential)
         {
-            var request = (HttpWebRequest)WebRequest.Create(head);
-            request.Credentials = credential;
-            request.Accept = "application/json";
+            var request = new HttpRequestMessage(HttpMethod.Get, head);
+            request.Headers.Accept.ParseAdd("application/json");
 
-            using (var response = (HttpWebResponse)request.GetResponse())
+            var client = CreateClient(credential);
+
+            using (var response = client.SendAsync(request).Result)
             {
 
-                var json = JObject.Parse(new StreamReader(response.GetResponseStream()).ReadToEnd());
+                var json = JObject.Parse(response.Content.ReadAsStringAsync().Result);
                 Console.WriteLine("Result: \n\n" + json.ToString());
                 return json.ToString();
             }
@@ -183,27 +189,27 @@ namespace esquery
 
         private static Uri GetPrevFromHead(Uri head, NetworkCredential credential)
         {
-            var request = (HttpWebRequest)WebRequest.Create(head);
-            request.Credentials = credential;
-            request.Accept = "application/vnd.eventstore.atom+json";
+            var client = CreateClient(credential);
+            var request = new HttpRequestMessage(HttpMethod.Get, head);
+            request.Headers.Accept.ParseAdd("application/vnd.eventstore.atom+json");
 
-            using (var response = (HttpWebResponse)request.GetResponse())
+            using (var response = client.SendAsync(request).Result)
             {
 
-                var json = JObject.Parse(new StreamReader(response.GetResponseStream()).ReadToEnd());
+                var json = JObject.Parse(response.Content.ReadAsStringAsync().Result);
                 return GetNamedLink(json, "previous");
             }
         }
 
         static Uri ReadResults(Uri uri, NetworkCredential credential)
         {
-            var request = (HttpWebRequest) WebRequest.Create(new Uri(uri.AbsoluteUri + "?embed=body"));
-            request.Credentials = credential;
-            request.Accept = "application/vnd.eventstore.atom+json";
+            var client = CreateClient(credential);
+            var request = new HttpRequestMessage(HttpMethod.Get, new Uri(uri.AbsoluteUri + "?embed=body"));
+            request.Headers.Accept.ParseAdd("application/vnd.eventstore.atom+json");
             request.Headers.Add("ES-LongPoll", "1"); //add long polling
-            using (var response = request.GetResponse())
+            using (var response = client.SendAsync(request).Result)
             {
-                var json = JObject.Parse(new StreamReader(response.GetResponseStream()).ReadToEnd());
+                var json = JObject.Parse(response.Content.ReadAsStringAsync().Result);
                 if (json["entries"] != null)
                 {
                     foreach (var item in json["entries"])
@@ -212,8 +218,7 @@ namespace esquery
                         if (item["data"] != null)
                         {
                             Console.WriteLine(item["data"].ToString());
-                        }
-                        else
+                        } else
                         {
                             Console.WriteLine(GetData(item, credential));
                         }
@@ -228,19 +233,19 @@ namespace esquery
         {
             var links = item["links"];
             if (links == null) return "unable to get link.";
-            foreach(var c in links)
+            foreach (var c in links)
             {
                 var rel = c["relation"];
                 if (rel == null) continue;
                 var r = rel.Value<string>();
                 if (r.ToLower() == "alternate")
                 {
-                    var request = (HttpWebRequest) WebRequest.Create(new Uri(c["uri"].Value<string>()));
-                    request.Credentials = credential;
-                    request.Accept = "application/json";
-                    using (var response = request.GetResponse())
+                    var client = CreateClient(credential);
+                    var request = new HttpRequestMessage(HttpMethod.Get, new Uri(c["uri"].Value<string>()));
+                    request.Headers.Accept.ParseAdd("application/json");
+                    using (var response = client.SendAsync(request).Result)
                     {
-                        return new StreamReader(response.GetResponseStream()).ReadToEnd();
+                        return response.Content.ReadAsStringAsync().Result;
                     }
                 }
             }
@@ -255,7 +260,7 @@ namespace esquery
                 watch.Start();
                 var toCheck = PostQuery(baseUri, query, credential);
                 var queryInformation = new QueryInformation();
-                if(!piped)
+                if (!piped)
                     Console.WriteLine("Query started. Press esc to cancel.");
                 while (!queryInformation.Completed)
                 {
@@ -281,16 +286,14 @@ namespace esquery
                     var last = GetLast(queryInformation.ResultStreamUrl, credential);
                     last = new Uri(last.OriginalString + "?embed=body");
                     var next = ReadResults(last, credential);
-                    return new QueryResult() {Query = query};
-                }
-                else
+                    return new QueryResult();
+                } else
                 {
                     GetResult(queryInformation.ResultUrl, credential);
-                    return new QueryResult() { Query = query };
-                    
+                    return new QueryResult();
+
                 }
-            }
-            catch(Exception ex)
+            } catch (Exception ex)
             {
                 return new ErrorResult(ex);
             }
@@ -314,8 +317,7 @@ namespace esquery
                         return new SubscriptionCancelledResult();
                     }
                 }
-            }
-            catch(Exception ex)
+            } catch (Exception ex)
             {
                 return new ErrorResult(ex);
             }
@@ -324,28 +326,23 @@ namespace esquery
         private static void Cancel(QueryInformation queryInformation)
         {
             if (queryInformation.CancelUri == null) return;
-            var request = WebRequest.Create(queryInformation.CancelUri);
-            request.Method = "POST";
-            request.ContentLength = 0;
+            var client = new HttpClient();
+            var request = new HttpRequestMessage(HttpMethod.Post, queryInformation.CancelUri);
             
-            using (var response = (HttpWebResponse)request.GetResponse())
-            {}
+            using (var response = client.SendAsync(request).Result)
+            { }
         }
 
         private static AppendResult Append(Uri baseUri, string stream, string eventType, string data)
         {
-            var message = "[{'eventType':'" + eventType + "', 'eventId' :'" + Guid.NewGuid() + "', 'data' : " + data +"}]";
-            var request = WebRequest.Create(baseUri.AbsoluteUri + "streams/" + stream);
-            request.Method = "POST";
-            request.ContentType = "application/vnd.eventstore.events+json";
-            request.ContentLength = message.Length;
-            using (var sw = new StreamWriter(request.GetRequestStream()))
+            var message = "[{'eventType':'" + eventType + "', 'eventId' :'" + Guid.NewGuid() + "', 'data' : " + data + "}]";
+            var client = new HttpClient();
+            var request = new HttpRequestMessage(HttpMethod.Post, baseUri.AbsoluteUri + "streams/" + stream);
+            request.Content = new StringContent(message, Encoding.UTF8, "application/vnd.eventstore.events+json");
+            
+            using (var response = client.SendAsync(request).Result)
             {
-                sw.Write(message);
-            }
-            using (var response = (HttpWebResponse) request.GetResponse())
-            {
-                return new AppendResult() {StatusCode = response.StatusCode};
+                return new AppendResult() { StatusCode = response.StatusCode };
             }
         }
 
@@ -365,8 +362,6 @@ namespace esquery
 
         private class QueryResult
         {
-            public string Query;
-
             public override string ToString()
             {
                 return "Query Completed";
@@ -419,7 +414,7 @@ namespace esquery
         public Uri ResultStreamUrl;
     }
 
-    class ErrorResult 
+    class ErrorResult
     {
         private Exception _exception;
 

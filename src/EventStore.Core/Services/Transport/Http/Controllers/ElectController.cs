@@ -1,5 +1,6 @@
 using System;
 using System.Net;
+using System.Net.Http;
 using EventStore.Common.Log;
 using EventStore.Common.Utils;
 using EventStore.Core.Bus;
@@ -9,6 +10,7 @@ using EventStore.Transport.Http;
 using EventStore.Transport.Http.Client;
 using EventStore.Transport.Http.Codecs;
 using EventStore.Transport.Http.EntityManagement;
+using HttpMethod = EventStore.Transport.Http.HttpMethod;
 
 namespace EventStore.Core.Services.Transport.Http.Controllers
 {
@@ -24,7 +26,7 @@ namespace EventStore.Core.Services.Transport.Http.Controllers
         private static readonly ILogger Log = LogManager.GetLoggerFor<ElectController>();
         private static readonly ICodec[] SupportedCodecs = new ICodec[] {Codec.Json, Codec.Xml};
 
-        private readonly HttpAsyncClient _client = new HttpAsyncClient();
+        private readonly HttpClient _client = new HttpClient();
 
         public ElectController(IPublisher publisher): base(publisher)
         {

@@ -1,5 +1,6 @@
 using System;
 using System.Net;
+using System.Net.Http;
 using EventStore.Common.Log;
 using EventStore.Common.Utils;
 using EventStore.Core.Bus;
@@ -10,8 +11,8 @@ using EventStore.Transport.Http;
 using EventStore.Transport.Http.Client;
 using EventStore.Transport.Http.Codecs;
 using EventStore.Transport.Http.EntityManagement;
+using HttpMethod = EventStore.Transport.Http.HttpMethod;
 using HttpStatusCode = EventStore.Transport.Http.HttpStatusCode;
-
 namespace EventStore.Core.Services.Transport.Http.Controllers
 {
     public class GossipController : CommunicationController,
@@ -22,7 +23,7 @@ namespace EventStore.Core.Services.Transport.Http.Controllers
         private static readonly ICodec[] SupportedCodecs = new ICodec[] {Codec.Json, Codec.ApplicationXml, Codec.Xml, Codec.Text};
 
         private readonly IPublisher _networkSendQueue;
-        private readonly HttpAsyncClient _client = new HttpAsyncClient();
+        private readonly HttpClient _client = new HttpClient();
         private readonly TimeSpan _gossipTimeout;
         
         public GossipController(IPublisher publisher, IPublisher networkSendQueue, TimeSpan gossipTimeout)
@@ -59,27 +60,34 @@ namespace EventStore.Core.Services.Transport.Http.Controllers
                 _gossipTimeout, 
                 response =>
                 {
-                    if (response.HttpStatusCode != HttpStatusCode.OK)
+                    if (response.StatusCode != System.Net.HttpStatusCode.OK)
                     {
                         Publish(new GossipMessage.GossipSendFailed(
-                            string.Format("Received HTTP status code {0}.", response.HttpStatusCode), endPoint));
+                            string.Format("Received HTTP status code {0}.", response.StatusCode), endPoint));
                         return;
                     }
-
-                    var clusterInfo = Codec.Json.From<ClusterInfoDto>(response.Body);
-                    if (clusterInfo == null)
+                    response.Content.ReadAsStringAsync().ContinueWith(x =>
                     {
-                        var msg = string.Format("Received as RESPONSE invalid ClusterInfo from [{0}]. Content-Type: {1}, Body:\n{2}.",
-                                                url, response.ContentType, response.Body);
-                        Log.Error(string.Format("Received as RESPONSE invalid ClusterInfo from [{0}]. Content-Type: {1}.",
-                                                url, response.ContentType));
-                        Log.Error(string.Format("Received as RESPONSE invalid ClusterInfo from [{0}]. Body: {1}.",
-                                                url, response.Body));
-                        Publish(new GossipMessage.GossipSendFailed(msg, endPoint));
-                        return;
-                    }
+                        var body = x.Result;
+                        var clusterInfo = Codec.Json.From<ClusterInfoDto>(body);
+                        if (clusterInfo == null)
+                        {
+                            var msg =
+                                string.Format(
+                                    "Received as RESPONSE invalid ClusterInfo from [{0}]. Content-Type: {1}, Body:\n{2}.",
+                                    url, response.Content.Headers.ContentType, body);
+                            Log.Error(
+                                string.Format("Received as RESPONSE invalid ClusterInfo from [{0}]. Content-Type: {1}.",
+                                    url, response.Content.Headers.ContentType));
+                            Log.Error(string.Format("Received as RESPONSE invalid ClusterInfo from [{0}]. Body: {1}.",
+                                url, body));
+                            Publish(new GossipMessage.GossipSendFailed(msg, endPoint));
+                            return;
+                        }
 
-                    Publish(new GossipMessage.GossipReceived(new NoopEnvelope(), new ClusterInfo(clusterInfo), endPoint));
+                        Publish(new GossipMessage.GossipReceived(new NoopEnvelope(), new ClusterInfo(clusterInfo),
+                            endPoint));
+                    });
                 },
                 error => Publish(new GossipMessage.GossipSendFailed(error.Message, endPoint)));
         }

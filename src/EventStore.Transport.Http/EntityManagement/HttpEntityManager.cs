@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Security.Principal;
 using System.Text;
 using System.Threading;
@@ -242,7 +244,7 @@ namespace EventStore.Transport.Http.EntityManagement
             }
         }
 
-        public void ForwardReply(HttpWebResponse response, Action<Exception> onError)
+        public void ForwardReply(HttpResponseMessage response, Action<Exception> onError)
         {
             Ensure.NotNull(response, "response");
             Ensure.NotNull(onError, "onError");
@@ -253,39 +255,38 @@ namespace EventStore.Transport.Http.EntityManagement
             try
             {
                 HttpEntity.Response.StatusCode = (int)response.StatusCode;
-                HttpEntity.Response.StatusDescription = response.StatusDescription;
-                HttpEntity.Response.ContentType = response.ContentType;
-                HttpEntity.Response.ContentLength64 = response.ContentLength;
-                foreach (var headerKey in response.Headers.AllKeys)
+                HttpEntity.Response.StatusDescription = response.ReasonPhrase;
+                HttpEntity.Response.ContentType = response.Content.Headers.ContentType.ToString();
+                HttpEntity.Response.ContentLength64 = response.Content.Headers.ContentLength.GetValueOrDefault();
+                foreach (var header in response.Headers)
                 {
-                    switch (headerKey)
+                    switch (header.Key)
                     {
                         case "Content-Length": break;
                         case "Keep-Alive": break;
                         case "Transfer-Encoding": break;
-                        case "WWW-Authenticate": HttpEntity.Response.AddHeader(headerKey, response.Headers[headerKey]); break;
+                        case "WWW-Authenticate": HttpEntity.Response.AddHeader(header.Key, header.Value.First()); break;
 
                         default:
-                            HttpEntity.Response.Headers.Add(headerKey, response.Headers[headerKey]);
+                            HttpEntity.Response.Headers.Add(header.Key, string.Join("; ",header.Value));
                             break;
                     }
                 }
 
-                if (response.ContentLength > 0)
+                if (response.Content.Headers.ContentLength.GetValueOrDefault() > 0)
                 {
-                    new AsyncStreamCopier<object>(
-                        response.GetResponseStream(), HttpEntity.Response.OutputStream, null,
-                        copier =>
-                        {
-                            if (copier.Error != null)
-                                Log.Debug("Error copying forwarded response stream for '{0}': {1}.", RequestedUrl, copier.Error.Message);
-                            Helper.EatException(response.Close);
-                            Helper.EatException(HttpEntity.Response.Close);
-                        }).Start();
+                    //TODO : content headers?
+                    response.Content.CopyToAsync(HttpEntity.Response.OutputStream).ContinueWith(x =>
+                    {
+                        if (x.Exception != null)
+                            Log.Debug("Error copying forwarded response stream for '{0}': {1}.", RequestedUrl, x.Exception.Message);
+                        Helper.EatException(response.Dispose);
+                        Helper.EatException(HttpEntity.Response.Close);
+                    });
                 }
                 else
                 {
-                    Helper.EatException(response.Close);
+                    Helper.EatException(response.Dispose);
                     Helper.EatException(HttpEntity.Response.Close);
                 }
             }

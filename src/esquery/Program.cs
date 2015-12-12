@@ -2,6 +2,8 @@
 
 using System;
 using System.Net;
+using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Security;
 using System.Text;
 
@@ -112,16 +114,18 @@ namespace esquery
 
         private static bool TryValidatePassword(Uri baseuri, NetworkCredential cred)
         {
-            
-            var request = WebRequest.Create(baseuri.AbsoluteUri +"projections/transient?enabled=yes");
-            request.Method = "POST";
-            request.ContentType = "application/json";
-            request.ContentLength = 0;
-            request.Credentials = cred;
-            request.PreAuthenticate = true;
+            //var client = new HttpClient();
+            var client = CommandProcessor.CreateClient(cred);
+            var request = new HttpRequestMessage(HttpMethod.Post, baseuri.AbsoluteUri + "projections/transient?enabled=yes");
+            //request.Headers.Authorization = new AuthenticationHeaderValue("Basic",
+            //    Convert.ToBase64String(Encoding.ASCII.GetBytes(cred.UserName + ":" + cred.Password)));
+            //request.ContentType = "application/json";
+            //request.ContentLength = 0;
+            //request.Credentials = cred;
+            //request.PreAuthenticate = true;
             try
             {
-                using (var response = (HttpWebResponse) request.GetResponse())
+                using (var response = client.SendAsync(request).Result)
                 {
                     return response.StatusCode != HttpStatusCode.Unauthorized;
                 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Net;
+using System.Net.Http;
 using System.Threading;
 using EventStore.Common.Utils;
 using EventStore.Core.Bus;
@@ -22,7 +23,7 @@ namespace EventStore.Core.Tests.Services.Transport.Http
             }
         }
 
-        public IHttpClient BuiltInClient
+        public HttpClient BuiltInClient
         {
             get
             {
@@ -33,7 +34,7 @@ namespace EventStore.Core.Tests.Services.Transport.Http
         private InMemoryBus _bus;
         private HttpService _service;
         private MultiQueuedHandler _multiQueuedHandler;
-        private HttpAsyncClient _client;
+        private HttpClient _client;
 
         private readonly IPEndPoint _serverEndPoint;
 
@@ -57,7 +58,7 @@ namespace EventStore.Core.Tests.Services.Transport.Http
                 _service = new HttpService(ServiceAccessibility.Private, _bus, new NaiveUriRouter(),
                                            _multiQueuedHandler, _serverEndPoint.ToHttpUrl());
                 HttpService.CreateAndSubscribePipeline(pipelineBus, httpAuthenticationProviders);
-                _client = new HttpAsyncClient();
+                _client = new HttpClient();
             }
 
             HttpBootstrap.Subscribe(_bus, _service);
@@ -78,7 +79,7 @@ namespace EventStore.Core.Tests.Services.Transport.Http
 
         public Tuple<bool, string> StartServiceAndSendRequest(Action<HttpService> bootstrap,
                                                               string requestUrl,
-                                                              Func<HttpResponse, bool> verifyResponse)
+                                                              Func<HttpResponseMessage, bool> verifyResponse)
         {
             _bus.Publish(new SystemMessage.SystemInit());
 

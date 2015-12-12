@@ -1,24 +1,25 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Net;
+using System.Net.Http;
 using System.Threading.Tasks;
 using EventStore.ClientAPI.Exceptions;
 using EventStore.ClientAPI.SystemData;
 using EventStore.ClientAPI.Transport.Http;
 using Newtonsoft.Json.Linq;
-using HttpStatusCode = EventStore.ClientAPI.Transport.Http.HttpStatusCode;
+using HttpStatusCode = System.Net.HttpStatusCode;
 
 namespace EventStore.ClientAPI.Projections
 {
     internal class ProjectionsClient
     {
-        private readonly HttpAsyncClient _client;
+        private readonly HttpClient _client;
         private readonly TimeSpan _operationTimeout;
 
         public ProjectionsClient(ILogger log, TimeSpan operationTimeout)
         {
             _operationTimeout = operationTimeout;
-            _client = new HttpAsyncClient(log);
+            _client = new HttpClient();
         }
 
         public Task Enable(IPEndPoint endPoint, string name, UserCredentials userCredentials = null)
@@ -152,7 +153,7 @@ namespace EventStore.ClientAPI.Projections
             return SendDelete(endPoint.ToHttpUrl("/projection/{0}", name), userCredentials, HttpStatusCode.OK);
         }
 
-        private Task<string> SendGet(string url, UserCredentials userCredentials, int expectedCode)
+        private Task<string> SendGet(string url, UserCredentials userCredentials, HttpStatusCode expectedCode)
         {
             var source = new TaskCompletionSource<string>();
             _client.Get(url,
@@ -160,22 +161,22 @@ namespace EventStore.ClientAPI.Projections
                         _operationTimeout,
                         response =>
                         {
-                            if (response.HttpStatusCode == expectedCode)
-                                source.SetResult(response.Body);
+                            if (response.StatusCode == expectedCode)
+                                response.Content.ReadAsStringAsync().ContinueWith(x => source.SetResult(x.Result));
                             else
                                 source.SetException(new ProjectionCommandFailedException(
-                                                            response.HttpStatusCode,
-                                                            string.Format("Server returned {0} ({1}) for GET on {2}",
-                                                                          response.HttpStatusCode,
-                                                                          response.StatusDescription,
-                                                                          url)));
+                                    (int) response.StatusCode,
+                                    string.Format("Server returned {0} ({1}) for GET on {2}",
+                                        response.StatusCode,
+                                        response.ReasonPhrase,
+                                        url)));
                         },
                         source.SetException);
 
             return source.Task;
         }
 
-        private Task<string> SendDelete(string url, UserCredentials userCredentials, int expectedCode)
+        private Task<string> SendDelete(string url, UserCredentials userCredentials, HttpStatusCode expectedCode)
         {
             var source = new TaskCompletionSource<string>();
             _client.Delete(url,
@@ -183,39 +184,39 @@ namespace EventStore.ClientAPI.Projections
                            _operationTimeout,
                            response =>
                            {
-                               if (response.HttpStatusCode == expectedCode)
-                                   source.SetResult(response.Body);
+                               if (response.StatusCode == expectedCode)
+                                   response.Content.ReadAsStringAsync().ContinueWith(x => source.SetResult(x.Result));
                                else
                                    source.SetException(new ProjectionCommandFailedException(
-                                                               response.HttpStatusCode,
-                                                               string.Format("Server returned {0} ({1}) for DELETE on {2}",
-                                                                             response.HttpStatusCode,
-                                                                             response.StatusDescription,
-                                                                             url)));
+                                       (int) response.StatusCode,
+                                       string.Format("Server returned {0} ({1}) for DELETE on {2}",
+                                           response.StatusCode,
+                                           response.ReasonPhrase,
+                                           url)));
                            },
                            source.SetException);
 
             return source.Task;
         }
 
-        private Task SendPut(string url, string content, UserCredentials userCredentials, int expectedCode)
+        private Task SendPut(string url, string content, UserCredentials userCredentials, HttpStatusCode expectedCode)
         {
             var source = new TaskCompletionSource<object>();
             _client.Put(url,
+                        userCredentials,
                         content,
                         "application/json",
-                        userCredentials,
                         _operationTimeout,
                         response =>
                         {
-                            if (response.HttpStatusCode == expectedCode)
+                            if (response.StatusCode == expectedCode)
                                 source.SetResult(null);
                             else
                                 source.SetException(new ProjectionCommandFailedException(
-                                                            response.HttpStatusCode,
+                                                            (int)response.StatusCode,
                                                             string.Format("Server returned {0} ({1}) for PUT on {2}",
-                                                                          response.HttpStatusCode,
-                                                                          response.StatusDescription,
+                                                                          response.StatusCode,
+                                                                          response.ReasonPhrase,
                                                                           url)));
                         },
                         source.SetException);
@@ -223,26 +224,26 @@ namespace EventStore.ClientAPI.Projections
             return source.Task;
         }
 
-        private Task SendPost(string url, string content, UserCredentials userCredentials, int expectedCode)
+        private Task SendPost(string url, string content, UserCredentials userCredentials, HttpStatusCode expectedCode)
         {
             var source = new TaskCompletionSource<object>();
             _client.Post(url,
+                         userCredentials,
                          content,
                          "application/json",
                          _operationTimeout,
-                         userCredentials,
                          response =>
                          {
-                             if (response.HttpStatusCode == expectedCode)
+                             if (response.StatusCode == expectedCode)
                                  source.SetResult(null);
-                             else if (response.HttpStatusCode == 409)
-                                 source.SetException(new ProjectionCommandConflictException(response.HttpStatusCode, response.StatusDescription));
+                             else if (response.StatusCode == HttpStatusCode.Conflict)
+                                 source.SetException(new ProjectionCommandConflictException((int)response.StatusCode, response.ReasonPhrase));
                              else
                                  source.SetException(new ProjectionCommandFailedException(
-                                                             response.HttpStatusCode,
+                                                             (int)response.StatusCode,
                                                              string.Format("Server returned {0} ({1}) for POST on {2}",
-                                                                           response.HttpStatusCode,
-                                                                           response.StatusDescription,
+                                                                           response.StatusCode,
+                                                                           response.ReasonPhrase,
                                                                            url)));
                          },
                          source.SetException);

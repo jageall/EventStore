@@ -7,6 +7,8 @@ using EventStore.Transport.Http;
 using NUnit.Framework;
 using EventStore.Common.Utils;
 using System.Linq;
+using System.Net.Http;
+using EventStore.Transport.Http.Client;
 using HttpStatusCode = System.Net.HttpStatusCode;
 
 namespace EventStore.Core.Tests.Services.Transport.Http
@@ -93,7 +95,7 @@ namespace EventStore.Core.Tests.Services.Transport.Http
                             TimeSpan.FromMilliseconds(10000),
                             response =>
                                 {
-                                    successes[i1] = response.HttpStatusCode == (int) HttpStatusCode.NotFound;
+                                    successes[i1] = response.StatusCode == HttpStatusCode.NotFound;
                                     signals[i1].Set();
                                 },
                             exception =>
@@ -115,8 +117,8 @@ namespace EventStore.Core.Tests.Services.Transport.Http
         public void handle_invalid_characters_in_url()
         {
             var url = _serverEndPoint.ToHttpUrl("/ping^\"");
-            Func<HttpResponse, bool> verifier = response => string.IsNullOrEmpty(response.Body) &&
-                                                            response.HttpStatusCode == (int) HttpStatusCode.NotFound;
+            Func<HttpResponseMessage, bool> verifier = response => response.Content.Headers.ContentLength == 0 &&
+                                                            response.StatusCode == HttpStatusCode.NotFound;
 
             var result = _portableServer.StartServiceAndSendRequest(HttpBootstrap.RegisterPing, url, verifier);
             Assert.IsTrue(result.Item1, result.Item2);
