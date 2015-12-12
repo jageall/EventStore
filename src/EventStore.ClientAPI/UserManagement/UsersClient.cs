@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Net;
+using System.Net.Http;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using HttpStatusCode = EventStore.ClientAPI.Transport.Http.HttpStatusCode;
@@ -13,14 +14,13 @@ namespace EventStore.ClientAPI.UserManagement
 {
     internal class UsersClient
     {
-        private readonly HttpAsyncClient _client;
-
         private readonly TimeSpan _operationTimeout;
+        private readonly HttpClient _client;
 
         public UsersClient(ILogger log, TimeSpan operationTimeout)
         {
             _operationTimeout = operationTimeout;
-            _client = new HttpAsyncClient(log);
+            _client = new HttpClient();
         }
 
         public Task Enable(IPEndPoint endPoint, string login, UserCredentials userCredentials = null)
@@ -104,14 +104,14 @@ namespace EventStore.ClientAPI.UserManagement
                 _operationTimeout,
                 response =>
                 {
-                    if (response.HttpStatusCode == expectedCode)
-                        source.SetResult(response.Body);
+                    if (response.StatusCode == (System.Net.HttpStatusCode)expectedCode)
+                        response.Content.ReadAsStringAsync().ContinueWith(x=> source.SetResult(x.Result));
                     else
                         source.SetException(new UserCommandFailedException(
-                            response.HttpStatusCode,
+                            (int)response.StatusCode,
                             string.Format("Server returned {0} ({1}) for GET on {2}",
-                                response.HttpStatusCode,
-                                response.StatusDescription,
+                                response.StatusCode,
+                                response.ReasonPhrase,
                                 url)));
                 },
                 source.SetException);
@@ -127,14 +127,14 @@ namespace EventStore.ClientAPI.UserManagement
                 _operationTimeout,
                 response =>
                 {
-                    if (response.HttpStatusCode == expectedCode)
-                        source.SetResult(response.Body);
+                    if ((int)response.StatusCode == expectedCode)
+                        response.Content.ReadAsStringAsync().ContinueWith(x => source.SetResult(x.Result));
                     else
                         source.SetException(new UserCommandFailedException(
-                            response.HttpStatusCode,
+                            (int)response.StatusCode,
                             string.Format("Server returned {0} ({1}) for DELETE on {2}",
-                                response.HttpStatusCode,
-                                response.StatusDescription,
+                                response.StatusCode,
+                                response.ReasonPhrase,
                                 url)));
                 },
                 source.SetException);
@@ -146,20 +146,20 @@ namespace EventStore.ClientAPI.UserManagement
         {
             var source = new TaskCompletionSource<object>();
             _client.Put(url,
+                userCredentials,         
                 content,
                 "application/json",
-                userCredentials,
                 _operationTimeout,
                 response =>
                 {
-                    if (response.HttpStatusCode == expectedCode)
+                    if ((int)response.StatusCode == expectedCode)
                         source.SetResult(null);
                     else
                         source.SetException(new UserCommandFailedException(
-                            response.HttpStatusCode,
+                            (int)response.StatusCode,
                             string.Format("Server returned {0} ({1}) for PUT on {2}",
-                                response.HttpStatusCode,
-                                response.StatusDescription,
+                                response.StatusCode,
+                                response.ReasonPhrase,
                                 url)));
                 },
                 source.SetException);
@@ -171,22 +171,22 @@ namespace EventStore.ClientAPI.UserManagement
         {
             var source = new TaskCompletionSource<object>();
             _client.Post(url,
+                userCredentials,
                 content,
                 "application/json",
                 _operationTimeout,
-                userCredentials,
                 response =>
                 {
-                    if (response.HttpStatusCode == expectedCode)
+                    if ((int)response.StatusCode == expectedCode)
                         source.SetResult(null);
-                    else if (response.HttpStatusCode == 409)
-                        source.SetException(new UserCommandConflictException(response.HttpStatusCode, response.StatusDescription));
+                    else if (response.StatusCode == System.Net.HttpStatusCode.Conflict)
+                        source.SetException(new UserCommandConflictException((int)response.StatusCode, response.ReasonPhrase));
                     else
                         source.SetException(new UserCommandFailedException(
-                            response.HttpStatusCode,
+                            (int)response.StatusCode,
                             string.Format("Server returned {0} ({1}) for POST on {2}",
-                                response.HttpStatusCode,
-                                response.StatusDescription,
+                                response.StatusCode,
+                                response.ReasonPhrase,
                                 url)));
                 },
                 source.SetException);

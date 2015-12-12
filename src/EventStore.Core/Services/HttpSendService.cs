@@ -1,6 +1,6 @@
 ﻿using System;
-using System.IO;
 using System.Net;
+using System.Net.Http;
 using System.Threading.Tasks;
 using EventStore.Common.Log;
 using EventStore.Common.Utils;
@@ -8,7 +8,6 @@ using EventStore.Core.Bus;
 using EventStore.Core.Data;
 using EventStore.Core.Messages;
 using EventStore.Core.Services.Transport.Http;
-using EventStore.Transport.Http;
 using EventStore.Transport.Http.EntityManagement;
 using HttpStatusCode = EventStore.Transport.Http.HttpStatusCode;
 
@@ -23,17 +22,19 @@ namespace EventStore.Core.Services
                                    IHandle<HttpMessage.HttpEndSend>
     {
         private static readonly ILogger Log = LogManager.GetLoggerFor<HttpSendService>();
-        
+
         private readonly HttpMessagePipe _httpPipe;
         private readonly bool _forwardRequests;
 
         private VNodeInfo _masterInfo;
+        private HttpClient _client;
 
         public HttpSendService(HttpMessagePipe httpPipe, bool forwardRequests)
         {
             Ensure.NotNull(httpPipe, "httpPipe");
             _httpPipe = httpPipe;
             _forwardRequests = forwardRequests;
+            _client = new HttpClient();
         }
 
         public void Handle(SystemMessage.StateChangeMessage message)
@@ -44,7 +45,7 @@ namespace EventStore.Core.Services
                 case VNodeState.CatchingUp:
                 case VNodeState.Clone:
                 case VNodeState.Slave:
-                    _masterInfo = ((SystemMessage.ReplicaStateMessage) message).Master;
+                    _masterInfo = ((SystemMessage.ReplicaStateMessage)message).Master;
                     break;
                 case VNodeState.Initializing:
                 case VNodeState.Unknown:
@@ -84,8 +85,7 @@ namespace EventStore.Core.Services
                     code,
                     deniedToHandle.Details,
                     exc => Log.Debug("Error occurred while replying to HTTP with message {0}: {1}.", message.Message, exc.Message));
-            }
-            else
+            } else
             {
                 var response = message.Data;
                 var config = message.Configuration;
@@ -143,77 +143,45 @@ namespace EventStore.Core.Services
             return false;
         }
 
-        private static void ForwardRequest(HttpEntityManager manager, Uri forwardUri)
+        private void ForwardRequest(HttpEntityManager manager, Uri forwardUri)
         {
             var srcReq = manager.HttpEntity.Request;
-            var fwReq = (HttpWebRequest)WebRequest.Create(forwardUri);
+            var fwReq = new HttpRequestMessage(new System.Net.Http.HttpMethod(srcReq.HttpMethod), forwardUri);
 
-            fwReq.Method = srcReq.HttpMethod;
             // Copy unrestricted headers (including cookies, if any)
             foreach (var headerKey in srcReq.Headers.AllKeys)
             {
-                switch (headerKey.ToLower())
-                {
-                    case "accept":            fwReq.Accept = srcReq.Headers[headerKey]; break;
-                    case "connection":        break;
-                    case "content-type":      fwReq.ContentType = srcReq.ContentType; break;
-                    case "content-length":    fwReq.ContentLength = srcReq.ContentLength64; break;
-                    case "date":              fwReq.Date = DateTime.Parse(srcReq.Headers[headerKey]); break;
-                    case "expect":            break;
-                    case "host":              fwReq.Headers["X-Forwarded-Host"] = srcReq.Headers[headerKey];
-                                              fwReq.Host = forwardUri.Host; break; 
-                    case "if-modified-since": fwReq.IfModifiedSince = DateTime.Parse(srcReq.Headers[headerKey]); break;
-                    case "proxy-connection":  break;
-                    case "range":             break;
-                    case "referer":           fwReq.Referer = srcReq.Headers[headerKey]; break;
-                    case "transfer-encoding": fwReq.TransferEncoding = srcReq.Headers[headerKey]; break;
-                    case "user-agent":        fwReq.UserAgent = srcReq.Headers[headerKey]; break;
+                fwReq.Headers.Add(headerKey, srcReq.Headers[headerKey]);
+                //switch (headerKey.ToLower())
+                //{
+                //    case "accept":            fwReq.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(srcReq.Headers[headerKey])); break;
+                //    case "connection":        break;
+                //    //case "content-type":      fwReq.Content.Headers.ContentType = srcReq.ContentType; break;
+                //    case "content-length":    fwReq.Content.Headers.ContentLength = srcReq.ContentLength64; break;
+                //    case "date":              fwReq.Headers.Date = DateTime.Parse(srcReq.Headers[headerKey]); break;
+                //    case "expect":            break;
+                //    case "host":              fwReq.Headers.Add("X-Forwarded-Host",srcReq.Headers[headerKey]);
+                //                              fwReq.Headers.Host = forwardUri.Host; break; 
+                //    case "if-modified-since": fwReq.Headers.IfModifiedSince = DateTime.Parse(srcReq.Headers[headerKey]); break;
+                //    case "proxy-connection":  break;
+                //    case "range":             break;
+                //    case "referer":           fwReq.Headers.Referrer = srcReq.Headers[headerKey]; break;
+                //    case "transfer-encoding": fwReq.Headers.TransferEncoding = srcReq.Headers[headerKey]; break;
+                //    case "user-agent":        fwReq.Headers.UserAgent = srcReq.Headers[headerKey]; break;
 
-                    default:
-                        fwReq.Headers[headerKey] = srcReq.Headers[headerKey];
-                        break;
-                }
+                //    default:
+
+                //        break;
+                //}
             }
             // Copy content (if content body is allowed)
             if (!string.Equals(srcReq.HttpMethod, "GET", StringComparison.OrdinalIgnoreCase)
                 && !string.Equals(srcReq.HttpMethod, "HEAD", StringComparison.OrdinalIgnoreCase)
                 && srcReq.ContentLength64 > 0)
             {
-                Task.Factory.FromAsync<Stream>(fwReq.BeginGetRequestStream, fwReq.EndGetRequestStream, null)
-                    .ContinueWith(t =>
-                    {
-                        if (t.Exception != null)
-                        {
-                            Log.Debug("Error on GetRequestStream for forwarded request for '{0}': {1}.",
-                                      manager.RequestedUrl, t.Exception.InnerException.Message);
-                            ForwardReplyFailed(manager);
-                            return;
-                        }
-                        new AsyncStreamCopier<object>(
-                            srcReq.InputStream,
-                            t.Result,
-                            t.Result,
-                            copier =>
-                                {
-                                var fwReqStream = (Stream)copier.AsyncState;
-                                if (copier.Error != null)
-                                {
-                                    Log.Debug("Error while forwarding request body from '{0}' to '{1}' ({2}): {3}.",
-                                              srcReq.Url, forwardUri, srcReq.HttpMethod, copier.Error.Message);
-                                    ForwardReplyFailed(manager);
-                                }
-                                else
-                                {
-                                    ForwardResponse(manager, fwReq);
-                                }
-                                Helper.EatException(fwReqStream.Close);
-                            }).Start();
-                    });
+                fwReq.Content = new StreamContent(srcReq.InputStream);
             }
-            else
-            {
-                ForwardResponse(manager, fwReq);
-            }
+            ForwardResponse(manager, fwReq);
         }
 
         private static void ForwardReplyFailed(HttpEntityManager manager)
@@ -221,34 +189,20 @@ namespace EventStore.Core.Services
             manager.ReplyStatus(HttpStatusCode.InternalServerError, "Error while forwarding request", _ => { });
         }
 
-        private static void ForwardResponse(HttpEntityManager manager, HttpWebRequest fwReq)
+        private void ForwardResponse(HttpEntityManager manager, HttpRequestMessage fwReq)
         {
-            Task.Factory.FromAsync<WebResponse>(fwReq.BeginGetResponse, fwReq.EndGetResponse, null)
-                .ContinueWith(t =>
+            _client.SendAsync(fwReq)
+                .ContinueWith(new Action<Task<HttpResponseMessage>>(t =>
                 {
-                    HttpWebResponse response;
                     if (t.Exception != null)
                     {
-                        var exc = t.Exception.InnerException as WebException;
-                        if (exc != null)
-                        {
-                            response = (HttpWebResponse)exc.Response;
-                        }
-                        else
-                        {
-                            Log.Debug("Error on EndGetResponse for forwarded request for '{0}': {1}.",
+                        Log.Debug("Error on EndGetResponse for forwarded request for '{0}': {1}.",
                                       manager.RequestedUrl, t.Exception.InnerException.Message);
-                            ForwardReplyFailed(manager);
-                            return;
-                        }
+                        ForwardReplyFailed(manager);
+                        return;
                     }
-                    else
-                    {
-                        response = (HttpWebResponse) t.Result;
-                    }
-
-                    manager.ForwardReply(response, exc => Log.Debug("Error forwarding response for '{0}': {1}.", manager.RequestedUrl, exc.Message));
-                });
+                    manager.ForwardReply(t.Result, exc => Log.Debug("Error forwarding response for '{0}': {1}.", manager.RequestedUrl, exc.Message));
+                }));
         }
     }
 }

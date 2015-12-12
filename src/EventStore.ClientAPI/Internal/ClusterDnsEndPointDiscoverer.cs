@@ -8,6 +8,7 @@ using EventStore.ClientAPI.Exceptions;
 using EventStore.ClientAPI.Messages;
 using EventStore.ClientAPI.Transport.Http;
 using System.Linq;
+using System.Net.Http;
 using HttpStatusCode = EventStore.ClientAPI.Transport.Http.HttpStatusCode;
 
 namespace EventStore.ClientAPI.Internal
@@ -20,7 +21,7 @@ namespace EventStore.ClientAPI.Internal
         private readonly int _managerExternalHttpPort;
         private readonly GossipSeed[] _gossipSeeds;
 
-        private readonly HttpAsyncClient _client;
+        private readonly HttpClient _client;
         private ClusterMessages.MemberInfoDto[] _oldGossip;
         private TimeSpan _gossipTimeout;
 
@@ -39,7 +40,7 @@ namespace EventStore.ClientAPI.Internal
             _managerExternalHttpPort = managerExternalHttpPort;
             _gossipSeeds = gossipSeeds;
             _gossipTimeout = gossipTimeout;
-            _client = new HttpAsyncClient(log);
+            _client = new HttpClient();
         }
 
         public Task<NodeEndPoints> DiscoverAsync(IPEndPoint failedTcpEndPoint )
@@ -184,22 +185,26 @@ namespace EventStore.ClientAPI.Internal
                 _gossipTimeout,
                 response =>
                 {
-                    if (response.HttpStatusCode != HttpStatusCode.OK)
+                    if (response.StatusCode != System.Net.HttpStatusCode.OK)
                     {
                         //_log.Info("[{0}] responded with {1} ({2})", endPoint, response.HttpStatusCode, response.StatusDescription);
                         completed.Set();
                         return;
                     }
-                    try
+                    response.Content.ReadAsStringAsync().ContinueWith(x =>
                     {
-                        result = response.Body.ParseJson<ClusterMessages.ClusterInfoDto>();
-                        //_log.Debug("ClusterDnsEndPointDiscoverer: Got gossip from [{0}]:\n{1}.", endPoint, string.Join("\n", result.Members.Select(x => x.ToString())));
-                    }
-                    catch (Exception)
-                    {
-                        //_log.Info("Failed to get cluster info from [{0}]: deserialization error: {1}.", endPoint, e.Message);
-                    }
-                    completed.Set();
+                        try
+                        {
+                            result = x.Result.ParseJson<ClusterMessages.ClusterInfoDto>();
+                        }
+                        catch (Exception)
+                        {
+                            //_log.Info("Failed to get cluster info from [{0}]: deserialization error: {1}.", endPoint, e.Message);
+                        }
+                        completed.Set();
+                    });
+                    //_log.Debug("ClusterDnsEndPointDiscoverer: Got gossip from [{0}]:\n{1}.", endPoint, string.Join("\n", result.Members.Select(x => x.ToString())));
+
                 },
                 e =>
                 {

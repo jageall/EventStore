@@ -39,6 +39,18 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\libs\Newtonsoft.Json.dll</HintPath>
     </Reference>
+    <Reference Include="System.Net.Http, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\libs\httpclient\System.Net.Http.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Net.Http.Extensions, Version=2.2.29.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\libs\httpclient\System.Net.Http.Extensions.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Net.Http.Primitives, Version=2.2.29.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\libs\httpclient\System.Net.Http.Primitives.dll</HintPath>
+    </Reference>
     <Reference Include="protobuf-net">
       <HintPath>..\libs\protobuf-v2\protobuf-net.dll</HintPath>
     </Reference>
@@ -117,6 +129,8 @@
     <Compile Include="RawStreamMetadataResult.cs" />
     <Compile Include="StreamMetadataBuilder.cs" />
     <Compile Include="StreamMetadataResult.cs" />
+    <Compile Include="Transport.Http\CancellationTokenSourceExtensions.cs" />
+    <Compile Include="Transport.Http\HttpClientExtensions.cs" />
     <Compile Include="UserManagement\ChangePasswordDetails.cs" />
     <Compile Include="UserManagement\RelLink.cs" />
     <Compile Include="UserManagement\ResetPasswordDetails.cs" />
@@ -186,15 +200,10 @@
     <Compile Include="SystemData\InspectionDecision.cs" />
     <Compile Include="SystemData\TcpCommand.cs" />
     <Compile Include="SystemData\TcpPackage.cs" />
-    <Compile Include="Transport.Http\AsyncStreamCopier.cs" />
-    <Compile Include="Transport.Http\ClientOperationState.cs" />
     <Compile Include="Transport.Http\ContentType.cs" />
-    <Compile Include="Transport.Http\HttpAsyncClient.cs" />
     <Compile Include="Transport.Http\HttpMethod.cs" />
-    <Compile Include="Transport.Http\HttpResponse.cs" />
     <Compile Include="Transport.Http\HttpStatusCode.cs" />
     <Compile Include="Transport.Http\IPEndpointExtensions.cs" />
-    <Compile Include="Transport.Http\WebRequestExtensions.cs" />
     <Compile Include="Messages\ClientMessage.cs" />
     <Compile Include="Transport.Tcp\PackageFramingException.cs" />
     <Compile Include="Transport.Tcp\ProtobufExtensions.cs" />

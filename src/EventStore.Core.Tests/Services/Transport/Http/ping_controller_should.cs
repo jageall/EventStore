@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Net;
+using System.Net.Http;
 using EventStore.Common.Utils;
 using EventStore.Core.Messages;
 using EventStore.Core.Tests.Helpers;
@@ -32,7 +33,7 @@ namespace EventStore.Core.Tests.Services.Transport.Http
         public void respond_with_httpmessage_text_message()
         {
             var url = _serverEndPoint.ToHttpUrl("/ping?format=json");
-            Func<HttpResponse, bool> verifier = response => Codec.Json.From<HttpMessage.TextMessage>(response.Body) != null;
+            Func<HttpResponseMessage, bool> verifier = response => Codec.Json.From<HttpMessage.TextMessage>(response.Content.ReadAsStringAsync().Result) != null;
 
             var result = _portableServer.StartServiceAndSendRequest(HttpBootstrap.RegisterPing, url, verifier);
             Assert.True(result.Item1, result.Item2);
@@ -43,7 +44,7 @@ namespace EventStore.Core.Tests.Services.Transport.Http
         public void return_response_in_json_if_requested_by_query_param_and_set_content_type_header()
         {
             var url = _serverEndPoint.ToHttpUrl("/ping?format=json");
-            Func<HttpResponse, bool> verifier = response => string.Equals(StripAdditionalAttributes(response.Headers[HttpResponseHeader.ContentType]),
+            Func<HttpResponseMessage, bool> verifier = response => string.Equals(response.Content.Headers.ContentType.MediaType,
                                                             ContentType.Json,
                                                             StringComparison.InvariantCultureIgnoreCase);
 
@@ -56,7 +57,7 @@ namespace EventStore.Core.Tests.Services.Transport.Http
         public void return_response_in_xml_if_requested_by_query_param_and_set_content_type_header()
         {
             var url = _serverEndPoint.ToHttpUrl("/ping?format=xml");
-            Func<HttpResponse, bool> verifier = response => string.Equals(StripAdditionalAttributes(response.Headers[HttpResponseHeader.ContentType]),
+            Func<HttpResponseMessage, bool> verifier = response => string.Equals(response.Content.Headers.ContentType.MediaType,
                                                             ContentType.Xml,
                                                             StringComparison.InvariantCultureIgnoreCase);
 
@@ -69,7 +70,7 @@ namespace EventStore.Core.Tests.Services.Transport.Http
         public void return_response_in_plaintext_if_requested_by_query_param_and_set_content_type_header()
         {
             var url = _serverEndPoint.ToHttpUrl("/ping?format=text");
-            Func<HttpResponse, bool> verifier = response => string.Equals(StripAdditionalAttributes(response.Headers[HttpResponseHeader.ContentType]),
+            Func<HttpResponseMessage, bool> verifier = response => string.Equals(response.Content.Headers.ContentType.MediaType,
                                                             ContentType.PlainText,
                                                             StringComparison.InvariantCultureIgnoreCase);
 
