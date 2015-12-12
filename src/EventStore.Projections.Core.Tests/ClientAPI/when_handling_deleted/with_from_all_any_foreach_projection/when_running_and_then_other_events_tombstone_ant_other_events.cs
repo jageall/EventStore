@@ -48,5 +48,9 @@ fromAll().foreachStream().when({
             AssertStreamTail("$projections-test-projection-stream-2-result", "Result:{\"a\":4}");
             AssertStreamTail("$projections-test-projection-stream-3-result", "Result:{\"a\":1}");
         }
+
+        public when_running_and_then_other_events_tombstone_ant_other_events(SpecificationFixture fixture) : base(fixture)
+        {
+        }
     }
 }

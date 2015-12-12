@@ -20,7 +20,7 @@ namespace EventStore.Projections.Core.Tests.Services.emitted_stream
             ;
             _stream.Start();
         }
-
+        
         [Fact]
         public void start_throws_invalid_operation_exception()
         {

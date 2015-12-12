@@ -85,8 +85,7 @@ namespace EventStore.Projections.Core.Tests.Services.event_reader.event_by_type_
                     "Incorrect event order received");
             }
         }
-
-
+        
         public class when_starting_with_empty_index : ReadingReorderedEventsInTheIndexTestFixture
         {
             protected override void GivenInitialIndexState()
@@ -123,8 +122,7 @@ namespace EventStore.Projections.Core.Tests.Services.event_reader.event_by_type_
                         new Event(Guid.NewGuid(), "$>", false, "1@test-stream", TFPosToMetadata(_tfPos2)), user: null);
             }
         }
-
-
+        
         public class when_starting_with_partially_built_index : ReadingReorderedEventsInTheIndexTestFixture
         {
             protected override void GivenInitialIndexState()

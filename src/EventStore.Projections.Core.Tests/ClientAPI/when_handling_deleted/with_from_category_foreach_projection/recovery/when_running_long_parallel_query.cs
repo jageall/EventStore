@@ -37,7 +37,7 @@ fromCategory('stream').foreachStream().when({
 ");
             WaitIdle(multiplier: 10);
         }
-
+        
         [DebugBuildFact]
         [Trait("Category", "Network")]
         [Trait("Category", "LongRunning")]
@@ -79,6 +79,10 @@ fromCategory('stream').foreachStream().when({
                     Dump(">>> " + s.Key, s.Key, s.Events.Take(75).ToArray());
             }
 #endif
+        }
+
+        public when_running_long_parallel_query(SpecificationFixture fixture) : base(fixture)
+        {
         }
     }
 }

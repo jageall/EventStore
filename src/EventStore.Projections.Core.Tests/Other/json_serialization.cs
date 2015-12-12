@@ -8,7 +8,6 @@ using Xunit;
 
 namespace EventStore.Projections.Core.Tests.Other
 {
-
     public class can_serialize_and_deserialize
     {
         private ProjectionVersion _version;
@@ -89,6 +88,7 @@ namespace EventStore.Projections.Core.Tests.Other
 
             CheckpointTag back = instring.ParseCheckpointTagJson();
             Assert.Equal(tag, back);
+
             Assert.Null(back.CommitPosition);
         }
 

@@ -7,7 +7,7 @@ using Xunit.Extensions;
 
 namespace EventStore.Core.Tests.ClientAPI
 {
-    public class event_store_connection_should: IUseFixture<MiniNodeFixture>
+    public class event_store_connection_should: IClassFixture<MiniNodeFixture>
     {
         private MiniNode _node;
 
@@ -22,7 +22,8 @@ namespace EventStore.Core.Tests.ClientAPI
         public void not_throw_on_close_if_connect_was_not_called(TcpType tcpType)
         {
             var connection = TestConnection.To(_node, tcpType);
-            Assert.DoesNotThrow(connection.Close);
+            var ex = Record.Exception(() => connection.Close());
+            Assert.Null(ex);
         }
 
         [Theory, InlineData(TcpType.Ssl), InlineData(TcpType.Normal)]
@@ -33,7 +34,8 @@ namespace EventStore.Core.Tests.ClientAPI
             var connection = TestConnection.To(_node, tcpType);
             connection.ConnectAsync().Wait();
             connection.Close();
-            Assert.DoesNotThrow(connection.Close);
+            var ex = Record.Exception(() => connection.Close());
+            Assert.Null(ex);
         }
 /*
 //TODO WEIRD TEST GFY

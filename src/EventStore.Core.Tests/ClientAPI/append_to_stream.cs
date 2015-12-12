@@ -44,7 +44,7 @@ namespace EventStore.Core.Tests.ClientAPI
         public IEventStoreConnection Connection { get; private set; }
     }
 
-    public class append_to_stream : IUseFixture<MiniNodeFixture>
+    public class append_to_stream : IClassFixture<MiniNodeFixture>
     {
         private readonly TcpType _tcpType = TcpType.Normal;
         private MiniNode _node;
@@ -92,7 +92,8 @@ namespace EventStore.Core.Tests.ClientAPI
                 Assert.Equal(0, store.AppendToStreamAsync(stream, ExpectedVersion.NoStream, TestEvent.NewTestEvent()).Result.NextExpectedVersion);
 
                 var read = store.ReadStreamEventsForwardAsync(stream, 0, 2, resolveLinkTos: false);
-                Assert.DoesNotThrow(read.Wait);
+                var ex = Record.Exception(()=>read.Wait());
+                Assert.Null(ex);
                 Assert.Equal(1, read.Result.Events.Length);
             }
         }
@@ -108,7 +109,8 @@ namespace EventStore.Core.Tests.ClientAPI
                 Assert.Equal(0, store.AppendToStreamAsync(stream, ExpectedVersion.Any, TestEvent.NewTestEvent()).Result.NextExpectedVersion);
 
                 var read = store.ReadStreamEventsForwardAsync(stream, 0, 2, resolveLinkTos: false);
-                Assert.DoesNotThrow(read.Wait);
+                var ex = Record.Exception(() => read.Wait());
+                Assert.Null(ex);
                 Assert.Equal(1, read.Result.Events.Length);
             }
         }
@@ -184,7 +186,8 @@ namespace EventStore.Core.Tests.ClientAPI
                 store.ConnectAsync().Wait();
 
                 var delete = store.DeleteStreamAsync(stream, ExpectedVersion.EmptyStream, hardDelete: true);
-                Assert.DoesNotThrow(delete.Wait);
+                var ex = Record.Exception(() => delete.Wait());
+                Assert.Null(ex);
 
                 var append = store.AppendToStreamAsync(stream, ExpectedVersion.NoStream, new[] { TestEvent.NewTestEvent() });
 
@@ -234,7 +237,8 @@ namespace EventStore.Core.Tests.ClientAPI
                 store.ConnectAsync().Wait();
 
                 var delete = store.DeleteStreamAsync(stream, ExpectedVersion.EmptyStream, hardDelete: true);
-                Assert.DoesNotThrow(delete.Wait);
+                var ex = Record.Exception(() => delete.Wait());
+                Assert.Null(ex);
 
                 var append = store.AppendToStreamAsync(stream, 5, new[] { TestEvent.NewTestEvent() });
                 var thrown = Assert.Throws<AggregateException>(() => append.Wait());
@@ -253,7 +257,8 @@ namespace EventStore.Core.Tests.ClientAPI
                 store.AppendToStreamAsync(stream, ExpectedVersion.EmptyStream, TestEvent.NewTestEvent()).Wait();
 
                 var append = store.AppendToStreamAsync(stream, 0, new[] { TestEvent.NewTestEvent() });
-                Assert.DoesNotThrow(append.Wait);
+                var ex = Record.Exception(() => append.Wait());
+                Assert.Null(ex);
             }
         }
 
@@ -304,7 +309,7 @@ namespace EventStore.Core.Tests.ClientAPI
         }
     }
 
-    public class ssl_append_to_stream : SpecificationWithDirectoryPerTestFixture, IUseFixture<MiniNodeFixture>
+    public class ssl_append_to_stream : SpecificationWithDirectoryPerTestFixture, IClassFixture<MiniNodeFixture>
     {
         private readonly TcpType _tcpType = TcpType.Ssl;
         protected MiniNode _node;
@@ -367,7 +372,7 @@ namespace EventStore.Core.Tests.ClientAPI
                 store.ConnectAsync().Wait();
 
                 var delete = store.DeleteStreamAsync(stream, ExpectedVersion.EmptyStream, hardDelete: true);
-                Assert.DoesNotThrow(delete.Wait);
+                delete.Wait();
 
                 var append = store.AppendToStreamAsync(stream, ExpectedVersion.NoStream, new[] { TestEvent.NewTestEvent() });
                 var thrown = Assert.Throws<AggregateException>(() => append.Wait());
@@ -385,7 +390,7 @@ namespace EventStore.Core.Tests.ClientAPI
                 store.ConnectAsync().Wait();
 
                 var delete = store.DeleteStreamAsync(stream, ExpectedVersion.EmptyStream, hardDelete: true);
-                Assert.DoesNotThrow(delete.Wait);
+                delete.Wait();
 
                 var append = store.AppendToStreamAsync(stream, ExpectedVersion.Any, new[] { TestEvent.NewTestEvent() });
                 var thrown = Assert.Throws<AggregateException>(() => append.Wait());
@@ -403,7 +408,7 @@ namespace EventStore.Core.Tests.ClientAPI
                 store.ConnectAsync().Wait();
 
                 var delete = store.DeleteStreamAsync(stream, ExpectedVersion.EmptyStream, hardDelete: true);
-                Assert.DoesNotThrow(delete.Wait);
+                delete.Wait();
 
                 var append = store.AppendToStreamAsync(stream, 5, new[] { TestEvent.NewTestEvent() });
                 var thrown = Assert.Throws<AggregateException>(() => append.Wait());

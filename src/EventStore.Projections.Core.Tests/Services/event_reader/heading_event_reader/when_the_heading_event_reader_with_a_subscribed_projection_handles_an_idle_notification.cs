@@ -10,7 +10,6 @@ using Xunit;
 
 namespace EventStore.Projections.Core.Tests.Services.event_reader.heading_event_reader
 {
-
     public class when_the_heading_event_reader_with_a_subscribed_projection_handles_an_idle_notification :
         TestFixtureWithReadWriteDispatchers
     {

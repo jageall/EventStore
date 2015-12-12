@@ -100,7 +100,6 @@ namespace EventStore.Projections.Core.Tests.Services.event_reader.by_stream_cata
             }
         }
 
-
         public class when_starting_from_the_beginning : with_catalog_stream
         {
             protected override IEnumerable<WhenStep> When()
@@ -111,7 +110,6 @@ namespace EventStore.Projections.Core.Tests.Services.event_reader.by_stream_cata
                         _subscriptionId, fromZeroPosition, _readerStrategy, _readerSubscriptionOptions);
             }
         }
-
 
         public class when_new_events_appear_after_subscribing : with_catalog_stream
         {
@@ -126,7 +124,6 @@ namespace EventStore.Projections.Core.Tests.Services.event_reader.by_stream_cata
                         CreateWriteEvent("catalog", "$>", "2@test-stream2"));
             }
         }
-
 
         public class when_new_streams_appear_after_subscribing : with_catalog_stream
         {

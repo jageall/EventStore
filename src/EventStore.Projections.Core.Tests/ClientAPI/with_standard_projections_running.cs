@@ -79,6 +79,10 @@ namespace EventStore.Projections.Core.Tests.ClientAPI
             }
 
             protected abstract bool GivenDeleteHardDeleteStreamMode();
+
+            public when_deleting_stream_base(SpecificationFixture fixture) : base(fixture)
+            {
+            }
         }
 
         
@@ -88,6 +92,10 @@ namespace EventStore.Projections.Core.Tests.ClientAPI
             {
                 return true;
             }
+
+            public when_hard_deleting_stream(SpecificationFixture fixture) : base(fixture)
+            {
+            }
         }
 
         
@@ -96,6 +104,10 @@ namespace EventStore.Projections.Core.Tests.ClientAPI
             protected override bool GivenDeleteHardDeleteStreamMode()
             {
                 return false;
+            }
+
+            public when_soft_deleting_stream(SpecificationFixture fixture) : base(fixture)
+            {
             }
         }
 
@@ -111,6 +123,10 @@ namespace EventStore.Projections.Core.Tests.ClientAPI
             {
                 return false;
             }
+
+            public when_hard_deleting_stream_and_starting_standard_projections(SpecificationFixture fixture) : base(fixture)
+            {
+            }
         }
 
         
@@ -124,6 +140,10 @@ namespace EventStore.Projections.Core.Tests.ClientAPI
             protected override bool GivenStandardProjectionsRunning()
             {
                 return false;
+            }
+
+            public when_soft_deleting_stream_and_starting_standard_projections(SpecificationFixture fixture) : base(fixture)
+            {
             }
         }
     }

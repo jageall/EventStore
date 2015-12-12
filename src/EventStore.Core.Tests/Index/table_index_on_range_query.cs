@@ -5,7 +5,7 @@ using Xunit;
 
 namespace EventStore.Core.Tests.Index
 {
-    public class table_index_on_range_query  : IUseFixture<table_index_on_range_query.Fixture>
+    public class table_index_on_range_query  : IClassFixture<table_index_on_range_query.Fixture>
     {
         private TableIndex _tableIndex;
 

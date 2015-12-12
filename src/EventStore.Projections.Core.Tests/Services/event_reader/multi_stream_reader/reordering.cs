@@ -83,7 +83,6 @@ namespace EventStore.Projections.Core.Tests.Services.event_reader.multi_stream_r
                          select e.Data.Position.PreparePosition), "Incorrect event order received");
             }
         }
-
         
         public class when_event_commit_is_delayed : with_multi_stream_reader
         {

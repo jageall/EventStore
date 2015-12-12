@@ -5,7 +5,7 @@ using Xunit;
 
 namespace EventStore.Core.Tests.TransactionLog
 {
-    public class when_writing_multiple_records_to_a_tfchunk : IUseFixture<when_writing_multiple_records_to_a_tfchunk.FixtureData>
+    public class when_writing_multiple_records_to_a_tfchunk : IClassFixture<when_writing_multiple_records_to_a_tfchunk.FixtureData>
     {
         private TFChunk _chunk;
         private long _position1;

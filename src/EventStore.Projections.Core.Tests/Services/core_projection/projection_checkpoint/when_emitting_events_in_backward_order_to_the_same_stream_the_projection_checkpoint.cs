@@ -41,7 +41,7 @@ namespace EventStore.Projections.Core.Tests.Services.core_projection.projection_
                 _lastException = ex;
             }
         }
-
+        
         [Fact]
         public void throws_invalid_operation_exception()
         {

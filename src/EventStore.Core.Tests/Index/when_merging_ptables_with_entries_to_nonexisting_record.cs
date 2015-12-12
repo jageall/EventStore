@@ -4,7 +4,7 @@ using Xunit;
 
 namespace EventStore.Core.Tests.Index
 {
-    public class when_merging_ptables_with_entries_to_nonexisting_record : IUseFixture<when_merging_ptables_with_entries_to_nonexisting_record.FixtureData>
+    public class when_merging_ptables_with_entries_to_nonexisting_record : IClassFixture<when_merging_ptables_with_entries_to_nonexisting_record.FixtureData>
     {
         private PTable _newtable;
 
@@ -56,7 +56,8 @@ namespace EventStore.Core.Tests.Index
         [Fact]
         public void the_hash_can_be_verified()
         {
-            Assert.DoesNotThrow(() => _newtable.VerifyFileHash());
+            var ex = Record.Exception(() => _newtable.VerifyFileHash());
+            Assert.Null(ex);
         }
 
         [Fact]

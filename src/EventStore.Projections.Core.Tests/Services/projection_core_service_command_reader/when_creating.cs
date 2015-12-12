@@ -40,11 +40,12 @@ namespace EventStore.Projections.Core.Tests.Services.projection_core_service_com
         [Fact]
         public void it_can_be_created()
         {
-            Assert.DoesNotThrow(() =>
+            var ex = Record.Exception(() =>
                 new ProjectionCoreServiceCommandReader(
                     _bus,
                     _ioDispatcher,
                     Guid.NewGuid().ToString("N")));
+            Assert.Null(ex);
         }
     }
 }

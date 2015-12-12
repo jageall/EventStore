@@ -34,7 +34,7 @@ namespace EventStore.Projections.Core.Tests.Services.partition_state_cache
             // when
             _cache.Unlock(_cachedAtCheckpointTag2);
         }
-
+        
         [Fact]
         public void partitions_locked_before_the_unlock_position_cannot_be_retrieved_as_locked()
         {
@@ -49,7 +49,7 @@ namespace EventStore.Projections.Core.Tests.Services.partition_state_cache
                 "partition1", CheckpointTag.FromPosition(0, 25000, 24000));
             Assert.Equal("data1", data.State);
         }
-
+        
         [Fact]
         public void partitions_locked_at_the_unlock_position_cannot_be_retrieved_as_locked()
         {

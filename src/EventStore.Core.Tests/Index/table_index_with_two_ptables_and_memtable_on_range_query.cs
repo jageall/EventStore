@@ -7,7 +7,7 @@ using Xunit;
 
 namespace EventStore.Core.Tests.Index
 {
-    public class table_index_with_two_ptables_and_memtable_on_range_query : IUseFixture<table_index_with_two_ptables_and_memtable_on_range_query.FixtureData>
+    public class table_index_with_two_ptables_and_memtable_on_range_query : IClassFixture<table_index_with_two_ptables_and_memtable_on_range_query.FixtureData>
     {
         private TableIndex _tableIndex;
 

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using EventStore.ClientAPI.Exceptions;
 using EventStore.ClientAPI.SystemData;
 using EventStore.ClientAPI.Transport.Http;
@@ -20,37 +21,35 @@ namespace EventStore.Core.Tests.ClientAPI.UserManagement
         public void deleting_created_user_deletes_it()
         {
             var user = Guid.NewGuid().ToString();
-            Assert.DoesNotThrow(() => _manager.CreateUserAsync(user, "ourofull", new[] { "foo", "bar" }, "ouro", new UserCredentials("admin", "changeit")).Wait());
-            Assert.DoesNotThrow(() => _manager.DeleteUserAsync(user, new UserCredentials("admin", "changeit")).Wait());
+            _manager.CreateUserAsync(user, "ourofull", new[] { "foo", "bar" }, "ouro", new UserCredentials("admin", "changeit")).Wait();
+            _manager.DeleteUserAsync(user, new UserCredentials("admin", "changeit")).Wait();
         }
 
 
         [Fact]
-        public void deleting_null_user_throws()
+        public async Task deleting_null_user_throws()
         {
-            Assert.Throws<ArgumentNullException>(() => _manager.DeleteUserAsync(null, new UserCredentials("admin", "changeit")));
+            await Assert.ThrowsAsync<ArgumentNullException>(() => _manager.DeleteUserAsync(null, new UserCredentials("admin", "changeit")));
         }
 
         [Fact]
-        public void deleting_empty_user_throws()
+        public async Task deleting_empty_user_throws()
         {
-            Assert.Throws<ArgumentNullException>(() => _manager.DeleteUserAsync("", new UserCredentials("admin", "changeit")));
+            await Assert.ThrowsAsync<ArgumentNullException>(() => _manager.DeleteUserAsync("", new UserCredentials("admin", "changeit")));
         }
 
         [Fact]
-        public void can_delete_a_user()
+        public async Task can_delete_a_user()
         {
             _manager.CreateUserAsync("ouro", "ouro", new[] { "foo", "bar" }, "ouro", new UserCredentials("admin", "changeit")).Wait();
-            Assert.DoesNotThrow(() =>
-            {
-                var x =_manager.GetUserAsync("ouro", new UserCredentials("admin", "changeit")).Result;
-            });
+
+
+            await _manager.GetUserAsync("ouro", new UserCredentials("admin", "changeit"));
+            
             _manager.DeleteUserAsync("ouro", new UserCredentials("admin", "changeit")).Wait();
             
-            var ex = Assert.Throws<AggregateException>(
-                () => { var x = _manager.GetUserAsync("ouro", new UserCredentials("admin", "changeit")).Result; }
-            );
-            Assert.Equal(HttpStatusCode.NotFound, ((UserCommandFailedException) ex.InnerException.InnerException).HttpStatusCode);
+            var ex = await Assert.ThrowsAsync<UserCommandFailedException>(() => _manager.GetUserAsync("ouro", new UserCredentials("admin", "changeit")));
+            Assert.Equal(HttpStatusCode.NotFound, ex.HttpStatusCode);
         }
     }
 }

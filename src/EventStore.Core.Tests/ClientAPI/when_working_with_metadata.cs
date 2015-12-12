@@ -12,7 +12,7 @@ using Newtonsoft.Json.Linq;
 
 namespace EventStore.Core.Tests.ClientAPI
 {
-    public class when_working_with_metadata : IUseFixture<ConnectedMiniNodeFixture>
+    public class when_working_with_metadata : IClassFixture<ConnectedMiniNodeFixture>
     {
         private MiniNode _node;
         private IEventStoreConnection _connection;

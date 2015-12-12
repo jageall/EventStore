@@ -74,7 +74,6 @@ namespace EventStore.Projections.Core.Tests.Services.event_reader.event_by_type_
                     "Incorrect event order received");
             }
         }
-
         
         public class when_index_checkpoint_is_written_while_idle : with_some_indexed_events
         {
@@ -129,8 +128,7 @@ namespace EventStore.Projections.Core.Tests.Services.event_reader.event_by_type_
                 Assert.Equal(3, receivedEvents.Length);
             }
         }
-
-
+        
         public class when_the_index_checkpoint_is_read_last : with_some_indexed_events
         {
             protected override void GivenInitialIndexState()

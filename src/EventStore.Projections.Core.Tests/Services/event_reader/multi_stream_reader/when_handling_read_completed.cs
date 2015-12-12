@@ -60,7 +60,7 @@ namespace EventStore.Projections.Core.Tests.Services.event_reader.multi_stream_r
                                 "event_type2", new byte[] {3}, new byte[] {4}))
                     }, null, false, "", 3, 4, false, 200));
         }
-
+        
         [Fact]
         public void cannot_be_resumed()
         {
@@ -91,7 +91,7 @@ namespace EventStore.Projections.Core.Tests.Services.event_reader.multi_stream_r
                          .Last(v => v.EventStreamId == "a")
                          .FromEventNumber);
         }
-
+        
         [Fact]
         public void cannot_handle_repeated_read_events_completed()
         {

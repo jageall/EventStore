@@ -55,13 +55,21 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
-    <Reference Include="xunit, Version=1.9.2.1705, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\libs\xunit.dll</HintPath>
+    <Reference Include="xunit.abstractions, Version=2.0.0.0, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c, processorArchitecture=MSIL">
+      <HintPath>..\packages\xunit.abstractions.2.0.0\lib\net35\xunit.abstractions.dll</HintPath>
+      <Private>True</Private>
     </Reference>
-    <Reference Include="xunit.extensions, Version=1.9.2.1705, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\libs\xunit.extensions.dll</HintPath>
+    <Reference Include="xunit.assert, Version=2.1.0.3179, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c, processorArchitecture=MSIL">
+      <HintPath>..\packages\xunit.assert.2.1.0\lib\dotnet\xunit.assert.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="xunit.core, Version=2.1.0.3179, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c, processorArchitecture=MSIL">
+      <HintPath>..\packages\xunit.extensibility.core.2.1.0\lib\dotnet\xunit.core.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="xunit.execution.desktop, Version=2.1.0.3179, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c, processorArchitecture=MSIL">
+      <HintPath>..\packages\xunit.extensibility.execution.2.1.0\lib\net45\xunit.execution.desktop.dll</HintPath>
+      <Private>True</Private>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -509,7 +517,7 @@
       <Name>EventStore.Common</Name>
     </ProjectReference>
     <ProjectReference Include="..\EventStore.Core.Tests\EventStore.Core.Tests.csproj">
-      <Project>{6BC8929C-FFD0-4EE6-ACF8-BDF4A3855AF4}</Project>
+      <Project>{6bc8929c-ffd0-4ee6-acf8-bdf4a3855af4}</Project>
       <Name>EventStore.Core.Tests</Name>
     </ProjectReference>
     <ProjectReference Include="..\EventStore.Core\EventStore.Core.csproj">
@@ -520,6 +528,14 @@
       <Project>{03e02082-e179-4730-81ff-ce914749d6e3}</Project>
       <Name>EventStore.Projections.Core</Name>
     </ProjectReference>
+    <ProjectReference Include="..\EventStore.Transport.Http\EventStore.Transport.Http.csproj">
+      <Project>{30af4820-dc60-4674-9e19-c4518445545a}</Project>
+      <Name>EventStore.Transport.Http</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\EventStore.Transport.Tcp\EventStore.Transport.Tcp.csproj">
+      <Project>{a3c1cbe0-4728-451f-b709-480134432880}</Project>
+      <Name>EventStore.Transport.Tcp</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Content Include="Queries\1Query.js">
@@ -529,6 +545,9 @@
   <ItemGroup>
     <Folder Include="Services\checkpoint_strategy\" />
     <Folder Include="Services\projections_manager\parallel_query\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />

@@ -36,5 +36,9 @@ namespace EventStore.Projections.Core.Tests.ClientAPI
             var x = _manager.ListContinuousAsync(new UserCredentials("admin", "changeit")).Result;
             Assert.Equal(true, x.Any(p => p.Name == nameToTest));
         }
+
+        public list_projections(SpecificationFixture fixture) : base(fixture)
+        {
+        }
     }
 }

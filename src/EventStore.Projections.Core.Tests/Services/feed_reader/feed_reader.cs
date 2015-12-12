@@ -42,7 +42,7 @@ namespace EventStore.Projections.Core.Tests.Services.feed_reader
                     _subscriptionDispatcher, SystemAccount.Principal, _testQueryDefinition,
                     CheckpointTag.FromPosition(0, 0, -1), 10, Guid.NewGuid(), new NoopEnvelope(), new RealTimeProvider());
             }
-
+            
             [Fact]
             public void null_subscription_dispatcher_throws_argument_null_exception()
             {
@@ -67,7 +67,7 @@ namespace EventStore.Projections.Core.Tests.Services.feed_reader
                     _subscriptionDispatcher, SystemAccount.Principal, null, CheckpointTag.FromPosition(0, 0, -1), 10, Guid.NewGuid(),
                     new NoopEnvelope(), new RealTimeProvider()));
             }
-
+            
             [Fact]
             public void null_from_position_throws_argument_null_exception()
             {
@@ -75,7 +75,7 @@ namespace EventStore.Projections.Core.Tests.Services.feed_reader
                     _subscriptionDispatcher, SystemAccount.Principal, _testQueryDefinition, null, 10, Guid.NewGuid(),
                     new NoopEnvelope(), new RealTimeProvider()));
             }
-
+            
             [Fact]
             public void null_envelope_throws_argument_null_exception()
             {
@@ -91,7 +91,7 @@ namespace EventStore.Projections.Core.Tests.Services.feed_reader
                     _subscriptionDispatcher, SystemAccount.Principal, _testQueryDefinition,
                     CheckpointTag.FromPosition(0, 0, -1), 0, Guid.NewGuid(), new NoopEnvelope(), new RealTimeProvider()));
             }
-
+            
             [Fact]
             public void negative_max_events_throws_argument_exception()
             {
@@ -166,6 +166,7 @@ namespace EventStore.Projections.Core.Tests.Services.feed_reader
                 Assert.NotNull(subscribe.Options);
                 Assert.NotNull(subscribe.Options.StopAfterNEvents);
                 Assert.True(0 < subscribe.Options.StopAfterNEvents);
+
                 Assert.True(subscribe.Options.StopOnEof);
             }
         }
@@ -278,7 +279,6 @@ namespace EventStore.Projections.Core.Tests.Services.feed_reader
             }
 
         }
-
         
         public class when_reading_existing_events : TestFixtureWithFeedReaderService
         {
@@ -320,7 +320,6 @@ namespace EventStore.Projections.Core.Tests.Services.feed_reader
                 Assert.Equal(CheckpointTag.FromStreamPosition(0, "test-stream", 1), feedPage.LastReaderPosition);
             }
         }
-
         
         public class when_reading_existing_events_by_parts : TestFixtureWithFeedReaderService
         {

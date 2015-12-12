@@ -28,7 +28,7 @@ namespace EventStore.Projections.Core.Tests.Services.partition_state_cache
             // when
             _cache.Unlock(_cachedAtCheckpointTag2, forgetUnlocked: true);
         }
-
+        
         [Fact]
         public void partitions_locked_before_the_unlock_position_cannot_be_retrieved_as_locked()
         {

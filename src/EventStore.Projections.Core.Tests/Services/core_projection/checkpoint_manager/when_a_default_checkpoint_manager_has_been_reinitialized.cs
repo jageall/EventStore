@@ -91,7 +91,5 @@ namespace EventStore.Projections.Core.Tests.Services.core_projection.checkpoint_
         {
             _manager.Start(CheckpointTag.FromStreamPosition(0, "stream", 10));
         }
-
-
     }
 }

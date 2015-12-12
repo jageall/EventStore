@@ -108,7 +108,7 @@ namespace EventStore.Projections.Core.Tests.Services.core_projection
                         "account-01", 2, "account-01", 2, false, new TFPos(140, 130), _eventId, "handle_this_type",
                         false, "data1", "metadata"), _subscriptionId, 1));
         }
-
+        
         [Fact(Skip = "To be fixed")]
         public void result_events_are_produced_for_each_received_event()
         {

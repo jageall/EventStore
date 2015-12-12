@@ -54,5 +54,9 @@ fromAll().foreachStream().when({
             AssertStreamTail("$projections-test-projection-stream-1-result", "Result:{\"a\":2,\"deleted\":1}");
             AssertStreamTail("$projections-test-projection-stream-2-result", "Result:{\"a\":2}");
         }
+
+        public when_running_and_events_get_indexed_before_recovery(SpecificationFixture fixture) : base(fixture)
+        {
+        }
     }
 }

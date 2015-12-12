@@ -26,7 +26,6 @@ namespace EventStore.Projections.Core.Tests.Services.position_tagging.stream_pos
         {
             Assert.Equal(2, _positionTracker.LastTag.Streams["stream1"]);
         }
-
         
         [Fact]
         public void cannot_update_to_the_same_postion()
@@ -34,7 +33,7 @@ namespace EventStore.Projections.Core.Tests.Services.position_tagging.stream_pos
             var newTag = CheckpointTag.FromStreamPosition(0, "stream1", 2);
             Assert.Throws<InvalidOperationException>(() => { _positionTracker.UpdateByCheckpointTagForward(newTag); });
         }
-
+        
         [Fact]
         public void it_cannot_be_updated_with_other_stream()
         {

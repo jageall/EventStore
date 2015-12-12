@@ -4,7 +4,6 @@ using Xunit;
 
 namespace EventStore.Projections.Core.Tests.Services.partition_state_cache
 {
-
     public class when_the_partition_state_cache_has_been_created
     {
         private PartitionStateCache _cache;

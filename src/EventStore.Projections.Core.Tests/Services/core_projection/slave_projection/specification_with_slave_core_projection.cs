@@ -77,8 +77,7 @@ namespace EventStore.Projections.Core.Tests.Services.core_projection.slave_proje
                 configureBuilder: _configureBuilderByQuerySource, failOnGetPartition: false);
         }
     }
-
-
+    
     public class when_processes_one_partition : specification_with_slave_core_projection
     {
         protected override void When()
@@ -108,8 +107,7 @@ namespace EventStore.Projections.Core.Tests.Services.core_projection.slave_proje
             Assert.Equal(1, results.Length);
         }
     }
-
-
+    
     public class when_processes_multiple_partitions : specification_with_slave_core_projection
     {
         protected override void When()

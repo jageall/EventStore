@@ -38,7 +38,7 @@ namespace EventStore.Projections.Core.Tests.Services.core_projection.query_by_st
                     _subscriptionId, tag1,
                     "account-01", 3));
         }
-
+        
         [Fact(Skip = "This isn't implemented yet")]
         public void writes_empty_state_for_each_partition()
         {

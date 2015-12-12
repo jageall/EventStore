@@ -11,7 +11,7 @@ using StreamMetadata = EventStore.ClientAPI.StreamMetadata;
 
 namespace EventStore.Core.Tests.ClientAPI
 {
-    public class when_working_with_stream_metadata_as_structured_info : IUseFixture<ConnectedMiniNodeFixture>
+    public class when_working_with_stream_metadata_as_structured_info : IClassFixture<ConnectedMiniNodeFixture>
     {
         private MiniNode _node;
         private IEventStoreConnection _connection;

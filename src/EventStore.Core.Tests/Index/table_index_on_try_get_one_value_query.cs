@@ -7,7 +7,7 @@ using Xunit;
 namespace EventStore.Core.Tests.Index
 {
     
-    public class table_index_on_try_get_one_value_query: IUseFixture<table_index_on_try_get_one_value_query.FixtureData>
+    public class table_index_on_try_get_one_value_query: IClassFixture<table_index_on_try_get_one_value_query.FixtureData>
     {
         private TableIndex _tableIndex;
         private string _indexDir;

@@ -40,7 +40,7 @@ namespace EventStore.Projections.Core.Tests.Services.core_projection.projection_
                     "stream1", Guid.NewGuid(), "type", true, "data", null, CheckpointTag.FromPosition(0, 160, 150), null))
                     });
         }
-
+        
         [Fact]
         public void requesting_checkpoints_with_position_before_the_last_known_throws_invalid_operation_exception()
         {

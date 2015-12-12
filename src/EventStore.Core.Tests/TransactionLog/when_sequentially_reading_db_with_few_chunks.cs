@@ -9,7 +9,7 @@ using Xunit;
 
 namespace EventStore.Core.Tests.TransactionLog
 {
-    public class when_sequentially_reading_db_with_few_chunks : IUseFixture<when_sequentially_reading_db_with_few_chunks.Fixture> 
+    public class when_sequentially_reading_db_with_few_chunks : IClassFixture<when_sequentially_reading_db_with_few_chunks.Fixture> 
     {
         private RecordWriteResult[] _results;
         private LogRecord[] _records;

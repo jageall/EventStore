@@ -14,7 +14,7 @@ namespace EventStore.Projections.Core.Tests.Services.partition_state
             {
                 Assert.Throws<ArgumentNullException>(() => new PartitionState(null, "result", CheckpointTag.FromPosition(0, 100, 50)));
             }
-
+            
             [Fact]
             public void throws_argument_null_exception_if_caused_by_is_null()
             {

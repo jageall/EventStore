@@ -51,7 +51,7 @@ namespace EventStore.Projections.Core.Tests.Services.event_reader.stream_reader
                             "event_type2", new byte[] {3}, new byte[] {4}))
                         }, null, false, "", 12, 11, true, 200));
         }
-
+        
         [Fact]
         public void cannot_be_resumed()
         {
@@ -109,7 +109,7 @@ namespace EventStore.Projections.Core.Tests.Services.event_reader.stream_reader
             Assert.Equal(
                 12, _consumer.HandledMessages.OfType<ClientMessage.ReadStreamEventsForward>().Last().FromEventNumber);
         }
-
+        
         [Fact]
         public void cannot_handle_repeated_read_events_completed()
         {

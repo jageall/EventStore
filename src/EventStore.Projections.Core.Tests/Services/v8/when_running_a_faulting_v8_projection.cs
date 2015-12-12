@@ -59,9 +59,9 @@ namespace EventStore.Projections.Core.Tests.Services.v8
             {
                 string state;
                 EmittedEventEnvelope[] emittedEvents;
-                Assert.DoesNotThrow(() => _stateHandler.ProcessEvent(
+                _stateHandler.ProcessEvent(
                     "", CheckpointTag.FromPosition(0, 10, 5), "stream1", "type1", "category", Guid.NewGuid(), 0, "metadata",
-                    @"{""a"":""b""}", out state, out emittedEvents));
+                    @"{""a"":""b""}", out state, out emittedEvents);
                 var thrown = Assert.Throws<Js1Exception>(() => { _stateHandler.TransformStateToResult(); });
                 Assert.Equal("failed", thrown.Message);
             }

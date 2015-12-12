@@ -9,7 +9,6 @@ using Xunit;
 
 namespace EventStore.Projections.Core.Tests.Services.event_reader.heading_event_reader
 {
-
     public class when_heading_event_reader_has_been_created : TestFixtureWithReadWriteDispatchers
     {
         private HeadingEventReader _point;
@@ -24,25 +23,25 @@ namespace EventStore.Projections.Core.Tests.Services.event_reader.heading_event_
         {
             Assert.NotNull(_point);
         }
-
+        
         [Fact]
         public void stop_throws_invalid_operation_exception()
         {
             Assert.Throws<InvalidOperationException>(() => _point.Stop());
         }
-
+        
         [Fact]
         public void try_subscribe_throws_invalid_operation_exception()
         {
             Assert.Throws<InvalidOperationException>(() => _point.TrySubscribe(Guid.NewGuid(), new FakeReaderSubscription(), 10));
         }
-
+        
         [Fact]
         public void usubscribe_throws_invalid_operation_exception()
         {
             Assert.Throws<InvalidOperationException>(() => _point.Unsubscribe(Guid.NewGuid()));
         }
-
+        
         [Fact]
         public void handle_throws_invalid_operation_exception()
         {

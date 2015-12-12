@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks;
 using EventStore.ClientAPI;
 using Xunit;
 
@@ -31,25 +32,25 @@ namespace EventStore.Core.Tests.ClientAPI
         [Fact]
         [Trait("Category", "Network")]
         [Trait("Category", "LongRunning")]
-        public void throw_if_stream_id_is_null()
+        public async Task throw_if_stream_id_is_null()
         {
-            Assert.Throws<ArgumentNullException>(() => _conn.ReadEventAsync(null, 0, resolveLinkTos: false));
+            await Assert.ThrowsAsync<ArgumentNullException>(() => _conn.ReadEventAsync(null, 0, resolveLinkTos: false));
         }
 
         [Fact]
         [Trait("Category", "Network")]
         [Trait("Category", "LongRunning")]
-        public void throw_if_stream_id_is_empty()
+        public async Task throw_if_stream_id_is_empty()
         {
-            Assert.Throws<ArgumentNullException>(() => _conn.ReadEventAsync("", 0, resolveLinkTos: false));
+            await Assert.ThrowsAsync<ArgumentNullException>(() => _conn.ReadEventAsync("", 0, resolveLinkTos: false));
         }
 
         [Fact]
         [Trait("Category", "Network")]
         [Trait("Category", "LongRunning")]
-        public void throw_if_event_number_is_less_than_minus_one()
+        public async Task throw_if_event_number_is_less_than_minus_one()
         {
-            Assert.Throws<ArgumentOutOfRangeException>(() => _conn.ReadEventAsync("stream", -2, resolveLinkTos: false));
+            await Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => _conn.ReadEventAsync("stream", -2, resolveLinkTos: false));
         }
 
         [Fact]

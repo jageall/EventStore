@@ -101,7 +101,7 @@ namespace EventStore.Projections.Core.Tests.Services.event_reader.multi_stream_r
                 _consumer.HandledMessages.OfType<ReaderSubscriptionMessage.CommittedEventDistributed>()
                          .Skip(2)
                          .First();
-
+            
             Assert.Null(third.Data);
             Assert.Equal(100, third.SafeTransactionFileReaderJoinPosition);
 

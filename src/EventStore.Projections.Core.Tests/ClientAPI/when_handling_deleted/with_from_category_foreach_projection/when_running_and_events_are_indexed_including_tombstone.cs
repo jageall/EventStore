@@ -38,7 +38,7 @@ fromCategory('stream').foreachStream().when({
 ");
             WaitIdle();
         }
-
+        
         [DebugBuildFact]
         [Trait("Category", "Network")]
         [Trait("Category", "ClientAPI")]
@@ -46,6 +46,10 @@ fromCategory('stream').foreachStream().when({
         {
             DumpStream("$ce-stream");
             AssertStreamTail("$projections-test-projection-stream-1-result", "Result:{\"a\":0,\"deleted\":1}");
+        }
+
+        public when_running_and_events_are_indexed_including_tombstone(SpecificationFixture fixture) : base(fixture)
+        {
         }
     }
 }

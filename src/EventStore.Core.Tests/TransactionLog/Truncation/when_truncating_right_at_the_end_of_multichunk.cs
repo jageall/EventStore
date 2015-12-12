@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using EventStore.Core.Tests.TransactionLog.Validation;
 using EventStore.Core.TransactionLog.Checkpoint;
 using EventStore.Core.TransactionLog.Chunks;
@@ -7,7 +8,7 @@ using Xunit;
 
 namespace EventStore.Core.Tests.TransactionLog.Truncation
 {
-    public class when_truncating_right_at_the_end_of_multichunk : IUseFixture<when_truncating_right_at_the_end_of_multichunk.FixtureData>
+    public class when_truncating_right_at_the_end_of_multichunk : IClassFixture<when_truncating_right_at_the_end_of_multichunk.FixtureData>
     {
         private TFChunkDbConfig _config;
         private FixtureData _fixture;
@@ -42,10 +43,12 @@ namespace EventStore.Core.Tests.TransactionLog.Truncation
 
             public override void Dispose()
             {
+                Exception ex;
                 using (var db = new TFChunkDb(_config))
                 {
-                    Assert.DoesNotThrow(() => db.Open(verifyHash: false));
+                    ex = Record.Exception(() => db.Open(verifyHash: false));
                 }
+                Assert.Null(ex);
                 Assert.True(File.Exists(GetFilePathFor("chunk-000000.000002")));
                 Assert.True(File.Exists(GetFilePathFor("chunk-000003.000002")));
                 Assert.True(File.Exists(GetFilePathFor("chunk-000011.000000")));

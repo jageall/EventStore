@@ -90,8 +90,7 @@ namespace EventStore.Projections.Core.Tests.Services.event_reader.event_by_type_
                     "Incorrect event order received");
             }
         }
-
-
+        
         public class when_index_checkpoint_multiple_events_behind : with_one_event_type_has_been_never_emitted
         {
             protected override void GivenInitialIndexState()

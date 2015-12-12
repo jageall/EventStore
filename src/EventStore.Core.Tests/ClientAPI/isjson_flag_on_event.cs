@@ -12,7 +12,7 @@ using Xunit;
 
 namespace EventStore.Core.Tests.ClientAPI
 {
-    public class isjson_flag_on_event : IUseFixture<MiniNodeFixture>
+    public class isjson_flag_on_event : IClassFixture<MiniNodeFixture>
     {
         private MiniNode _node;
 

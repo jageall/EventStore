@@ -27,7 +27,8 @@ namespace EventStore.Core.Tests.Index
         [Fact]
         public void wait_for_destruction_returns()
         {
-            Assert.DoesNotThrow(() => _table.WaitForDisposal(1000));
+            var ex = Record.Exception(() => _table.WaitForDisposal(1000));
+            Assert.Null(ex);
         }
 
         public override void Dispose()

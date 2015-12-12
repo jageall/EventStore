@@ -50,7 +50,6 @@ namespace EventStore.Projections.Core.Tests.Services.event_reader.externally_fed
             }
 
         }
-
         
         public class when_starting_from_the_beginning : with_externally_fed_reader
         {
@@ -68,8 +67,6 @@ namespace EventStore.Projections.Core.Tests.Services.event_reader.externally_fed
                 Assert.NotEmpty(HandledMessages.OfType<ReaderSubscriptionMessage.EventReaderIdle>());
             }
         }
-
-
         
         public class when_handling_first_spool_stream_reading_message : with_externally_fed_reader
         {
@@ -106,7 +103,6 @@ namespace EventStore.Projections.Core.Tests.Services.event_reader.externally_fed
             }
 
         }
-
         
         public class when_handling_sequence_of_spool_stream_reading_messages : with_externally_fed_reader
         {
@@ -152,7 +148,6 @@ namespace EventStore.Projections.Core.Tests.Services.event_reader.externally_fed
 
         }
 
-        
         public class when_handling_sequence_of_spool_stream_reading_messages_with_delays : with_externally_fed_reader
         {
             protected override IEnumerable<WhenStep> When()
@@ -206,7 +201,6 @@ namespace EventStore.Projections.Core.Tests.Services.event_reader.externally_fed
 
         }
 
-        
         public class when_handling_sequence_of_spool_stream_reading_messages_followed_by_completed_spooled_reading : with_externally_fed_reader
         {
             protected override IEnumerable<WhenStep> When()

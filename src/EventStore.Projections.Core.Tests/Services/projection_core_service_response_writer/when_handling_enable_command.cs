@@ -5,7 +5,6 @@ using Xunit;
 
 namespace EventStore.Projections.Core.Tests.Services.projection_core_service_response_writer
 {
-
     public class when_handling_enable_command : specification_with_projection_core_service_response_writer
     {
         private string _name;

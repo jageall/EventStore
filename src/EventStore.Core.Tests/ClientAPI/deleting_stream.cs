@@ -7,7 +7,7 @@ using Xunit;
 
 namespace EventStore.Core.Tests.ClientAPI
 {
-    public class deleting_stream : IUseFixture<MiniNodeFixture>
+    public class deleting_stream : IClassFixture<MiniNodeFixture>
     {
         private MiniNode _node;
 
@@ -31,7 +31,8 @@ namespace EventStore.Core.Tests.ClientAPI
             {
                 connection.ConnectAsync().Wait();
                 var delete = connection.DeleteStreamAsync(stream, ExpectedVersion.EmptyStream, hardDelete: true);
-                Assert.DoesNotThrow(delete.Wait);
+                var ex = Record.Exception(() => delete.Wait());
+                Assert.Null(ex);
             }
         }
 
@@ -46,7 +47,8 @@ namespace EventStore.Core.Tests.ClientAPI
                 connection.ConnectAsync().Wait();
 
                 var delete = connection.DeleteStreamAsync(stream, ExpectedVersion.Any, hardDelete: true);
-                Assert.DoesNotThrow(delete.Wait);
+                var ex = Record.Exception(() => delete.Wait());
+                Assert.Null(ex);
             }
         }
 
@@ -95,7 +97,7 @@ namespace EventStore.Core.Tests.ClientAPI
                 connection.ConnectAsync().Wait();
 
                 var delete = connection.DeleteStreamAsync(stream, ExpectedVersion.EmptyStream, hardDelete: true);
-                Assert.DoesNotThrow(delete.Wait);
+                delete.Wait();
 
                 var secondDelete = connection.DeleteStreamAsync(stream, ExpectedVersion.Any, hardDelete: true);
                 var thrown = Assert.Throws<AggregateException>(() => secondDelete.Wait());

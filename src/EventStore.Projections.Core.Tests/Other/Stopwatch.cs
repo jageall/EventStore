@@ -4,7 +4,6 @@ using Xunit;
 
 namespace EventStore.Projections.Core.Tests.Other
 {
-
     public class Stopwatch
     {
         [Fact]

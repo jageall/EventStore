@@ -9,7 +9,6 @@ using Xunit;
 
 namespace EventStore.Projections.Core.Tests.Services.event_reader.heading_event_reader
 {
-
     public class when_the_heading_event_reader_handles_an_event : TestFixtureWithReadWriteDispatchers
     {
         private HeadingEventReader _point;
@@ -47,8 +46,7 @@ namespace EventStore.Projections.Core.Tests.Services.event_reader.heading_event_
                             _distibutionPointCorrelationId, new EventPosition(long.MinValue, 30), "stream", 12, false, null));
                 }
         */
-
-        [Fact]
+        
         public void cannot_handle_previous_event()
         {
             Assert.Throws<InvalidOperationException>(() => 

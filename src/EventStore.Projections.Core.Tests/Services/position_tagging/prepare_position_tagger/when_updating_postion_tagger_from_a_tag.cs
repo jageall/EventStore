@@ -30,6 +30,7 @@ namespace EventStore.Projections.Core.Tests.Services.position_tagging.prepare_po
         public void position_is_updated()
         {
             Assert.Equal(50, _positionTracker.LastTag.PreparePosition);
+
             Assert.Null(_positionTracker.LastTag.CommitPosition);
         }
     }

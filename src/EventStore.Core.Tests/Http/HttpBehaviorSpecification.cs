@@ -24,7 +24,7 @@ using EventStore.ClientAPI.Transport.Http;
 
 namespace EventStore.Core.Tests.Http
 {
-    public abstract class HttpBehaviorSpecification : IUseFixture<HttpBehaviorSpecification.SpecificationFixture>, IUseFixture<object>
+    public abstract class HttpBehaviorSpecification : IClassFixture<HttpBehaviorSpecification.SpecificationFixture>, IClassFixture<object>
     {
         public class SpecificationFixture : SpecificationWithDirectoryPerTestFixture
         {

@@ -5,7 +5,6 @@ using Xunit;
 
 namespace EventStore.Projections.Core.Tests.Services.core_projection.multi_phase
 {
-    
     public class when_completing_phase1_of_a_multiphase_projection : specification_with_multi_phase_core_projection
     {
         protected override void When()

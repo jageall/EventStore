@@ -9,7 +9,6 @@ using ResolvedEvent = EventStore.Projections.Core.Services.Processing.ResolvedEv
 
 namespace EventStore.Projections.Core.Tests.Services.core_projection.parallel_query
 {
-
     public class when_handling_partition_processing_result_messages : specification_with_parallel_query
     {
 

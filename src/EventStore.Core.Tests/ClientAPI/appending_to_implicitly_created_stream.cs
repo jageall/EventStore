@@ -8,11 +8,11 @@ using Xunit;
 
 namespace EventStore.Core.Tests.ClientAPI
 {
-    public class appending_to_implicitly_created_stream : SpecificationWithDirectoryPerTestFixture, IUseFixture<MiniNodeFixture>
+    public class appending_to_implicitly_created_stream : SpecificationWithDirectoryPerTestFixture, IClassFixture<MiniNodeFixture>
     {
         private MiniNode _node;
 
-        public void SetFixture(MiniNodeFixture data)
+        public appending_to_implicitly_created_stream(MiniNodeFixture data)
         {
             _node = data.Node;
         }
@@ -41,7 +41,7 @@ namespace EventStore.Core.Tests.ClientAPI
                 var events = Enumerable.Range(0, 6).Select(x => TestEvent.NewTestEvent(Guid.NewGuid())).ToArray();
                 var writer = new StreamWriter(store, stream, -1);
 
-                Assert.DoesNotThrow(() => writer.Append(events).Then(events.First(), -1));
+                writer.Append(events).Then(events.First(), -1);
 
                 var total = EventsStream.Count(store, stream);
                 Assert.Equal(events.Length, total);
@@ -60,7 +60,7 @@ namespace EventStore.Core.Tests.ClientAPI
                 var events = Enumerable.Range(0, 6).Select(x => TestEvent.NewTestEvent(Guid.NewGuid())).ToArray();
                 var writer = new StreamWriter(store, stream, -1);
 
-                Assert.DoesNotThrow(() => writer.Append(events).Then(events.First(), ExpectedVersion.Any));
+                writer.Append(events).Then(events.First(), ExpectedVersion.Any);
 
                 var total = EventsStream.Count(store, stream);
                 Assert.Equal(events.Length, total);
@@ -79,7 +79,7 @@ namespace EventStore.Core.Tests.ClientAPI
                 var events = Enumerable.Range(0, 6).Select(x => TestEvent.NewTestEvent(Guid.NewGuid())).ToArray();
                 var writer = new StreamWriter(store, stream, -1);
 
-                Assert.DoesNotThrow(() => writer.Append(events).Then(events.First(), 5));
+                writer.Append(events).Then(events.First(), 5);
 
                 var total = EventsStream.Count(store, stream);
                 Assert.Equal(events.Length +1, total);
@@ -135,7 +135,7 @@ namespace EventStore.Core.Tests.ClientAPI
                 var events = Enumerable.Range(0, 1).Select(x => TestEvent.NewTestEvent(Guid.NewGuid())).ToArray();
                 var writer = new StreamWriter(store, stream, -1);
 
-                Assert.DoesNotThrow(() => writer.Append(events).Then(events.First(), 0));
+                writer.Append(events).Then(events.First(), 0);
 
                 var total = EventsStream.Count(store, stream);
                 Assert.Equal(events.Length + 1, total);
@@ -154,7 +154,7 @@ namespace EventStore.Core.Tests.ClientAPI
                 var events = Enumerable.Range(0, 1).Select(x => TestEvent.NewTestEvent(Guid.NewGuid())).ToArray();
                 var writer = new StreamWriter(store, stream, -1);
 
-                Assert.DoesNotThrow(() => writer.Append(events).Then(events.First(), ExpectedVersion.Any));
+                writer.Append(events).Then(events.First(), ExpectedVersion.Any);
 
                 var total = EventsStream.Count(store, stream);
                 Assert.Equal(events.Length, total);
@@ -173,7 +173,7 @@ namespace EventStore.Core.Tests.ClientAPI
                 var events = Enumerable.Range(0, 1).Select(x => TestEvent.NewTestEvent(Guid.NewGuid())).ToArray();
                 var writer = new StreamWriter(store, stream, -1);
 
-                Assert.DoesNotThrow(() => writer.Append(events).Then(events.First(), -1));
+                writer.Append(events).Then(events.First(), -1);
 
                 var total = EventsStream.Count(store, stream);
                 Assert.Equal(events.Length, total);
@@ -192,7 +192,7 @@ namespace EventStore.Core.Tests.ClientAPI
                 var events = Enumerable.Range(0, 3).Select(x => TestEvent.NewTestEvent(Guid.NewGuid())).ToArray();
                 var writer = new StreamWriter(store, stream, -1);
 
-                Assert.DoesNotThrow(() => writer.Append(events).Then(events[1], ExpectedVersion.Any).Then(events[1], ExpectedVersion.Any));
+                writer.Append(events).Then(events[1], ExpectedVersion.Any).Then(events[1], ExpectedVersion.Any);
 
                 var total = EventsStream.Count(store, stream);
                 Assert.Equal(events.Length, total);
@@ -210,10 +210,10 @@ namespace EventStore.Core.Tests.ClientAPI
 
                 var events = Enumerable.Range(0, 2).Select(x => TestEvent.NewTestEvent(Guid.NewGuid())).ToArray();
                 var append = store.AppendToStreamAsync(stream, -1, events);
-                Assert.DoesNotThrow(append.Wait);
+                append.Wait();
 
                 var app2 = store.AppendToStreamAsync(stream, -1, new[] { events.First() });
-                Assert.DoesNotThrow(app2.Wait);
+                app2.Wait();
 
                 var total = EventsStream.Count(store, stream);
                 Assert.Equal(events.Length, total);
@@ -231,10 +231,10 @@ namespace EventStore.Core.Tests.ClientAPI
 
                 var events = Enumerable.Range(0, 2).Select(x => TestEvent.NewTestEvent(Guid.NewGuid())).ToArray();
                 var append = store.AppendToStreamAsync(stream, -1, events);
-                Assert.DoesNotThrow(append.Wait);
+                append.Wait();
 
                 var app2 = store.AppendToStreamAsync(stream, ExpectedVersion.Any, new[] { events.First() });
-                Assert.DoesNotThrow(app2.Wait);
+                app2.Wait();
 
                 var total = EventsStream.Count(store, stream);
                 Assert.Equal(events.Length, total);
@@ -252,10 +252,10 @@ namespace EventStore.Core.Tests.ClientAPI
 
                 var events = Enumerable.Range(0, 2).Select(x => TestEvent.NewTestEvent(Guid.NewGuid())).ToArray();
                 var append = store.AppendToStreamAsync(stream, -1, events);
-                Assert.DoesNotThrow(append.Wait);
+                append.Wait();
 
                 var app2 = store.AppendToStreamAsync(stream, 0, new[] { events[1] });
-                Assert.DoesNotThrow(app2.Wait);
+                app2.Wait();
 
                 var total = EventsStream.Count(store, stream);
                 Assert.Equal(events.Length, total);
@@ -273,10 +273,10 @@ namespace EventStore.Core.Tests.ClientAPI
 
                 var events = Enumerable.Range(0, 2).Select(x => TestEvent.NewTestEvent(Guid.NewGuid())).ToArray();
                 var append = store.AppendToStreamAsync(stream, -1, events);
-                Assert.DoesNotThrow(append.Wait);
+                append.Wait();
 
                 var app2 = store.AppendToStreamAsync(stream, ExpectedVersion.Any, new[] { events[1] });
-                Assert.DoesNotThrow(app2.Wait);
+                app2.Wait();
 
                 var total = EventsStream.Count(store, stream);
                 Assert.Equal(events.Length, total);
@@ -294,7 +294,7 @@ namespace EventStore.Core.Tests.ClientAPI
 
                 var events = Enumerable.Range(0, 2).Select(x => TestEvent.NewTestEvent(Guid.NewGuid())).ToArray();
                 var append = store.AppendToStreamAsync(stream, -1, events);
-                Assert.DoesNotThrow(append.Wait);
+                append.Wait();
 
                 var app2 = store.AppendToStreamAsync(stream, -1, events.Concat(new[] { TestEvent.NewTestEvent(Guid.NewGuid()) }));
                 var thrown = Assert.Throws<AggregateException>(() => app2.Wait());

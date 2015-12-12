@@ -3,7 +3,7 @@ using Xunit;
 
 namespace EventStore.Core.Tests.TransactionLog
 {
-    public class when_reading_uncached_empty_scavenged_tfchunk : IUseFixture<when_reading_uncached_empty_scavenged_tfchunk.FixtureData>
+    public class when_reading_uncached_empty_scavenged_tfchunk : IClassFixture<when_reading_uncached_empty_scavenged_tfchunk.FixtureData>
     {
         private TFChunk _chunk;
         

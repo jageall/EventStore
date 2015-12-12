@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
@@ -30,6 +31,7 @@ namespace EventStore.Projections.Core.Tests.ClientAPI.Cluster
         private Action<specification_with_standard_projections_runnning> _assignStashedValues;
 
         private class Endpoints
+
         {
             public readonly IPEndPoint InternalTcp;
             public readonly IPEndPoint InternalTcpSec;
@@ -148,7 +150,7 @@ namespace EventStore.Projections.Core.Tests.ClientAPI.Cluster
         }
     }
     
-    public class specification_with_standard_projections_runnning : IUseFixture<StandardProjectionsRunning>, IDisposable
+    public class specification_with_standard_projections_runnning : IClassFixture<StandardProjectionsRunning>, IDisposable
     {
         protected readonly UserCredentials _admin = DefaultData.AdminCredentials;
         protected ProjectionsManager _manager{get { return _fixture.Manager; }}
@@ -157,17 +159,13 @@ namespace EventStore.Projections.Core.Tests.ClientAPI.Cluster
         protected StandardProjectionsRunning Fixture{get{return _fixture;}}
 
 
-        public specification_with_standard_projections_runnning()
+        public specification_with_standard_projections_runnning(StandardProjectionsRunning fixture)
         {
 #if (!DEBUG)
             throw new NotSupportedException("These tests require DEBUG conditional");
 #else
 
 #endif
-        }
-
-        public void SetFixture(StandardProjectionsRunning fixture)
-        {
             _fixture = fixture;
             _fixture.EnsureInitialized(
                 () => { if (GivenStandardProjectionsRunning()) EnableStandardProjections(); },
@@ -213,7 +211,6 @@ namespace EventStore.Projections.Core.Tests.ClientAPI.Cluster
             _manager.DisableAsync(name, _admin).Wait();
         }
 
-
         protected virtual void When()
         {
         }
@@ -248,7 +245,7 @@ namespace EventStore.Projections.Core.Tests.ClientAPI.Cluster
         }
 
         [Conditional("DEBUG")]
-        protected void AssertStreamTail(string streamId, params string[] events)
+        public void AssertStreamTail(string streamId, params string[] events)
         {
 #if DEBUG
             var result = _conn.ReadStreamEventsBackwardAsync(streamId, -1, events.Length, true, _admin).Result;
@@ -336,13 +333,12 @@ namespace EventStore.Projections.Core.Tests.ClientAPI.Cluster
         }
 #endif
 
-        protected void PostProjection(string query)
+        public void PostProjection(string query)
         {
             _manager.CreateContinuousAsync("test-projection", query, _admin).Wait();
             WaitIdle();
         }
     }
-
     public class TestTest : specification_with_standard_projections_runnning
     {
         //TODO JAG this appears to be the only test that inherits from the base class in cluster
@@ -352,6 +348,18 @@ namespace EventStore.Projections.Core.Tests.ClientAPI.Cluster
             PostProjection(@"fromStream('$user-admin').outputState()");
 
             AssertStreamTail("$projections-test-projection-result", "Result:{}");
+        }
+
+
+        public void Dispose()
+        {
+            var all = _manager.ListAllAsync(_admin).Result;
+            if (all.Any(p => p.Name == "Faulted"))
+                Assert.True(false, string.Format("Projections faulted while running the test" + "\r\n" + all));
+        }
+
+        public TestTest(StandardProjectionsRunning fixture) : base(fixture)
+        {
         }
     }
 }

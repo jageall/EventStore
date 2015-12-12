@@ -22,7 +22,7 @@ namespace EventStore.Projections.Core.Tests.Services.core_projection.projection_
             _fakePublisher = new FakePublisher();
             _ioDispatcher = new IODispatcher(_fakePublisher, new PublishEnvelope(_fakePublisher));
         }
-
+        
         [Fact]
         public void null_io_dispatcher_throws_argument_null_exception()
         {
@@ -31,7 +31,7 @@ namespace EventStore.Projections.Core.Tests.Services.core_projection.projection_
                 null, new ProjectionVersion(1, 0, 0), null, _readyHandler,
                 CheckpointTag.FromPosition(0, 100, 50), new TransactionFilePositionTagger(0), 250));
         }
-
+        
         [Fact]
         public void null_ready_handler_throws_argument_null_exception()
         {
@@ -40,7 +40,7 @@ namespace EventStore.Projections.Core.Tests.Services.core_projection.projection_
                 _ioDispatcher, new ProjectionVersion(1, 0, 0), null, null,
                 CheckpointTag.FromPosition(0, 100, 50), new TransactionFilePositionTagger(0), 250));
         }
-
+        
         [Fact]
         public void commit_position_less_than_or_equal_to_prepare_position_throws_argument_exception()
         {

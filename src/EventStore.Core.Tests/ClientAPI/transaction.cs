@@ -12,7 +12,7 @@ using System.Linq;
 
 namespace EventStore.Core.Tests.ClientAPI
 {
-    public class transaction : IUseFixture<SpecificationWithDirectoryPerTestFixture>, IDisposable
+    public class transaction : IClassFixture<SpecificationWithDirectoryPerTestFixture>, IDisposable
     {
         private MiniNode _node;
 
@@ -108,7 +108,7 @@ namespace EventStore.Core.Tests.ClientAPI
                 store.ConnectAsync().Wait();
                 using (var transaction = store.StartTransactionAsync(stream, ExpectedVersion.NoStream).Result)
                 {
-                    Assert.DoesNotThrow(() => transaction.WriteAsync().Wait());
+                    transaction.WriteAsync().Wait();
                     Assert.Equal(-1, transaction.CommitAsync().Result.NextExpectedVersion);
                 }
 
@@ -149,7 +149,6 @@ namespace EventStore.Core.Tests.ClientAPI
             //500 events during transaction
             ThreadPool.QueueUserWorkItem(_ =>
             {
-                Assert.DoesNotThrow(() => {
                     using (var store = BuildConnection(_node))
                     {
                         store.ConnectAsync().Wait();
@@ -167,27 +166,25 @@ namespace EventStore.Core.Tests.ClientAPI
                             transWritesCompleted.Set();
                         }
                     }
-                });
             });
 
             //500 events to same stream in parallel
             ThreadPool.QueueUserWorkItem(_ =>
             {
-                Assert.DoesNotThrow(() => {
-                    using (var store = BuildConnection(_node))
+                using (var store = BuildConnection(_node))
+                {
+                    store.ConnectAsync().Wait();
+                    var writes = new List<Task>();
+                    for (int i = 0; i < totalPlainWrites; i++)
                     {
-                        store.ConnectAsync().Wait();
-                        var writes = new List<Task>();
-                        for (int i = 0; i < totalPlainWrites; i++)
-                        {
-                            writes.Add(store.AppendToStreamAsync(stream,
-                                                                 ExpectedVersion.Any,
-                                                                 new[] {TestEvent.NewTestEvent(i.ToString(), "plain write")}));
-                        }
-                        Task.WaitAll(writes.ToArray());
-                        writesToSameStreamCompleted.Set();
+                        writes.Add(store.AppendToStreamAsync(stream,
+                            ExpectedVersion.Any,
+                            new[] {TestEvent.NewTestEvent(i.ToString(), "plain write")}));
                     }
-                });
+                    Task.WaitAll(writes.ToArray());
+                    writesToSameStreamCompleted.Set();
+                }
+
             });
 
             transWritesCompleted.Wait();

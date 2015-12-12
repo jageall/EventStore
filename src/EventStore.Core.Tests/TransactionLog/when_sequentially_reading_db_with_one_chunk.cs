@@ -9,7 +9,7 @@ using Xunit;
 
 namespace EventStore.Core.Tests.TransactionLog
 {
-    public class when_sequentially_reading_db_with_one_chunk: IUseFixture<when_sequentially_reading_db_with_one_chunk.Fixture>
+    public class when_sequentially_reading_db_with_one_chunk: IClassFixture<when_sequentially_reading_db_with_one_chunk.Fixture>
     {
         private const int RecordsCount = 3;
         private TFChunkDb _db;

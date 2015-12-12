@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using EventStore.ClientAPI;
 using EventStore.Core.Services;
 using EventStore.Core.Tests.ClientAPI.Helpers;
@@ -90,9 +91,9 @@ namespace EventStore.Core.Tests.ClientAPI
 
         [Fact]
         [Trait("Category", "Network")]
-        public void throw_when_got_int_max_value_as_maxcount()
+        public async Task throw_when_got_int_max_value_as_maxcount()
         {
-            Assert.Throws<ArgumentException>(
+            await Assert.ThrowsAsync<ArgumentException>(
                 () => _conn.ReadAllEventsForwardAsync(Position.Start, int.MaxValue, resolveLinkTos: false));
 
         }

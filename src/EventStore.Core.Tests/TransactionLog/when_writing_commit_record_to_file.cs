@@ -8,7 +8,7 @@ using Xunit;
 
 namespace EventStore.Core.Tests.TransactionLog
 {
-    public class when_writing_commit_record_to_file: IUseFixture<when_writing_commit_record_to_file.FixtureData> 
+    public class when_writing_commit_record_to_file: IClassFixture<when_writing_commit_record_to_file.FixtureData> 
     {
         private TFChunkDb _db;
         private InMemoryCheckpoint _writerCheckpoint;

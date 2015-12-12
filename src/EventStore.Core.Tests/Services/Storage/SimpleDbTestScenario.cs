@@ -13,7 +13,7 @@ using Xunit;
 
 namespace EventStore.Core.Tests.Services.Storage
 {
-    public abstract class SimpleDbTestScenario : IUseFixture<SimpleDbTestScenario.FixtureData>
+    public abstract class SimpleDbTestScenario : IClassFixture<SimpleDbTestScenario.FixtureData>
     {
         private readonly int _metastreamMaxCount;
         protected readonly int MaxEntriesInMemTable;

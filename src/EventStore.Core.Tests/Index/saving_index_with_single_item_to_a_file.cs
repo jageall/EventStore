@@ -39,7 +39,7 @@ namespace EventStore.Core.Tests.Index
             base.Dispose();
         }
     }
-    public class saving_index_with_single_item_to_a_file : IUseFixture<saving_index_with_single_item_to_a_fileFixture>
+    public class saving_index_with_single_item_to_a_file : IClassFixture<saving_index_with_single_item_to_a_fileFixture>
     {
         private string _filename;
         private IndexMap _map;

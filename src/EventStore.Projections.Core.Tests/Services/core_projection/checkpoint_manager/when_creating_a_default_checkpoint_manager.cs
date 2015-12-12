@@ -26,7 +26,7 @@ namespace EventStore.Projections.Core.Tests.Services.core_projection.checkpoint_
                 "projection", new StreamPositionTagger(0, "stream"), _namingBuilder, _checkpointsEnabled,
                 _producesResults, _definesFold, _coreProjectionCheckpointWriter);
         }
-
+        
         [Fact]
         public void null_publisher_throws_argument_null_exception()
         {
@@ -46,7 +46,7 @@ namespace EventStore.Projections.Core.Tests.Services.core_projection.checkpoint_
                 new StreamPositionTagger(0, "stream"), _namingBuilder, _checkpointsEnabled, _producesResults,
                 _definesFold, _coreProjectionCheckpointWriter));
         }
-
+        
         [Fact]
         public void null_projection_config_throws_argument_null_exception()
         {
@@ -56,7 +56,7 @@ namespace EventStore.Projections.Core.Tests.Services.core_projection.checkpoint_
                 new StreamPositionTagger(0, "stream"), _namingBuilder, _checkpointsEnabled, _producesResults,
                 _definesFold, _coreProjectionCheckpointWriter));
         }
-
+        
         [Fact]
         public void null_projection_name_throws_argument_null_exception()
         {
@@ -66,7 +66,7 @@ namespace EventStore.Projections.Core.Tests.Services.core_projection.checkpoint_
                 new StreamPositionTagger(0, "stream"), _namingBuilder, _checkpointsEnabled, _producesResults,
                 _definesFold, _coreProjectionCheckpointWriter));
         }
-
+        
         [Fact]
         public void null_position_tagger_throws_argument_null_exception()
         {
@@ -76,7 +76,7 @@ namespace EventStore.Projections.Core.Tests.Services.core_projection.checkpoint_
                 "projection", null, _namingBuilder, _checkpointsEnabled, _producesResults,
                 _definesFold, _coreProjectionCheckpointWriter));
         }
-
+        
         [Fact]
         public void empty_projection_checkpoint_stream_id_throws_argument_exception()
         {
@@ -86,7 +86,7 @@ namespace EventStore.Projections.Core.Tests.Services.core_projection.checkpoint_
                 new StreamPositionTagger(0, "stream"), _namingBuilder, _checkpointsEnabled, _producesResults,
                 _definesFold, _coreProjectionCheckpointWriter));
         }
-
+        
         [Fact]
         public void empty_projection_name_throws_argument_exception()
         {

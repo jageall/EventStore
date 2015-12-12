@@ -17,7 +17,8 @@ namespace EventStore.Core.Tests.Bus
         [Fact]
         public void should_not_throw()
         {
-            Assert.DoesNotThrow(() => Queue.Publish(new TestMessage()));
+            var ex = Record.Exception(() => Queue.Publish(new TestMessage()));
+            Assert.Null(ex);
         }
 
         [Fact]

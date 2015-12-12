@@ -11,9 +11,10 @@ namespace EventStore.Projections.Core.Tests.Services.partition_state_update_mana
         [Fact]
         public void no_exceptions_are_thrown()
         {
-            Assert.DoesNotThrow(() =>new PartitionStateUpdateManager(ProjectionNamesBuilder.CreateForTest("projection")));
+            var ex = Record.Exception(() =>new PartitionStateUpdateManager(ProjectionNamesBuilder.CreateForTest("projection")));
+            Assert.Null(ex);
         }
-
+        
         [Fact]
         public void null_naming_builder_throws_argument_null_exception()
         {

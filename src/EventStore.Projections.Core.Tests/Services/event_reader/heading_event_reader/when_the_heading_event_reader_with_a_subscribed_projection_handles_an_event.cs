@@ -10,7 +10,6 @@ using Xunit;
 
 namespace EventStore.Projections.Core.Tests.Services.event_reader.heading_event_reader
 {
-
     public class when_the_heading_event_reader_with_a_subscribed_projection_handles_an_event :
         TestFixtureWithReadWriteDispatchers
     {
@@ -57,7 +56,7 @@ namespace EventStore.Projections.Core.Tests.Services.event_reader.heading_event_
         {
             _point.Unsubscribe(_projectionSubscriptionId);
         }
-
+        
         [Fact]
         public void no_other_projection_can_subscribe_with_the_same_projection_id()
         {

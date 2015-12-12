@@ -35,8 +35,9 @@ namespace EventStore.Core.Tests.TransactionLog.Validation
                                                        new InMemoryCheckpoint(),
                                                        new InMemoryCheckpoint(-1),
                                                        new InMemoryCheckpoint(-1)));
-            Assert.DoesNotThrow(() => db.Open());
+            var ex  = Record.Exception(() => db.Open());
             db.Dispose();
+            Assert.Null(ex);
         }
     }
 }

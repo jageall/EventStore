@@ -57,11 +57,12 @@ namespace EventStore.Core.Tests.Index
         public void allow_prepare_checkpoint_equal_to_minus_one_if_no_ptables_are_in_index()
         {
             CreateArtificialIndexMapFile(_indexMapFileName, -1, 0, null);
-            Assert.DoesNotThrow(() =>
+            var ex =  Record.Exception(() =>
             {
                 var indexMap = IndexMap.FromFile(_indexMapFileName, 2);
                 indexMap.InOrder().ToList().ForEach(x => x.Dispose());
             });
+            Assert.Null(ex);
         }
 
         [Fact]
@@ -82,11 +83,12 @@ namespace EventStore.Core.Tests.Index
         public void allow_commit_checkpoint_equal_to_minus_one_if_no_ptables_are_in_index()
         {
             CreateArtificialIndexMapFile(_indexMapFileName, 0, -1, null);
-            Assert.DoesNotThrow(() =>
+            var ex = Record.Exception(() =>
             {
                 var indexMap = IndexMap.FromFile(_indexMapFileName, 2);
                 indexMap.InOrder().ToList().ForEach(x => x.Dispose());
             });
+            Assert.Null(ex);
         }
 
         [Fact]

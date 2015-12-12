@@ -8,7 +8,7 @@ using Xunit;
 
 namespace EventStore.Core.Tests.ClientAPI
 {
-    public abstract class SpecificationWithMiniNode : IUseFixture<SpecificationWithMiniNode.SpecificationFixture>
+    public abstract class SpecificationWithMiniNode : IClassFixture<SpecificationWithMiniNode.SpecificationFixture>
     {
         protected MiniNode _node {get { return _fixture.Node; }}
         protected IEventStoreConnection _conn {get{return _fixture.Connection;}}

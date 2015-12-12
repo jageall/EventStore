@@ -8,7 +8,7 @@ using Xunit;
 
 namespace EventStore.Core.Tests.TransactionLog.Truncation
 {
-    public class when_truncating_database : IUseFixture<SpecificationWithDirectoryPerTestFixture>, IDisposable
+    public class when_truncating_database : IClassFixture<SpecificationWithDirectoryPerTestFixture>, IDisposable
     {
         private MiniNode _miniNode;
 

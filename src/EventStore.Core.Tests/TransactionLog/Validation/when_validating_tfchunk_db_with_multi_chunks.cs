@@ -62,7 +62,8 @@ namespace EventStore.Core.Tests.TransactionLog.Validation
             {
                 DbUtil.CreateSingleChunk(config, 0, GetFilePathFor("chunk-000000.000000"));
                 DbUtil.CreateMultiChunk(config, 1, 2, GetFilePathFor("chunk-000001.000000"));
-                Assert.DoesNotThrow(() => db.Open(verifyHash: false));
+                var ex = Record.Exception(() => db.Open(verifyHash: false));
+                Assert.Null(ex);
 
                 Assert.True(File.Exists(GetFilePathFor("chunk-000000.000000")));
                 Assert.True(File.Exists(GetFilePathFor("chunk-000001.000000")));
@@ -86,7 +87,8 @@ namespace EventStore.Core.Tests.TransactionLog.Validation
             {
                 DbUtil.CreateMultiChunk(config, 0, 1, GetFilePathFor("chunk-000000.000000"));
                 DbUtil.CreateOngoingChunk(config, 2, GetFilePathFor("chunk-000002.000000"));
-                Assert.DoesNotThrow(() => db.Open(verifyHash: false));
+                var ex = Record.Exception(() => db.Open(verifyHash: false));
+                Assert.Null(ex);
 
                 Assert.True(File.Exists(GetFilePathFor("chunk-000000.000000")));
                 Assert.True(File.Exists(GetFilePathFor("chunk-000002.000000")));
@@ -139,7 +141,8 @@ namespace EventStore.Core.Tests.TransactionLog.Validation
                 DbUtil.CreateSingleChunk(config, 3, GetFilePathFor("chunk-000003.000007"));
                 DbUtil.CreateOngoingChunk(config, 3, GetFilePathFor("chunk-000003.000008"));
 
-                Assert.DoesNotThrow(() => db.Open(verifyHash: false));
+                var ex = Record.Exception(() => db.Open(verifyHash: false));
+                Assert.Null(ex);
 
                 Assert.True(File.Exists(GetFilePathFor("foo")));
                 Assert.True(File.Exists(GetFilePathFor("bla")));
@@ -165,7 +168,8 @@ namespace EventStore.Core.Tests.TransactionLog.Validation
             {
                 DbUtil.CreateMultiChunk(config, 0, 1, GetFilePathFor("chunk-000000.000000"));
 
-                Assert.DoesNotThrow(() => db.Open(verifyHash: false));
+                var ex = Record.Exception(() => db.Open(verifyHash: false));
+                Assert.Null(ex);
                 Assert.NotNull(db.Manager.GetChunk(2));
 
                 Assert.True(File.Exists(GetFilePathFor("chunk-000000.000000")));
@@ -190,7 +194,8 @@ namespace EventStore.Core.Tests.TransactionLog.Validation
                 DbUtil.CreateMultiChunk(config, 0, 1, GetFilePathFor("chunk-000000.000000"));
                 DbUtil.CreateOngoingChunk(config, 2, GetFilePathFor("chunk-000002.000001"));
 
-                Assert.DoesNotThrow(() => db.Open(verifyHash: false));
+                var ex = Record.Exception(() => db.Open(verifyHash: false));
+                Assert.Null(ex);
                 Assert.NotNull(db.Manager.GetChunk(2));
 
                 Assert.True(File.Exists(GetFilePathFor("chunk-000000.000000")));
@@ -215,7 +220,8 @@ namespace EventStore.Core.Tests.TransactionLog.Validation
                 DbUtil.CreateSingleChunk(config, 0, GetFilePathFor("chunk-000000.000000"));
                 DbUtil.CreateMultiChunk(config, 1, 2, GetFilePathFor("chunk-000001.000001"), physicalSize: 50, logicalSize: 150);
 
-                Assert.DoesNotThrow(() => db.Open(verifyHash: false));
+                var ex = Record.Exception(() => db.Open(verifyHash: false));
+                Assert.Null(ex);
                 Assert.NotNull(db.Manager.GetChunk(2));
 
                 Assert.True(File.Exists(GetFilePathFor("chunk-000000.000000")));
@@ -262,7 +268,8 @@ namespace EventStore.Core.Tests.TransactionLog.Validation
                 DbUtil.CreateSingleChunk(config, 0, GetFilePathFor("chunk-000000.000000"));
                 DbUtil.CreateMultiChunk(config, 1, 3, GetFilePathFor("chunk-000001.000001"));
 
-                Assert.DoesNotThrow(() => db.Open(verifyHash: false));
+                var ex = Record.Exception(() => db.Open(verifyHash: false));
+                Assert.Null(ex);
 
                 Assert.True(File.Exists(GetFilePathFor("chunk-000000.000000")));
                 Assert.True(File.Exists(GetFilePathFor("chunk-000001.000001")));

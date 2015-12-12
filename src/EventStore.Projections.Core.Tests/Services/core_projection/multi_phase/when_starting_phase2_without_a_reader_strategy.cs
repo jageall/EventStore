@@ -5,7 +5,6 @@ using Xunit;
 
 namespace EventStore.Projections.Core.Tests.Services.core_projection.multi_phase
 {
-    
     public class when_starting_phase2_without_a_reader_strategy : specification_with_multi_phase_core_projection
     {
         protected override FakeReaderStrategy GivenPhase2ReaderStrategy()

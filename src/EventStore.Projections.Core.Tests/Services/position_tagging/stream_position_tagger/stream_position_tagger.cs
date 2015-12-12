@@ -68,14 +68,13 @@ namespace EventStore.Projections.Core.Tests.Services.position_tagging.stream_pos
             var result = t.IsMessageAfterCheckpointTag(CheckpointTag.FromStreamPosition(0, "stream1", 1), _firstEvent);
             Assert.False(result);
         }
-
-
+        
         [Fact]
         public void null_stream_throws_argument_null_exception()
         {
             Assert.Throws<ArgumentNullException>(() => { new StreamPositionTagger(0, null); });
         }
-
+        
         [Fact]
         public void empty_stream_throws_argument_exception()
         {

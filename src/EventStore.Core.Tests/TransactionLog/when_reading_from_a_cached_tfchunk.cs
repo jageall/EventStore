@@ -6,7 +6,7 @@ using Xunit;
 
 namespace EventStore.Core.Tests.TransactionLog
 {
-    public class when_reading_from_a_cached_tfchunk : IUseFixture<when_reading_from_a_cached_tfchunk.FixtureData>
+    public class when_reading_from_a_cached_tfchunk : IClassFixture<when_reading_from_a_cached_tfchunk.FixtureData>
     {
         private RecordWriteResult _result;
         private PrepareLogRecord _record;

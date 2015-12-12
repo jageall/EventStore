@@ -13,7 +13,7 @@ using ILogger = EventStore.Common.Log.ILogger;
 
 namespace EventStore.Core.Tests.ClientAPI
 {
-    public class subscribe_to_all_catching_up_should : IUseFixture<SpecificationWithDirectory>, IDisposable
+    public class subscribe_to_all_catching_up_should : IClassFixture<SpecificationWithDirectory>, IDisposable
     {
         //TODO JAG This Fixture sets up a node for each test, but most others set one for the Fixture lifetime
         private static readonly ILogger Log = LogManager.GetLoggerFor<subscribe_to_all_catching_up_should>();

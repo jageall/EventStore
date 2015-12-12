@@ -30,19 +30,21 @@ namespace EventStore.Core.Tests.Bus
         public void not_subscribed_handler_app_doesnt_throw()
         {
             var handler = new TestHandler<TestMessage>();
-            Assert.DoesNotThrow(() => _bus.Unsubscribe<TestMessage>(handler));
+            var ex = Record.Exception(() => _bus.Unsubscribe<TestMessage>(handler));
+            Assert.Null(ex);
         }
 
         [Fact]
         public void same_handler_from_same_message_multiple_times_app_doesnt_throw()
         {
             var handler = new TestHandler<TestMessage>();
-            Assert.DoesNotThrow(() =>
+            var ex = Record.Exception(() =>
                                     {
                                         _bus.Unsubscribe<TestMessage>(handler);
                                         _bus.Unsubscribe<TestMessage>(handler);
                                         _bus.Unsubscribe<TestMessage>(handler);
                                     });
+            Assert.Null(ex);
         }
 
         [Fact]
@@ -53,7 +55,8 @@ namespace EventStore.Core.Tests.Bus
             _bus.Subscribe<TestMessage2>(handler);
             _bus.Subscribe<TestMessage3>(handler);
 
-            Assert.DoesNotThrow(() => _bus.Unsubscribe<TestMessage>(handler));
+            var ex = Record.Exception(() => _bus.Unsubscribe<TestMessage>(handler));
+            Assert.Null(ex);
         }
 
         [Fact]

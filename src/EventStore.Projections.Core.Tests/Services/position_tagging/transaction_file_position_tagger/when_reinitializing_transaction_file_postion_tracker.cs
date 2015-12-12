@@ -36,7 +36,7 @@ namespace EventStore.Projections.Core.Tests.Services.position_tagging.transactio
             var newTag = CheckpointTag.FromPosition(0, 100, 50);
             _positionTracker.UpdateByCheckpointTagInitial(newTag);
         }
-
+        
         [Fact]
         public void initial_position_cannot_be_set_twice()
         {
@@ -50,7 +50,7 @@ namespace EventStore.Projections.Core.Tests.Services.position_tagging.transactio
         {
             _positionTracker.UpdateByCheckpointTagInitial(_tagger.MakeZeroCheckpointTag());
         }
-
+        
         [Fact]
         public void it_cannot_be_updated_forward()
         {

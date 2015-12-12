@@ -8,7 +8,7 @@ using Xunit;
 
 namespace EventStore.Core.Tests.TransactionLog
 {
-    public class when_writing_prepare_record_to_file : IUseFixture<when_writing_prepare_record_to_file.FixtureData>
+    public class when_writing_prepare_record_to_file : IClassFixture<when_writing_prepare_record_to_file.FixtureData>
     {
         private InMemoryCheckpoint _writerCheckpoint;
         private Guid _eventId;

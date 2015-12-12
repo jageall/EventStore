@@ -43,7 +43,7 @@ namespace EventStore.Projections.Core.Tests.Services.core_projection.checkpoint_
         {
             Assert.Null(_exception);
         }
-
+        
         [Fact]
         public void start_throws_invalid_operation_exception()
         {
@@ -69,7 +69,7 @@ namespace EventStore.Projections.Core.Tests.Services.core_projection.checkpoint_
 //            _manager.StateUpdated("", @"{""state"":""state""}");
             _manager.EventProcessed(CheckpointTag.FromStreamPosition(0, "stream", 11), 77.7f);
         }
-
+        
         [Fact]
         public void event_processed_at_the_start_position_throws_invalid_operation_exception()
         {

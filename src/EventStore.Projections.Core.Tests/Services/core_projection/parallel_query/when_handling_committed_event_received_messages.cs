@@ -8,7 +8,6 @@ using ResolvedEvent = EventStore.Projections.Core.Services.Processing.ResolvedEv
 
 namespace EventStore.Projections.Core.Tests.Services.core_projection.parallel_query
 {
-
     public class when_handling_committed_event_received_messages : specification_with_parallel_query
     {
         protected override void Given()

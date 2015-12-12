@@ -71,7 +71,8 @@ namespace EventStore.Core.Tests.Services.Transport.Http
             _feed.SetAuthor(AtomSpecs.Author);
             _feed.AddLink("self", FeedUrl, null);
 
-            Assert.DoesNotThrow(() => _feed.WriteXml(_writer));
+            var ex = Record.Exception(() => _feed.WriteXml(_writer));
+            Assert.Null(ex);
         }
 
         [Fact]
@@ -83,7 +84,8 @@ namespace EventStore.Core.Tests.Services.Transport.Http
             _feed.SetAuthor(AtomSpecs.Author);
             _feed.AddLink("self", FeedUrl, null);
 
-            Assert.DoesNotThrow(() => _feed.WriteXml(_writer));
+            var ex = Record.Exception(() => _feed.WriteXml(_writer));
+            Assert.Null(ex);
         }
 
         [Fact]
@@ -136,8 +138,9 @@ namespace EventStore.Core.Tests.Services.Transport.Http
 
             entry.SetSummary("Entry #0");
 
-            Assert.DoesNotThrow(() => entry.WriteXml(writer));
+            var ex = Record.Exception(() => entry.WriteXml(writer));
             writer.Close();
+            Assert.Null(ex);
         }
     }
 

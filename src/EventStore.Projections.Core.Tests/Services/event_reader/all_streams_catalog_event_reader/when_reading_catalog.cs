@@ -100,7 +100,6 @@ namespace EventStore.Projections.Core.Tests.Services.event_reader.all_streams_ca
 
         }
 
-
         public class when_starting_from_the_beginning : with_all_streams_catalog_event_reader
         {
             protected override IEnumerable<WhenStep> When()

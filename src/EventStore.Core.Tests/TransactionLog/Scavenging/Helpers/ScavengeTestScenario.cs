@@ -16,7 +16,7 @@ using Xunit;
 
 namespace EventStore.Core.Tests.TransactionLog.Scavenging.Helpers
 {
-    public abstract class ScavengeTestScenario: IUseFixture<ScavengeTestScenario.Fixture>
+    public abstract class ScavengeTestScenario: IClassFixture<ScavengeTestScenario.Fixture>
     {
         private readonly int _metastreamMaxCount;
         protected IReadIndex ReadIndex{get { return _fixture.ReadIndex; }}

@@ -20,6 +20,9 @@ namespace EventStore.Projections.Core.Tests.ClientAPI
             }
 
 
+            public with_existing_events(SpecificationFixture fixture) : base(fixture)
+            {
+            }
         }
 
         
@@ -51,6 +54,9 @@ function count(s,e) {
                 AssertStreamTail("$projections-test-projection-result", "Result:{\"c\":4}");
             }
 
+            public when_creating(SpecificationFixture fixture) : base(fixture)
+            {
+            }
         }
 
         
@@ -85,6 +91,9 @@ function count(s,e) {
                 AssertStreamTail("$projections-test-projection-result", "Result:{\"c\":5}");
             }
 
+            public when_posting_more_events(SpecificationFixture fixture) : base(fixture)
+            {
+            }
         }
     }
 }

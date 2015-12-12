@@ -18,7 +18,8 @@ namespace EventStore.Core.Tests.Bus
         public void gracefully_should_not_throw()
         {
             Queue.Start();
-            Assert.DoesNotThrow(() => Queue.Stop());
+            var ex = Record.Exception(() => Queue.Stop());
+            Assert.Null(ex);
         }
 
         [Fact]
@@ -42,7 +43,8 @@ namespace EventStore.Core.Tests.Bus
         {
             Queue.Start();
             Queue.Stop();
-            Assert.DoesNotThrow(() => Queue.Stop());
+            var ex = Record.Exception(() => Queue.Stop());
+            Assert.Null(ex);
         }
 
         [Fact]

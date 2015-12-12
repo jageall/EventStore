@@ -39,7 +39,7 @@ namespace EventStore.Projections.Core.Tests.Services.parallel_processing_load_ba
             }
         }
 
-        [Fact()]
+        [Fact]
         public void schedules_on_least_loaded_worker()
         {
             var scheduledOn = -1;

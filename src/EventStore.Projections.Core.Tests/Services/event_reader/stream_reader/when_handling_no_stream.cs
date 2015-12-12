@@ -36,7 +36,7 @@ namespace EventStore.Projections.Core.Tests.Services.event_reader.stream_reader
                     _distibutionPointCorrelationId, "stream", 100, 100,
                     ReadStreamResult.NoStream, new ResolvedEvent[0], null, false, "", -1, ExpectedVersion.NoStream, true, 200));
         }
-
+        
         [Fact]
         public void cannot_be_resumed()
         {
@@ -66,6 +66,7 @@ namespace EventStore.Projections.Core.Tests.Services.event_reader.stream_reader
                 1, _consumer.HandledMessages.OfType<ReaderSubscriptionMessage.CommittedEventDistributed>().Count());
             var first =
                 _consumer.HandledMessages.OfType<ReaderSubscriptionMessage.CommittedEventDistributed>().Single();
+
             Assert.Null(first.Data);
             Assert.Equal(200, first.SafeTransactionFileReaderJoinPosition);
         }

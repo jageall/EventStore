@@ -23,7 +23,7 @@ namespace EventStore.Projections.Core.Tests.Services.position_tagging.prepare_po
             var newTag = CheckpointTag.FromPreparePosition(0, 50);
             _positionTracker.UpdateByCheckpointTagInitial(newTag);
         }
-
+        
         [Fact]
         public void initial_position_cannot_be_set_twice()
         {
@@ -37,7 +37,7 @@ namespace EventStore.Projections.Core.Tests.Services.position_tagging.prepare_po
         {
             _positionTracker.UpdateByCheckpointTagInitial(_tagger.MakeZeroCheckpointTag());
         }
-
+        
         [Fact]
         public void it_cannot_be_updated_forward()
         {

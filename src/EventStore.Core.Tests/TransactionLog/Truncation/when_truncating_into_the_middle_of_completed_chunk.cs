@@ -9,7 +9,7 @@ using Xunit;
 
 namespace EventStore.Core.Tests.TransactionLog.Truncation
 {
-    public class when_truncating_into_the_middle_of_completed_chunk : IUseFixture<when_truncating_into_the_middle_of_completed_chunk.FixtureData>
+    public class when_truncating_into_the_middle_of_completed_chunk : IClassFixture<when_truncating_into_the_middle_of_completed_chunk.FixtureData>
     {
         private TFChunkDbConfig _config;
         private byte[] _file1Contents;
@@ -49,10 +49,12 @@ namespace EventStore.Core.Tests.TransactionLog.Truncation
 
             public override void Dispose()
             {
+                Exception ex;
                 using (var db = new TFChunkDb(_config))
                 {
-                    Assert.DoesNotThrow(() => db.Open(verifyHash: false));
+                    ex = Record.Exception(() => db.Open(verifyHash: false));
                 }
+                Assert.Null(ex);
                 Assert.True(File.Exists(GetFilePathFor("chunk-000000.000001")));
                 Assert.True(File.Exists(GetFilePathFor("chunk-000001.000002")));
                 Assert.Equal(2, Directory.GetFiles(PathName, "*").Length);

@@ -50,13 +50,17 @@ fromAll().foreachStream().when({
 ");
             WaitIdle();
         }
-
+        
         [DebugBuildFact]
         [Trait("Category", "Network")]
         [Trait("Category", "ClientAPI")]
         public void receives_deleted_notification()
         {
             AssertStreamTail("$projections-test-projection-stream-1-result", "Result:{\"a\":0,\"deleted\":1}");
+        }
+
+        public when_running_and_events_are_indexed_but_more_events_and_tombstone(SpecificationFixture fixture) : base(fixture)
+        {
         }
     }
 }

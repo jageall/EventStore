@@ -7,7 +7,6 @@ using System.Linq;
 
 namespace EventStore.Projections.Core.Tests.Services.projections_system
 {
-
     public class when_requesting_state_from_a_faulted_projection : with_projection_config
     {
         private TFPos _message1Position;

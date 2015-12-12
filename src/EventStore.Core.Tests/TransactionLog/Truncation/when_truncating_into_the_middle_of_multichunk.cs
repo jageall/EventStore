@@ -7,7 +7,7 @@ using Xunit;
 
 namespace EventStore.Core.Tests.TransactionLog.Truncation
 {
-    public class when_truncating_into_the_middle_of_multichunk : IUseFixture<when_truncating_into_the_middle_of_multichunk.FixtureData>
+    public class when_truncating_into_the_middle_of_multichunk : IClassFixture<when_truncating_into_the_middle_of_multichunk.FixtureData>
     {
         private TFChunkDbConfig _config;
         private FixtureData _fixture;
@@ -41,7 +41,7 @@ namespace EventStore.Core.Tests.TransactionLog.Truncation
             {
                 using (var db = new TFChunkDb(_config))
                 {
-                    Assert.DoesNotThrow(() => db.Open(verifyHash: false));
+                    db.Open(verifyHash: false);
                 }
                 Assert.True(File.Exists(GetFilePathFor("chunk-000000.000002")));
                 Assert.True(File.Exists(GetFilePathFor("chunk-000003.000000")));

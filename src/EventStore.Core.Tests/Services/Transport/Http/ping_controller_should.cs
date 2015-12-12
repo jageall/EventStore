@@ -11,7 +11,7 @@ using Xunit;
 namespace EventStore.Core.Tests.Services.Transport.Http
 {
     [MightyMooseIgnore]
-    public class ping_controller_should : IUseFixture<LeasedPort>, IDisposable
+    public class ping_controller_should : IClassFixture<LeasedPort>, IDisposable
     {
         private IPEndPoint _serverEndPoint;
         private PortableServer _portableServer;

@@ -8,7 +8,7 @@ using Xunit;
 
 namespace EventStore.Core.Tests.ClientAPI
 {
-    public class appending_to_implicitly_created_stream_using_transaction : SpecificationWithDirectoryPerTestFixture, IUseFixture<MiniNodeFixture>
+    public class appending_to_implicitly_created_stream_using_transaction : SpecificationWithDirectoryPerTestFixture, IClassFixture<MiniNodeFixture>
     {
         private MiniNode _node;
 

@@ -22,10 +22,12 @@ namespace EventStore.Core.Tests.ClientAPI
             int port = PortsHelper.GetAvailablePort(ip);
             try
             {
+                Exception ex;
                 using (var connection = TestConnection.Create(new IPEndPoint(ip, port), tcpType))
                 {
-                    Assert.DoesNotThrow(() => connection.ConnectAsync().Wait());
+                    ex = Record.Exception(() => connection.ConnectAsync().Wait());
                 }
+                Assert.Null(ex);
             }
             finally
             {

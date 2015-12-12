@@ -30,7 +30,8 @@ namespace EventStore.Core.Tests.ClientAPI
         [Trait("Category", "LongRunning")]
         public void the_completion_succeeds()
         {
-            Assert.DoesNotThrow(() => _conn.UpdatePersistentSubscriptionAsync(_stream, "existing", _settings, DefaultData.AdminCredentials).Wait());
+            var ex = Record.Exception(() => _conn.UpdatePersistentSubscriptionAsync(_stream, "existing", _settings, DefaultData.AdminCredentials).Wait());
+            Assert.Null(ex);
         }
     }
 

@@ -17,7 +17,7 @@ using EventStore.ClientAPI.Projections;
 
 namespace EventStore.Projections.Core.Tests.ClientAPI
 {
-    public class specification_with_standard_projections_runnning : IUseFixture<specification_with_standard_projections_runnning.SpecificationFixture>
+    public class specification_with_standard_projections_runnning : IClassFixture<specification_with_standard_projections_runnning.SpecificationFixture>
     {
 
         protected UserCredentials _admin = DefaultData.AdminCredentials;
@@ -27,6 +27,7 @@ namespace EventStore.Projections.Core.Tests.ClientAPI
         protected IEventStoreConnection _conn {get { return _fixture.Connection; }}
         protected ProjectionsManager _manager{get { return _fixture._manager; }}
         public class SpecificationFixture : SpecificationWithDirectoryPerTestFixture
+
         {
             private MiniNode _node;
             public IEventStoreConnection Connection { get; private set; }
@@ -125,7 +126,7 @@ namespace EventStore.Projections.Core.Tests.ClientAPI
             }
         }
 
-        public void SetFixture(SpecificationFixture fixture)
+        public specification_with_standard_projections_runnning(SpecificationFixture fixture)
         {
             #if (!DEBUG)
                 throw new InvalidOperationException("These tests require DEBUG conditional, use [DebugBuildFact] instead of [Fact]");

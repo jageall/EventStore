@@ -10,7 +10,7 @@ using Xunit;
 
 namespace EventStore.Core.Tests.ClientAPI
 {
-    public class subscribe_to_stream_catching_up_should : IUseFixture<SpecificationWithDirectoryPerTestFixture>, IDisposable
+    public class subscribe_to_stream_catching_up_should : IClassFixture<SpecificationWithDirectoryPerTestFixture>, IDisposable
     {
         private static readonly EventStore.Common.Log.ILogger Log = LogManager.GetLoggerFor<subscribe_to_stream_catching_up_should>();
         private static readonly TimeSpan Timeout = TimeSpan.FromSeconds(500);

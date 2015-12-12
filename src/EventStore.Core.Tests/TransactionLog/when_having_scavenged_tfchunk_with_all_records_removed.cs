@@ -13,7 +13,7 @@ using Xunit;
 
 namespace EventStore.Core.Tests.TransactionLog
 {
-    public class when_having_scavenged_tfchunk_with_all_records_removed: IUseFixture<when_having_scavenged_tfchunk_with_all_records_removed.Fixture>
+    public class when_having_scavenged_tfchunk_with_all_records_removed: IClassFixture<when_having_scavenged_tfchunk_with_all_records_removed.Fixture>
     {
         public class Fixture : SpecificationWithDirectoryPerTestFixture
         {

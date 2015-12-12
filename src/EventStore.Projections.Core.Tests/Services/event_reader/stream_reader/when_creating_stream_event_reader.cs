@@ -15,7 +15,7 @@ namespace EventStore.Projections.Core.Tests.Services.event_reader.stream_reader
             new StreamEventReader(_bus, Guid.NewGuid(), null, "stream", 0, new RealTimeProvider(), false,
                 produceStreamDeletes: false);
         }
-
+        
         [Fact]
         public void null_publisher_throws_argument_null_exception()
         {
@@ -25,7 +25,7 @@ namespace EventStore.Projections.Core.Tests.Services.event_reader.stream_reader
                     produceStreamDeletes: false);
             });
         }
-
+        
         [Fact]
         public void empty_event_reader_id_throws_argument_exception()
         {
@@ -35,7 +35,7 @@ namespace EventStore.Projections.Core.Tests.Services.event_reader.stream_reader
                     produceStreamDeletes: false);
             });
         }
-
+        
         [Fact]
         public void null_stream_name_throws_argument_null_exception()
         {

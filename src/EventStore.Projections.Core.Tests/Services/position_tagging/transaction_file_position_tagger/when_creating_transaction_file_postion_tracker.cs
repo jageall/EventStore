@@ -4,7 +4,6 @@ using Xunit;
 
 namespace EventStore.Projections.Core.Tests.Services.position_tagging.transaction_file_position_tagger
 {
-    
     public class when_creating_transaction_file_postion_tracker
     {
         private PositionTagger _tagger;
@@ -23,7 +22,7 @@ namespace EventStore.Projections.Core.Tests.Services.position_tagging.transactio
             var newTag = CheckpointTag.FromPosition(0, 100, 50);
             _positionTracker.UpdateByCheckpointTagInitial(newTag);
         }
-
+        
         [Fact]
         public void initial_position_cannot_be_set_twice()
         {
@@ -38,7 +37,7 @@ namespace EventStore.Projections.Core.Tests.Services.position_tagging.transactio
         {
             _positionTracker.UpdateByCheckpointTagInitial(_tagger.MakeZeroCheckpointTag());
         }
-
+        
         [Fact]
         public void it_cannot_be_updated_forward()
         {

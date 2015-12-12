@@ -81,17 +81,19 @@ namespace EventStore.Core.Tests.TransactionLog
         [Fact]
         public void throw_argumentnullexception_when_given_null_eventtype()
         {
-            Assert.DoesNotThrow(() => 
+            var ex = Record.Exception(() => 
                 new PrepareLogRecord(0, Guid.NewGuid(), Guid.NewGuid(), 0, 0, "test", 0, DateTime.UtcNow, 
                                      PrepareFlags.None, null, new byte[0], null));
+            Assert.Null(ex);
         }
 
         [Fact]
         public void throw_argumentexception_when_given_empty_eventtype()
         {
-            Assert.DoesNotThrow(() => 
+            var ex = Record.Exception(() => 
                 new PrepareLogRecord(0, Guid.NewGuid(), Guid.NewGuid(), 0, 0, "test", 0, DateTime.UtcNow,
                                      PrepareFlags.None, string.Empty, new byte[0], null));
+            Assert.Null(ex);
         }
     }
 }

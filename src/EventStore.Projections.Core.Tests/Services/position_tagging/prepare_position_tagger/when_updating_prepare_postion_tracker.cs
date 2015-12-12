@@ -24,7 +24,7 @@ namespace EventStore.Projections.Core.Tests.Services.position_tagging.prepare_po
         {
             Assert.Equal(50, _positionTracker.LastTag.Position.PreparePosition);
         }
-
+        
         [Fact]
         public void cannot_update_to_the_same_postion()
         {

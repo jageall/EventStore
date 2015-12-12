@@ -77,7 +77,7 @@ namespace EventStore.Core.Tests.Index
             table.Add(0x0102, 0x0002, 0x0003);
             using (var sstable = PTable.FromMemtable(table, Filename))
             {
-                Assert.DoesNotThrow(() => sstable.VerifyFileHash());
+                var ex = Record.Exception(() => sstable.VerifyFileHash());
             }
         }
     }

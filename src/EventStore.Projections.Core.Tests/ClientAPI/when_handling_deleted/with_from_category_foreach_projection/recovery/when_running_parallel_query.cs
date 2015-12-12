@@ -34,7 +34,7 @@ fromCategory('stream').foreachStream().when({
 ");
             WaitIdle();
         }
-
+        
         [DebugBuildFact]
         [Trait("Category", "Network")]
         [Trait("Category", "ClientAPI")]
@@ -42,6 +42,10 @@ fromCategory('stream').foreachStream().when({
         {
             AssertStreamTail("$projections-query-stream-1-result", "Result:{\"a\":2}");
             AssertStreamTail("$projections-query-stream-2-result", "Result:{\"a\":3}");
+        }
+
+        public when_running_parallel_query(SpecificationFixture fixture) : base(fixture)
+        {
         }
     }
 }

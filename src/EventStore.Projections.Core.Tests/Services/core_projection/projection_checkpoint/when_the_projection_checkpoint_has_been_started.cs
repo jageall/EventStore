@@ -18,7 +18,7 @@ namespace EventStore.Projections.Core.Tests.Services.core_projection.projection_
                 CheckpointTag.FromPosition(0, 0, -1), new TransactionFilePositionTagger(0), 250);
             _checkpoint.Start();
         }
-
+        
         [Fact]
         public void start_throws_invalid_operation_exception()
         {

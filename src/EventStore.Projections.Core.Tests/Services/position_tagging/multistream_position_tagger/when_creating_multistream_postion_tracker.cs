@@ -24,21 +24,21 @@ namespace EventStore.Projections.Core.Tests.Services.position_tagging.multistrea
             var newTag = CheckpointTag.FromStreamPositions(0, new Dictionary<string, int>{{"stream1", 10}, {"stream2", 20}});
             _positionTracker.UpdateByCheckpointTagInitial(newTag);
         }
-
+        
         [Fact]
         public void it_cannot_be_updated_with_other_streams()
         {
             var newTag = CheckpointTag.FromStreamPositions(0, new Dictionary<string, int> { { "stream1", 10 }, { "stream3", 20 } });
             Assert.Throws<InvalidOperationException>(() => { _positionTracker.UpdateByCheckpointTagInitial(newTag); });
         }
-
+        
         [Fact]
         public void it_cannot_be_updated_forward()
         {
             var newTag = CheckpointTag.FromStreamPositions(0, new Dictionary<string, int> { { "stream1", 10 }, { "stream2", 20 } });
             Assert.Throws<InvalidOperationException>(() => { _positionTracker.UpdateByCheckpointTagForward(newTag); });
         }
-
+        
         [Fact]
         public void initial_position_cannot_be_set_twice()
         {

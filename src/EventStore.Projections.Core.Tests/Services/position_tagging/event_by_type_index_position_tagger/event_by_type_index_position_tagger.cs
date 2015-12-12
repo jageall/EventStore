@@ -119,14 +119,13 @@ namespace EventStore.Projections.Core.Tests.Services.position_tagging.event_by_t
                     _firstEvent);
             Assert.False(result);
         }
-
-
+        
         [Fact]
         public void null_streams_throws_argument_null_exception()
         {
             Assert.Throws<ArgumentNullException>(() => { new EventByTypeIndexPositionTagger(0, null); });
         }
-
+        
         [Fact]
         public void empty_streams_throws_argument_exception()
         {
@@ -208,7 +207,7 @@ namespace EventStore.Projections.Core.Tests.Services.position_tagging.event_by_t
             Assert.Equal(2, updated.Streams["type1"]);
             Assert.Equal(2, updated.Streams["type2"]);
         }
-
+        
         [Fact]
         public void cannot_update_by_prior_tf_position()
         {

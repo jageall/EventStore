@@ -30,7 +30,7 @@ namespace EventStore.Projections.Core.Tests.Services.emitted_stream
                 _ioDispatcher, _readyHandler);
             _stream.Start();
         }
-
+        
         [Fact]
         public void throws_if_position_is_prior_to_from_position()
         {

@@ -42,7 +42,8 @@ namespace EventStore.Core.Tests.TransactionLog
         [Fact]
         public void append_does_not_throw_exception()
         {
-            Assert.DoesNotThrow(() => _chunk.TryAppend(new CommitLogRecord(0, Guid.NewGuid(), 0, DateTime.UtcNow, 0)));
+            var ex = Record.Exception(() => _chunk.TryAppend(new CommitLogRecord(0, Guid.NewGuid(), 0, DateTime.UtcNow, 0)));
+            Assert.Null(ex);
         }
 
         [Fact]

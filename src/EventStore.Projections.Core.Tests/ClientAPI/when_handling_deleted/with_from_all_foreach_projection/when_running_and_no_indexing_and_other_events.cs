@@ -38,7 +38,7 @@ fromAll().foreachStream().when({
             PostEvent("stream-3", "type1", "{}");
             WaitIdle();
         }
-
+        
         [DebugBuildFact]
         [Trait("Category", "Network")]
         [Trait("Category", "ClientAPI")]
@@ -48,6 +48,10 @@ fromAll().foreachStream().when({
                 "$projections-test-projection-stream-1-result", "Result:{\"a\":2}", "Result:{\"a\":2,\"deleted\":1}");
             AssertStreamTail("$projections-test-projection-stream-2-result", "Result:{\"a\":4}");
             AssertStreamTail("$projections-test-projection-stream-3-result", "Result:{\"a\":1}");
+        }
+
+        public when_running_and_no_indexing_and_other_events(SpecificationFixture fixture) : base(fixture)
+        {
         }
     }
 }

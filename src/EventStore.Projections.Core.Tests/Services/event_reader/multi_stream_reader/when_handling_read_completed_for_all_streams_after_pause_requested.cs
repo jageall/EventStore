@@ -87,7 +87,7 @@ namespace EventStore.Projections.Core.Tests.Services.event_reader.multi_stream_r
         {
             _edp.Resume();
         }
-
+        
         [Fact]
         public void cannot_be_paused()
         {
@@ -100,7 +100,7 @@ namespace EventStore.Projections.Core.Tests.Services.event_reader.multi_stream_r
             Assert.Equal(
                 3, _consumer.HandledMessages.OfType<ReaderSubscriptionMessage.CommittedEventDistributed>().Count());
         }
-
+        
         [Fact]
         public void cannot_handle_following_read_events_completed() 
         {

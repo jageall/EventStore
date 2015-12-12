@@ -5,7 +5,7 @@ using Xunit;
 
 namespace EventStore.Core.Tests.Index
 {
-    public class table_index_should : IUseFixture<table_index_should.FixtureData>
+    public class table_index_should : IClassFixture<table_index_should.FixtureData>
     {
         private TableIndex _tableIndex;
         public class FixtureData : SpecificationWithDirectoryPerTestFixture

@@ -40,7 +40,7 @@ namespace EventStore.Projections.Core.Tests.Services.event_reordering_projection
                     500);
             });
         }
-
+        
         [Fact]
         public void null_describe_source_throws_argument_null_exception()
         {
@@ -57,7 +57,7 @@ namespace EventStore.Projections.Core.Tests.Services.event_reordering_projection
                     500);
             });
         }
-
+        
         [Fact]
         public void null_time_provider_throws_argument_null_exception()
         {

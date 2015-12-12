@@ -105,8 +105,10 @@ namespace EventStore.Projections.Core.Tests.Services.event_reader.multi_stream_r
                          .First();
 
             Assert.Equal("event_type1", first.Data.EventType);
+
             Assert.Null(fifth.Data);
             Assert.Null(sixth.Data);
+
             Assert.Equal(_firstEventId, first.Data.EventId);
             Assert.Equal(1, first.Data.Data[0]);
             Assert.Equal(2, first.Data.Metadata[0]);
@@ -185,6 +187,7 @@ namespace EventStore.Projections.Core.Tests.Services.event_reader.multi_stream_r
             Assert.Equal(second.Data.EventId, _thirdEventId);
             Assert.Equal(third.Data.EventId, _secondEventId);
             Assert.Equal(fourth.Data.EventId, _fourthEventId);
+
             Assert.Null(fifth.Data);
             Assert.Null(sixth.Data);
         }

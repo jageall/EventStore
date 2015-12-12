@@ -10,7 +10,7 @@ using Xunit;
 
 namespace EventStore.Core.Tests.ClientAPI
 {
-    public class soft_delete : IUseFixture<MiniNodeFixture>, IDisposable
+    public class soft_delete : IClassFixture<MiniNodeFixture>, IDisposable
     {
         private MiniNode _node;
         private IEventStoreConnection _conn;

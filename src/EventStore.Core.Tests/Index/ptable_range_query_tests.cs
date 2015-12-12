@@ -4,7 +4,7 @@ using Xunit;
 
 namespace EventStore.Core.Tests.Index
 {
-    public class ptable_range_query_tests:IUseFixture<ptable_range_query_tests.FixtureData>{
+    public class ptable_range_query_tests:IClassFixture<ptable_range_query_tests.FixtureData>{
 
         private PTable _ptable;
         public class FixtureData : SpecificationWithFilePerTestFixture

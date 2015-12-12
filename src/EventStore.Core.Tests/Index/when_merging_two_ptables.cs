@@ -6,7 +6,7 @@ using Xunit;
 
 namespace EventStore.Core.Tests.Index
 {
-    public class when_merging_two_ptables : IUseFixture<when_merging_two_ptables.FixtureData>
+    public class when_merging_two_ptables : IClassFixture<when_merging_two_ptables.FixtureData>
     {
         private PTable _newtable;
 
@@ -70,7 +70,8 @@ namespace EventStore.Core.Tests.Index
         [Fact]
         public void the_hash_can_be_verified()
         {
-            Assert.DoesNotThrow(() => _newtable.VerifyFileHash());
+            var ex = Record.Exception(() => _newtable.VerifyFileHash());
+            Assert.Null(ex);
         }
     }
 }

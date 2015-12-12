@@ -8,7 +8,7 @@ using Xunit;
 namespace EventStore.Core.Tests.Index
 {
     public class adding_four_items_to_empty_index_map_with_two_tables_per_level_causes_double_merge: 
-        IUseFixture<MergeFileFixture>
+        IClassFixture<MergeFileFixture>
     {
         private string _filename;
         private IndexMap _map;

@@ -32,7 +32,7 @@ namespace EventStore.Projections.Core.Tests.Services.partition_state_cache
             var state = _cache.GetLockedPartitionState("partition");
             Assert.Equal("data", state.State);
         }
-
+        
         [Fact]
         public void cannot_be_relocked_at_the_previous_position()
         {

@@ -17,7 +17,7 @@ namespace EventStore.Projections.Core.Tests.Services.partition_state_cache
             _cachedAtCheckpointTag = CheckpointTag.FromPosition(0, 1000, 900);
             _cache.CacheAndLockPartitionState("partition", new PartitionState("data", null, _cachedAtCheckpointTag), _cachedAtCheckpointTag);
         }
-
+        
         [Fact]
         public void thorws_invalid_operation_exception()
         {

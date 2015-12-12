@@ -9,7 +9,6 @@ using Xunit;
 
 namespace EventStore.Projections.Core.Tests.Services.event_reader.heading_event_reader
 {
-
     public class when_the_heading_event_reader_unsubscribes_a_projection : TestFixtureWithReadWriteDispatchers
     {
         private HeadingEventReader _point;

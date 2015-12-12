@@ -16,7 +16,7 @@ using Xunit;
 
 namespace EventStore.Core.Tests.Services.Storage
 {
-    public abstract class ReadIndexTestScenario : IUseFixture<ReadIndexTestScenario.FixtureData> 
+    public abstract class ReadIndexTestScenario : IClassFixture<ReadIndexTestScenario.FixtureData> 
     {
         protected readonly int MaxEntriesInMemTable;
         protected readonly int MetastreamMaxCount;

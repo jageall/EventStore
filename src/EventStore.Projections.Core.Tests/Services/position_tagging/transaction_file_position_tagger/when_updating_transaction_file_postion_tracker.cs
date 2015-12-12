@@ -25,7 +25,7 @@ namespace EventStore.Projections.Core.Tests.Services.position_tagging.transactio
         {
             Assert.Equal(new TFPos(100, 50), _positionTracker.LastTag.Position);
         }
-
+        
         [Fact]
         public void cannot_update_to_the_same_postion()
         {

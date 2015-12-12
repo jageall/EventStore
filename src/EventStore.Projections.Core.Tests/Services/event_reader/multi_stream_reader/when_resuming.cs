@@ -35,7 +35,7 @@ namespace EventStore.Projections.Core.Tests.Services.event_reader.multi_stream_r
 
             _edp.Resume();
         }
-
+        
         [Fact]
         public void it_cannot_be_resumed()
         {

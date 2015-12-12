@@ -53,5 +53,9 @@ fromAll().foreachStream().when({
             AssertStreamTail("$projections-test-projection-stream-1-result", "Result:{\"a\":1}", "Result:{\"a\":2}");
             AssertStreamTail("$projections-test-projection-stream-2-result", "Result:{\"a\":1}", "Result:{\"a\":2}");
         }
+
+        public when_reverting_after_index_catches_up(SpecificationFixture fixture) : base(fixture)
+        {
+        }
     }
 }

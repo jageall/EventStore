@@ -34,7 +34,7 @@ fromAll().foreachStream().when({
             this.HardDeleteStream("stream-1");
             WaitIdle();
         }
-
+        
         [DebugBuildFact]
         [Trait("Category", "Network")]
         [Trait("Category", "ClientAPI")]
@@ -42,6 +42,10 @@ fromAll().foreachStream().when({
         {
             AssertStreamTail(
                 "$projections-test-projection-stream-1-result", "Result:{\"a\":1}", "Result:{\"a\":1,\"deleted\":1}");
+        }
+
+        public when_running_and_no_indexing(SpecificationFixture fixture) : base(fixture)
+        {
         }
     }
 }

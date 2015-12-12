@@ -62,7 +62,7 @@ namespace EventStore.Projections.Core.Tests.Services.event_reader.stream_reader
         {
             _edp.Resume();
         }
-
+        
         [Fact]
         public void cannot_be_paused()
         {
@@ -84,6 +84,7 @@ namespace EventStore.Projections.Core.Tests.Services.event_reader.stream_reader
                 _consumer.HandledMessages.OfType<ReaderSubscriptionMessage.CommittedEventDistributed>()
                          .Skip(2)
                          .First();
+
             Assert.Null(third.Data);
             Assert.Equal(400, third.SafeTransactionFileReaderJoinPosition);
 

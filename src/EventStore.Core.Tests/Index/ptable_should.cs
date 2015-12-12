@@ -5,7 +5,7 @@ using Xunit;
 
 namespace EventStore.Core.Tests.Index
 {
-    public class ptable_should:IUseFixture<ptable_should.FixtureData>
+    public class ptable_should:IClassFixture<ptable_should.FixtureData>
     {
         
         private PTable _ptable;

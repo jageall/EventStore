@@ -22,7 +22,7 @@ namespace EventStore.Core.Tests.Services.ElectionsService.Randomized
             _randomCase.Init();
         }
         [Theory][Trait("Category", "LongRunning")][Trait("Category", "Network")][Trait("Category", "Explicit")]
-        [PropertyData("TestRuns", PropertyType = typeof(ElectionParams))]
+        [MemberData("TestRuns", MemberType = typeof(ElectionParams))]
         public void should_always_arrive_at_coherent_results(int run)
         {
             var success = _randomCase.Run();
@@ -33,7 +33,7 @@ namespace EventStore.Core.Tests.Services.ElectionsService.Randomized
         }
 
         [Theory][Trait("Category", "LongRunning")][Trait("Category", "Network")]
-        [PropertyData("TenRuns", PropertyType = typeof(ElectionParams))]
+        [MemberData("TenRuns", MemberType = typeof(ElectionParams))]
         public void should_always_arrive_at_coherent_results2(int run)
         {
             var success = _randomCase.Run();

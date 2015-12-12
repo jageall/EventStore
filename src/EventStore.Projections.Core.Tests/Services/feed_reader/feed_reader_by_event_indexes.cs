@@ -13,8 +13,6 @@ namespace EventStore.Projections.Core.Tests.Services.feed_reader
 {
     namespace feed_reader_by_event_indexes
     {
-
-        
         public class when_reading_the_first_event: TestFixtureWithFeedReaderService
         {
             private QuerySourcesDefinition _querySourcesDefinition;
@@ -77,7 +75,6 @@ namespace EventStore.Projections.Core.Tests.Services.feed_reader
             }
         }
 
-        
         public class when_reading_the_reordered_events_from_the_same_stream: TestFixtureWithFeedReaderService
         {
             private QuerySourcesDefinition _querySourcesDefinition;

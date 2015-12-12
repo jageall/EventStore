@@ -32,7 +32,7 @@ namespace EventStore.Projections.Core.Tests.Services.core_projection
         private
             ReaderSubscriptionDispatcher
             _subscriptionDispatcher;
-
+        
         [Fact]
         public void a_checkpoint_threshold_less_tan_checkpoint_handled_threshold_throws_argument_out_of_range_exception(
             )
@@ -40,13 +40,13 @@ namespace EventStore.Projections.Core.Tests.Services.core_projection
             Assert.Throws<ArgumentException>(
                 () => new ProjectionConfig(null, 10, 5, 1000, 250, true, true, false, false, false));
         }
-
+        
         [Fact]
         public void a_negative_checkpoint_handled_interval_throws_argument_out_of_range_exception()
         {
             Assert.Throws<ArgumentOutOfRangeException>(() => new ProjectionConfig(null, -1, 10, 1000, 250, true, true, false, false, false));
         }
-
+        
         [Fact]
         public void a_null_io_dispatcher__throws_argument_null_exception()
         {
@@ -69,7 +69,7 @@ namespace EventStore.Projections.Core.Tests.Services.core_projection
                     _subscriptionDispatcher,
                     new RealTimeProvider()));
         }
-
+        
         [Fact]
         public void a_null_name_throws_argument_null_excveption()
         {
@@ -93,7 +93,7 @@ namespace EventStore.Projections.Core.Tests.Services.core_projection
                         _subscriptionDispatcher,
                         new RealTimeProvider()));
         }
-
+        
         [Fact]
         public void a_null_publisher_throws_exception()
         {
@@ -117,7 +117,7 @@ namespace EventStore.Projections.Core.Tests.Services.core_projection
                     _subscriptionDispatcher,
                     new RealTimeProvider()));
         }
-
+        
         [Fact]
         public void a_null_input_queue_throws_exception()
         {
@@ -164,7 +164,7 @@ namespace EventStore.Projections.Core.Tests.Services.core_projection
                     _subscriptionDispatcher,
                     new RealTimeProvider());
         }
-
+        
         [Fact]
         public void a_null_subscription_dispatcher__throws_argument_null_exception()
         {
@@ -188,7 +188,7 @@ namespace EventStore.Projections.Core.Tests.Services.core_projection
                     null,
                     new RealTimeProvider()));
         }
-
+        
         [Fact]
         public void a_null_time_provider__throws_argument_null_exception()
         {
@@ -212,13 +212,13 @@ namespace EventStore.Projections.Core.Tests.Services.core_projection
                     _subscriptionDispatcher,
                     null));
         }
-
+        
         [Fact]
         public void a_zero_checkpoint_handled_threshold_throws_argument_out_of_range_exception()
         {
             Assert.Throws<ArgumentOutOfRangeException>(() => new ProjectionConfig(null, 0, 10, 1000, 250, true, true, false, false, false));
         }
-
+        
         [Fact]
         public void an_empty_name_throws_argument_exception()
         {

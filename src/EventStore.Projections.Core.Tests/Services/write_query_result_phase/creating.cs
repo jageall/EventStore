@@ -11,8 +11,6 @@ namespace EventStore.Projections.Core.Tests.Services.write_query_result_phase
 {
     namespace creating
     {
-
-        
         public class when_creating
         {
             [Fact]
@@ -104,7 +102,6 @@ namespace EventStore.Projections.Core.Tests.Services.write_query_result_phase
             }
         }
 
-
         public class when_subscribing : specification_with_write_query_result_projection_processing_phase
         {
             protected override void When()
@@ -118,7 +115,6 @@ namespace EventStore.Projections.Core.Tests.Services.write_query_result_phase
                 Assert.Equal(1, _coreProjection.SubscribedInvoked);
             }
         }
-
 
         public class when_processing_event : specification_with_write_query_result_projection_processing_phase
         {
@@ -135,7 +131,6 @@ namespace EventStore.Projections.Core.Tests.Services.write_query_result_phase
                 Assert.Equal(3, _checkpointManager.EmittedEvents.Count(v => v.Event.EventType == "Result"));
             }
         }
-
 
         public class when_completed_query_processing_event : specification_with_write_query_result_projection_processing_phase
         {

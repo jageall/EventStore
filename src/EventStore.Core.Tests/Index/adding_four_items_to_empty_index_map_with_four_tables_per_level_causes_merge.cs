@@ -51,7 +51,7 @@ namespace EventStore.Core.Tests.Index
         }
     }
 
-    public class adding_four_items_to_empty_index_map_with_four_tables_per_level_causes_merge : IUseFixture<MergeFileFixture>
+    public class adding_four_items_to_empty_index_map_with_four_tables_per_level_causes_merge : IClassFixture<MergeFileFixture>
     {
         private string _filename;
         private IndexMap _map;

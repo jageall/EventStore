@@ -7,7 +7,7 @@ using Xunit;
 
 namespace EventStore.Core.Tests.Index
 {
-    public class saving_empty_index_to_a_file: IUseFixture<SpecificationWithDirectoryPerTestFixture>
+    public class saving_empty_index_to_a_file: IClassFixture<SpecificationWithDirectoryPerTestFixture>
     {
         private string _filename;
         private IndexMap _map;

@@ -45,5 +45,9 @@ fromAll().foreachStream().when({
         {
             AssertStreamTail("$projections-test-projection-stream-1-result", "Result:{\"a\":2,\"deleted\":1}");
         }
+
+        public when_running_and_events_are_posted_including_tombstone(SpecificationFixture fixture) : base(fixture)
+        {
+        }
     }
 }

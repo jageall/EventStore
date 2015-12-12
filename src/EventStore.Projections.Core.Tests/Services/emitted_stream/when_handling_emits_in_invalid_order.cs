@@ -31,7 +31,7 @@ namespace EventStore.Projections.Core.Tests.Services.emitted_stream
                         "test_stream", Guid.NewGuid(), "type", true, "data", null, CheckpointTag.FromPosition(0, 100, 90), null)
                 });
         }
-
+        
         [Fact]
         public void throws_if_position_is_prior_to_the_last_event_position()
         {

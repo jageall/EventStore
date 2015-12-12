@@ -12,7 +12,7 @@ using Xunit;
 
 namespace EventStore.Core.Tests.ClientAPI.Security
 {
-    public abstract class AuthenticationTestBase : IUseFixture<AuthenticationTestBase.Fixture>
+    public abstract class AuthenticationTestBase : IClassFixture<AuthenticationTestBase.Fixture>
     {
         public class Fixture : MiniNodeFixture
         {
@@ -288,7 +288,8 @@ namespace EventStore.Core.Tests.ClientAPI.Security
 
         protected void ExpectNoException(Action action)
         {
-            Assert.DoesNotThrow(() => action());
+            var ex = Record.Exception(action);
+            Assert.Null(ex);
         }
 
         protected EventData[] CreateEvents()

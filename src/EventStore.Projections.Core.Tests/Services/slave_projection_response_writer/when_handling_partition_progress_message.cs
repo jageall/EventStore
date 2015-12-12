@@ -5,7 +5,6 @@ using Xunit;
 
 namespace EventStore.Projections.Core.Tests.Services.slave_projection_response_writer
 {
-
     public class when_handling_partition_progress_message : specification_with_slave_projection_response_writer
     {
         private Guid _workerId;

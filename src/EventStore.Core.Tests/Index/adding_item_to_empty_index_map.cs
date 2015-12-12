@@ -8,7 +8,7 @@ using Xunit;
 
 namespace EventStore.Core.Tests.Index
 {
-    public class adding_item_to_empty_index_map: IUseFixture<MergeFileFixture>
+    public class adding_item_to_empty_index_map: IClassFixture<MergeFileFixture>
     {
         private string _filename;
         private IndexMap _map;

@@ -6,7 +6,7 @@ using Xunit;
 
 namespace EventStore.Core.Tests.TransactionLog
 {
-    public class when_appending_to_a_tfchunk_and_flushing : IUseFixture<when_appending_to_a_tfchunk_and_flushing.FixtureData>
+    public class when_appending_to_a_tfchunk_and_flushing : IClassFixture<when_appending_to_a_tfchunk_and_flushing.FixtureData>
     {
         private RecordWriteResult _result;
         private PrepareLogRecord _record;

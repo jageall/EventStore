@@ -28,7 +28,7 @@ namespace EventStore.Core.Tests.Services.Transport.Http
         }
     }
 
-    public class http_service_should : IUseFixture<http_service_should.Fixture>, IDisposable
+    public class http_service_should : IClassFixture<http_service_should.Fixture>, IDisposable
     {
         private Fixture _fixture;
         public IPEndPoint ServerEndPoint { get { return _fixture.ServerEndPoint; } }

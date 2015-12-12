@@ -66,7 +66,7 @@ namespace EventStore.Core.Tests.Services.ElectionsService.Randomized
         [Trait("Category", "LongRunning")]
         [Trait("Category", "Network")]
         [Trait("Category", "Explicit")]
-        [PropertyData("TestRuns", PropertyType = typeof(ElectionParams))]
+        [MemberData("TestRuns", MemberType = typeof(ElectionParams))]
         public void should_complete_successfully(int run)
         {
             var success = _randomCase.Run();
@@ -83,7 +83,7 @@ namespace EventStore.Core.Tests.Services.ElectionsService.Randomized
         [Theory]
         [Trait("Category", "LongRunning")]
         [Trait("Category", "Network")]
-        [PropertyData("TenRuns", PropertyType = typeof(ElectionParams))]
+        [MemberData("TenRuns", MemberType = typeof(ElectionParams))]
         public void should_complete_successfully2(int run)
         {
             var success = _randomCase.Run();

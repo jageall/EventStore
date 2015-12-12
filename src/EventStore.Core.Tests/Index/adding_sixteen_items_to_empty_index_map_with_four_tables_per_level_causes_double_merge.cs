@@ -7,7 +7,7 @@ using Xunit;
 namespace EventStore.Core.Tests.Index
 {
     public class adding_sixteen_items_to_empty_index_map_with_four_tables_per_level_causes_double_merge :
-        IUseFixture<adding_sixteen_items_to_empty_index_map_with_four_tables_per_level_causes_double_merge.FixtureData>
+        IClassFixture<adding_sixteen_items_to_empty_index_map_with_four_tables_per_level_causes_double_merge.FixtureData>
     {
         private MergeResult _result;
         private string _finalmergefile2;

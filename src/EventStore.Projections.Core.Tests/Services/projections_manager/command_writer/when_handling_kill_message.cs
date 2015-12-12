@@ -6,7 +6,6 @@ using Xunit;
 
 namespace EventStore.Projections.Core.Tests.Services.projections_manager.command_writer
 {
-
     public class when_handling_kill_message : specification_with_projection_manager_command_writer
     {
         private Guid _projectionId;

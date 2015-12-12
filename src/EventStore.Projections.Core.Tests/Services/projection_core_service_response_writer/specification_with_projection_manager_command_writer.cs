@@ -27,6 +27,7 @@ namespace EventStore.Projections.Core.Tests.Services.projection_core_service_res
             Assert.Equal(1, _publishedCommands.Count);
             Assert.Equal(command, _publishedCommands[0].Item1);
             Assert.IsType<T>(_publishedCommands[0].Item2);
+
             var source = (T) _publishedCommands[0].Item2;
             var serialized = source.ToJson();
             var parsed = serialized.ParseJson<T>();

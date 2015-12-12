@@ -6,7 +6,7 @@ using Xunit;
 
 namespace EventStore.Core.Tests.ClientAPI
 {
-    public class subscribe_should : IUseFixture<MiniNodeFixture>
+    public class subscribe_should : IClassFixture<MiniNodeFixture>
     {
         private const int Timeout = 10000;
 

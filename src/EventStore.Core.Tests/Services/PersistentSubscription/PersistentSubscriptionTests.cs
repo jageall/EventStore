@@ -18,7 +18,7 @@ using EventStore.Core.Tests.ClientAPI;
 
 namespace EventStore.Core.Tests.Services.PersistentSubscription
 {
-    public class when_creating_persistent_subscription : IUseFixture<when_creating_persistent_subscription.FixtureData>
+    public class when_creating_persistent_subscription : IClassFixture<when_creating_persistent_subscription.FixtureData>
     {
         public class FixtureData
         {
@@ -242,11 +242,12 @@ namespace EventStore.Core.Tests.Services.PersistentSubscription
                     .WithCheckpointWriter(new FakeCheckpointWriter(x => { }))
                     .WithMessageParker(new FakeMessageParker())
                     .StartFromBeginning());
-            Assert.DoesNotThrow(() =>
+            var ex = Record.Exception(() =>
             {
                 sub.AddClient(Guid.NewGuid(), Guid.NewGuid(), envelope1, 10, "foo", "bar");
                 sub.HandleReadCompleted(new[] { Helper.BuildFakeEvent(Guid.NewGuid(), "type", "streamName", 0) }, 1, false);
             });
+            Assert.Null(ex);
         }
 
         [Fact]
@@ -261,11 +262,12 @@ namespace EventStore.Core.Tests.Services.PersistentSubscription
                     .WithCheckpointWriter(new FakeCheckpointWriter(x => { }))
                     .WithMessageParker(new FakeMessageParker())
                     .StartFromBeginning());
-            Assert.DoesNotThrow(() =>
+            var ex = Record.Exception(() =>
             {
                 sub.AddClient(Guid.NewGuid(), Guid.NewGuid(), envelope1, 10, "foo", "bar");
                 sub.NotifyLiveSubscriptionMessage(Helper.BuildFakeEvent(Guid.NewGuid(), "type", "streamName", 0));
             });
+            Assert.Null(ex);
         }
 
 

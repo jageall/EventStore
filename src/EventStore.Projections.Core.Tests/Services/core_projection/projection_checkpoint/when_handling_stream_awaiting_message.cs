@@ -28,6 +28,7 @@ namespace EventStore.Projections.Core.Tests.Services.core_projection.projection_
         {
             _checkpoint.Handle(new CoreProjectionProcessingMessage.EmittedStreamWriteCompleted("completed_stream"));
             Assert.Equal(1, _fakeEnvelope.Replies.Count);
+
             Assert.IsType<CoreProjectionProcessingMessage.EmittedStreamWriteCompleted>(_fakeEnvelope.Replies[0]);
         }
 

@@ -5,7 +5,7 @@ using Xunit;
 
 namespace EventStore.Core.Tests.TransactionLog
 {
-    public class when_opening_existing_tfchunk : IUseFixture<when_opening_existing_tfchunk.FixtureData> 
+    public class when_opening_existing_tfchunk : IClassFixture<when_opening_existing_tfchunk.FixtureData> 
     {
         private TFChunk _testChunk;
 

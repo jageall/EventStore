@@ -21,7 +21,7 @@ namespace EventStore.Projections.Core.Tests.Services.emitted_stream
             _stream.Start();
             _stream.Checkpoint();
         }
-
+        
         [Fact]
         public void emit_events_throws_invalid_operation_exception()
         {
@@ -33,7 +33,7 @@ namespace EventStore.Projections.Core.Tests.Services.emitted_stream
                         "test", Guid.NewGuid(), "type2", true, "data2", null, CheckpointTag.FromPosition(0, -1, -1), null)
                 }));
         }
-
+        
         [Fact]
         public void checkpoint_throws_invalid_operation_exception()
         {
