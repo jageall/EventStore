@@ -22,7 +22,7 @@ ipch/
 /src/Public/ipch/
 /research/ci/CompatibilityInfo
 .DS_Store
-
+/src/Packages
 src/EventStore/EventStore.Common/Properties/AssemblyVersion.cs
 src/EventStore/EventStore.ClientAPI/Properties/AssemblyVersion.cs
 

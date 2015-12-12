@@ -6,14 +6,13 @@ namespace EventStore.BufferManagement.Tests
 {
     public abstract class has_buffer_pool_fixture : has_buffer_manager_fixture
     {
-        protected BufferPool BufferPool;
+        protected readonly BufferPool BufferPool;
 
-        public has_buffer_pool_fixture()
+        protected has_buffer_pool_fixture()
         {
             BufferPool = new BufferPool(10, BufferManager);
         }
     }
-
     
     public class when_insantiating_a_buffer_pool_stream : has_buffer_pool_fixture
     {
@@ -31,7 +30,6 @@ namespace EventStore.BufferManagement.Tests
         }
 
     }
-
     
     public class when_reading_from_the_stream : has_buffer_pool_fixture
     {
@@ -72,7 +70,6 @@ namespace EventStore.BufferManagement.Tests
         }
     }
 
-    
     public class when_writing_to_the_stream : has_buffer_pool_fixture
     {
         [Fact]
@@ -84,7 +81,6 @@ namespace EventStore.BufferManagement.Tests
         }
 
     }
-
     
     public class when_seeking_in_the_stream : has_buffer_pool_fixture
     {
@@ -120,7 +116,8 @@ namespace EventStore.BufferManagement.Tests
         public void a_negative_position_throws_an_argumentexception()
         {
             BufferPoolStream stream = new BufferPoolStream(BufferPool);
-            Assert.Throws<ArgumentOutOfRangeException>(() => stream.Seek(-1, SeekOrigin.Begin));
+            Assert.Throws<ArgumentOutOfRangeException>(() => { stream.Seek(-1, SeekOrigin.Begin); });
+
         }
 
         [Fact]
@@ -128,7 +125,8 @@ namespace EventStore.BufferManagement.Tests
         {
             BufferPoolStream stream = new BufferPoolStream(BufferPool);
             stream.Write(new byte[500], 0, 500);
-            Assert.Throws<ArgumentOutOfRangeException>(() => stream.Seek(501, SeekOrigin.Begin));
+
+            Assert.Throws<ArgumentOutOfRangeException>(() => { stream.Seek(501, SeekOrigin.Begin); });
         }
     }
 

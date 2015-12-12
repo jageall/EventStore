@@ -38,7 +38,8 @@ namespace EventStore.BufferManagement.Tests
         [Fact]
         public void can_create_a_manager_with_zero_inital_segments()
         {
-            Assert.DoesNotThrow(() => new BufferManager(1024, 1024, 0));
+            var ex = Record.Exception(() => new BufferManager(1024, 1024, 0));
+            Assert.Null(ex);
         }
     }
 
@@ -115,7 +116,7 @@ namespace EventStore.BufferManagement.Tests
         {
             BufferManager manager = new BufferManager(10, 1000, 0);
             byte[] data = new byte[10000];
-            
+
             Assert.Throws<ArgumentException>(() => manager.CheckIn(new ArraySegment<byte>(data)));
         }
     }

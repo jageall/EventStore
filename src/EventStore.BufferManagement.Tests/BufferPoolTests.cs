@@ -10,6 +10,7 @@ namespace EventStore.BufferManagement.Tests
         protected readonly BufferManager BufferManager;
 
         protected has_buffer_manager_fixture()
+
         {
             BufferManager = new BufferManager(128, 1024, 1);
         }
@@ -132,8 +133,7 @@ namespace EventStore.BufferManagement.Tests
                 Assert.Equal((byte)(i % 255), data[i]);
             }
         }
-
-
+        
         [Fact]
         public void an_empty_pool_should_return_an_empty_array()
         {
@@ -149,7 +149,7 @@ namespace EventStore.BufferManagement.Tests
         public void empty_returns_no_results()
         {
             BufferPool pool = new BufferPool(10, BufferManager);
-            Assert.False(pool.EffectiveBuffers.Any());
+            Assert.False(pool.EffectiveBuffers.Any(), "should not have been buffers");
         }
 
         [Fact]
@@ -216,42 +216,43 @@ namespace EventStore.BufferManagement.Tests
         public void a_null_read_buffer_throws_an_argumentnullexception()
         {
             BufferPool pool = new BufferPool(1, BufferManager);
-            Assert.Throws<ArgumentNullException>(()=>pool.ReadFrom(0, null, 0, 0));
+
+            Assert.Throws<ArgumentNullException>(() => { pool.ReadFrom(0, null, 0, 0); });
         }
 
         [Fact]
         public void an_offset_larger_than_the_buffer_throws_an_argumentoutofrangeexception()
         {
             BufferPool pool = new BufferPool(1, BufferManager);
-            Assert.Throws<ArgumentOutOfRangeException>(()=> pool.ReadFrom(0, new byte[5], 8, 3));
+            Assert.Throws<ArgumentOutOfRangeException>(() => { pool.ReadFrom(0, new byte[5], 8, 3); });
         }
 
         [Fact]
         public void a_count_larger_than_the_buffer_throws_an_argumentoutofrangeexception()
         {
             BufferPool pool = new BufferPool(1, BufferManager);
-            Assert.Throws<ArgumentOutOfRangeException>(()=> pool.ReadFrom(0, new byte[5], 3, 5));
+            Assert.Throws<ArgumentOutOfRangeException>(() => { pool.ReadFrom(0, new byte[5], 3, 5); });
         }
 
         [Fact]
         public void a_negative_count_throws_an_argumentoutofrangeexception()
         {
             BufferPool pool = new BufferPool(1, BufferManager);
-            Assert.Throws<ArgumentOutOfRangeException>(()=>pool.ReadFrom(0, new byte[5], 3, -1));
+            Assert.Throws<ArgumentOutOfRangeException>(() => { pool.ReadFrom(0, new byte[5], 3, -1); });
         }
 
         [Fact]
         public void a_negative_offset_throws_an_argumentoutofrangeexception()
         {
             BufferPool pool = new BufferPool(1, BufferManager);
-            Assert.Throws<ArgumentOutOfRangeException>(()=>pool.ReadFrom(0, new byte[5], -1, 1));
+            Assert.Throws<ArgumentOutOfRangeException>(() => { pool.ReadFrom(0, new byte[5], -1, 1); });
         }
 
         [Fact]
         public void count_and_offset_together_lerger_than_buffer_throws_an_argumentoutofrangeexception()
         {
             BufferPool pool = new BufferPool(1, BufferManager);
-            Assert.Throws<ArgumentOutOfRangeException>(()=>pool.ReadFrom(0, new byte[5], 4, 2));
+            Assert.Throws<ArgumentOutOfRangeException>(() => { pool.ReadFrom(0, new byte[5], 4, 2); });
         }
 
         [Fact]
@@ -325,7 +326,6 @@ namespace EventStore.BufferManagement.Tests
             }
         }
     }
-
     
     public class when_writing_multiple_bytes : has_buffer_manager_fixture
     {
@@ -333,35 +333,40 @@ namespace EventStore.BufferManagement.Tests
         public void a_null_byte_array_throws_an_argumentnullexception()
         {
             BufferPool pool = new BufferPool(1, BufferManager);
-            Assert.Throws<ArgumentNullException>(()=>pool.Append(null));
+            Assert.Throws<ArgumentNullException>(() => { pool.Append(null); });
+
         }
 
         [Fact]
         public void an_offset_larger_than_the_buffer_throws_an_argumentoutofrangeexception()
         {
             BufferPool pool = new BufferPool(1, BufferManager);
-            Assert.Throws<ArgumentOutOfRangeException>(()=>pool.Write(0, new byte[5], 8, 3));
+            Assert.Throws<ArgumentOutOfRangeException>(() => { pool.Write(0, new byte[5], 8, 3); });
+
         }
 
         [Fact]
         public void a_count_larger_than_the_buffer_throws_an_argumentoutofrangeexception()
         {
             BufferPool pool = new BufferPool(1, BufferManager);
-            Assert.Throws<ArgumentOutOfRangeException>(()=>pool.Write(0, new byte[5], 3, 5));
+            Assert.Throws<ArgumentOutOfRangeException>(() => { pool.Write(0, new byte[5], 3, 5); });
+
         }
 
         [Fact]
         public void a_negative_count_throws_an_argumentoutofrangeexception()
         {
             BufferPool pool = new BufferPool(1, BufferManager);
-            Assert.Throws<ArgumentOutOfRangeException>(()=>pool.Write(0, new byte[5], 3, -1));
+            Assert.Throws<ArgumentOutOfRangeException>(() => { pool.Write(0, new byte[5], 3, -1); });
+
         }
 
         [Fact]
         public void a_negative_offset_throws_an_argumentoutofrangeexception()
         {
             BufferPool pool = new BufferPool(1, BufferManager);
-            Assert.Throws<ArgumentOutOfRangeException>(()=>pool.Write(0, new byte[5], -1, 1));
+            Assert.Throws<ArgumentOutOfRangeException>(() => { pool.Write(0, new byte[5], -1, 1); });
+
         }
 
         [Fact]
@@ -424,7 +429,8 @@ namespace EventStore.BufferManagement.Tests
         public void a_negative_length_throws_an_argumentexception()
         {
             BufferPool pool = new BufferPool(1, BufferManager);
-            Assert.Throws<ArgumentException>(() =>pool.SetLength(-1, false));
+            Assert.Throws<ArgumentException>(()=> pool.SetLength(-1, false));
+
         }
 
         [Fact]
@@ -474,30 +480,33 @@ namespace EventStore.BufferManagement.Tests
 
     public class when_a_buffer_pool_has_been_disposed : has_buffer_manager_fixture
     {
-        private readonly BufferPool m_DisposedPool;
+        private readonly BufferPool _mDisposedPool;
 
         public when_a_buffer_pool_has_been_disposed()
         {
-            m_DisposedPool = new BufferPool(10, BufferManager);
-            m_DisposedPool.Dispose();
+            _mDisposedPool = new BufferPool(10, BufferManager);
+            _mDisposedPool.Dispose();
+
         }
 
         [Fact]
         public void reading_indexer_throws_objectdisposedexception()
         {
-            Assert.Throws<ObjectDisposedException>(() => { byte b = m_DisposedPool[0]; });
+            Assert.Throws<ObjectDisposedException>(() => { byte b = _mDisposedPool[0]; });
         }
 
         [Fact]
         public void writing_indexer_throws_objectdisposedexception()
         {
-            Assert.Throws<ObjectDisposedException>(() => { m_DisposedPool[0] = 5; });
+            Assert.Throws<ObjectDisposedException>(() => { _mDisposedPool[0] = 5; });
+
         }
 
         [Fact]
         public void writing_multiple_bytes_throws_objectdisposedexception()
         {
-            Assert.Throws<ObjectDisposedException>(() => m_DisposedPool.Append(new byte[] { 1, 2, 3, 4 }));
+            Assert.Throws<ObjectDisposedException>(() => { _mDisposedPool.Append(new byte[] { 1, 2, 3, 4 }); });
+
         }
 
 
@@ -506,7 +515,8 @@ namespace EventStore.BufferManagement.Tests
         {
             Assert.Throws<ObjectDisposedException>(() =>
             {
-                foreach (ArraySegment<byte> segment in m_DisposedPool.EffectiveBuffers)
+                foreach (ArraySegment<byte> segment in _mDisposedPool.EffectiveBuffers)
+
                 {
                 }
             });
@@ -515,13 +525,15 @@ namespace EventStore.BufferManagement.Tests
         [Fact]
         public void setting_length_throws_objectdisposedexception()
         {
-            Assert.Throws<ObjectDisposedException>(() => m_DisposedPool.SetLength(200));
+            Assert.Throws<ObjectDisposedException>(() => { _mDisposedPool.SetLength(200); });
+
         }
 
         [Fact]
         public void converting_to_a_byte_array_throws_objectdisposedexception()
         {
-            Assert.Throws<ObjectDisposedException>(() => m_DisposedPool.ToByteArray());
+            Assert.Throws<ObjectDisposedException>(() => { _mDisposedPool.ToByteArray(); });
+
         }
 
     }
