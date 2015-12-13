@@ -103,5 +103,9 @@ namespace EventStore.Core.Tests.Services.Storage.MaxAgeMaxCount.AfterScavenge
             Assert.Equal(_r4, records[2].Event);
             Assert.Equal(_r1, records[3].Event);
         }
+
+        public when_having_stream_both_maxage_and_maxcount_specified_with_maxcount_more_strict(FixtureData fixture) : base(fixture)
+        {
+        }
     }
 }

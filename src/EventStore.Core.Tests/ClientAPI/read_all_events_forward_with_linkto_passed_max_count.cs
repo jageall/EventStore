@@ -18,5 +18,9 @@ namespace EventStore.Core.Tests.ClientAPI
         {
             Assert.Equal(1, _read.Events.Length);
         }
+
+        public read_all_events_forward_with_linkto_passed_max_count(SpecificationFixture fixture) : base(fixture)
+        {
+        }
     }
 }

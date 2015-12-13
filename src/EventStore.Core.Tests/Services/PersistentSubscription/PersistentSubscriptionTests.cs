@@ -37,8 +37,7 @@ namespace EventStore.Core.Tests.Services.PersistentSubscription
 
         private Core.Services.PersistentSubscription.PersistentSubscription _sub;
 
-        
-        public void SetFixture(FixtureData data)
+        public when_creating_persistent_subscription(FixtureData data)
         {
             _sub = data._sub;
         }
@@ -1224,6 +1223,10 @@ namespace EventStore.Core.Tests.Services.PersistentSubscription
             {
                 yield return new EventData(Guid.NewGuid(), "testtype", false, new byte[0], new byte[0]);
             }
+        }
+
+        public DeadlockTest(SpecificationFixture fixture) : base(fixture)
+        {
         }
     }
 

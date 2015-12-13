@@ -10,5 +10,9 @@ namespace EventStore.Core.Tests.ClientAPI.Embedded
         {
             return EmbeddedTestConnection.To(node);
         }
+
+        public read_stream_events_with_unresolved_linkto(SpecificationFixture fixture) : base(fixture)
+        {
+        }
     }
 }

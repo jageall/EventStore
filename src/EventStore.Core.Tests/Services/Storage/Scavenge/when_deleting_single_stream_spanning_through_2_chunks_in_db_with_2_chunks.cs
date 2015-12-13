@@ -10,6 +10,10 @@ namespace EventStore.Core.Tests.Services.Storage.Scavenge
         private EventRecord _event4;
         private EventRecord _delete;
 
+        public when_deleting_single_stream_spanning_through_2_chunks_in_db_with_2_chunks(FixtureData fixture) : base(fixture)
+        {
+            
+        }
         protected override void WriteTestScenario()
         {
             Fixture.WriteSingleEvent("ES", 0, new string('.', 3000));

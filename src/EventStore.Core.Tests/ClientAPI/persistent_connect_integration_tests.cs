@@ -57,6 +57,10 @@ namespace EventStore.Core.Tests.ClientAPI
             Assert.True(_eventsReceived.WaitOne(TimeSpan.FromSeconds(5)),"Timed out waiting for events.");
             
         }
+
+        public happy_case_writing_and_subscribing_to_normal_events_manual_ack(SpecificationFixture fixture) : base(fixture)
+        {
+        }
     }
 
     public class happy_case_writing_and_subscribing_to_normal_events_auto_ack : SpecificationWithMiniNode
@@ -107,6 +111,10 @@ namespace EventStore.Core.Tests.ClientAPI
             {
                 throw new Exception("Timed out waiting for events.");
             }
+        }
+
+        public happy_case_writing_and_subscribing_to_normal_events_auto_ack(SpecificationFixture fixture) : base(fixture)
+        {
         }
     }
 
@@ -160,6 +168,10 @@ namespace EventStore.Core.Tests.ClientAPI
                 throw new Exception("Timed out waiting for events.");
             }
         }
+
+        public happy_case_catching_up_to_normal_events_auto_ack(SpecificationFixture fixture) : base(fixture)
+        {
+        }
     }
 
     public class happy_case_catching_up_to_normal_events_manual_ack : SpecificationWithMiniNode
@@ -212,6 +224,10 @@ namespace EventStore.Core.Tests.ClientAPI
             {
                 throw new Exception("Timed out waiting for events.");
             }
+        }
+
+        public happy_case_catching_up_to_normal_events_manual_ack(SpecificationFixture fixture) : base(fixture)
+        {
         }
     }
 
@@ -272,6 +288,10 @@ namespace EventStore.Core.Tests.ClientAPI
                 throw new Exception("Timed out waiting for events.");
             }
         }
+
+        public happy_case_catching_up_to_link_to_events_manual_ack(SpecificationFixture fixture) : base(fixture)
+        {
+        }
     }
 
     public class happy_case_catching_up_to_link_to_events_auto_ack : SpecificationWithMiniNode
@@ -329,6 +349,10 @@ namespace EventStore.Core.Tests.ClientAPI
             {
                 throw new Exception("Timed out waiting for events.");
             }
+        }
+
+        public happy_case_catching_up_to_link_to_events_auto_ack(SpecificationFixture fixture) : base(fixture)
+        {
         }
     }
 }

@@ -129,13 +129,10 @@ namespace EventStore.Core.Tests.TransactionLog.Scavenging.Helpers
             }
         }
 
-        protected ScavengeTestScenario(int metastreamMaxCount = 1)
+        protected ScavengeTestScenario(Fixture fixture, int metastreamMaxCount = 1)
         {
             _metastreamMaxCount = metastreamMaxCount;
-        }
 
-        public void SetFixture(Fixture fixture)
-        {
             fixture.EnsureInitialized(_metastreamMaxCount, CreateDb, KeptRecords);
             _fixture = fixture;
             _db = fixture.Db;

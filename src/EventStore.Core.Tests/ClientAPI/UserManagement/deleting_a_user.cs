@@ -48,8 +48,9 @@ namespace EventStore.Core.Tests.ClientAPI.UserManagement
             
             _manager.DeleteUserAsync("ouro", new UserCredentials("admin", "changeit")).Wait();
             
-            var ex = await Assert.ThrowsAsync<UserCommandFailedException>(() => _manager.GetUserAsync("ouro", new UserCredentials("admin", "changeit")));
-            Assert.Equal(HttpStatusCode.NotFound, ex.HttpStatusCode);
+            var ex = await Assert.ThrowsAsync<AggregateException>(() => _manager.GetUserAsync("ouro", new UserCredentials("admin", "changeit")));
+            var inner = Assert.IsType<UserCommandFailedException>(ex.InnerException);
+            Assert.Equal(HttpStatusCode.NotFound, inner.HttpStatusCode);
         }
     }
 }

@@ -52,5 +52,9 @@ namespace EventStore.Core.Tests.ClientAPI
             Assert.Null(read.Events[0].Event);
             Assert.NotNull(read.Events[0].Link);
         }
+
+        public read_stream_events_with_unresolved_linkto(SpecificationFixture fixture) : base(fixture)
+        {
+        }
     }
 }

@@ -36,7 +36,7 @@ namespace EventStore.Core.Tests.TransactionLog
             }
         }
 
-        public void SetFixture(FixtureData data)
+        public when_appending_to_a_tfchunk_and_flushing(FixtureData data)
         {
             _result = data._result;
             _record = data._record;

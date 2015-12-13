@@ -28,7 +28,7 @@ namespace EventStore.Core.Tests.Index
             }
         }
 
-        public void SetFixture(FixtureData data)
+        public table_index_should(FixtureData data)
         {
             _tableIndex = data._tableIndex;
         }

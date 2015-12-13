@@ -40,6 +40,10 @@ namespace EventStore.Core.Tests.Http.PersistentSubscription
         {
             Assert.Equal(HttpStatusCode.Unauthorized, _response.StatusCode);
         }
+
+        public when_updating_a_subscription_without_permissions(SpecificationFixture data) : base(data)
+        {
+        }
     }
 
     public class when_updating_a_non_existent_subscription_without_permissions : with_admin_user
@@ -65,6 +69,10 @@ namespace EventStore.Core.Tests.Http.PersistentSubscription
         public void returns_not_found()
         {
             Assert.Equal(HttpStatusCode.NotFound, _response.StatusCode);
+        }
+
+        public when_updating_a_non_existent_subscription_without_permissions(SpecificationFixture data) : base(data)
+        {
         }
     }
 
@@ -148,6 +156,10 @@ namespace EventStore.Core.Tests.Http.PersistentSubscription
         public void location_header_is_present()
         {
             Assert.Equal(string.Format("http://{0}/subscriptions/{1}/{2}", Node.ExtHttpEndPoint, _stream, _groupName), _response.Headers["Location"]);
+        }
+
+        public when_updating_a_existent_subscription(SpecificationFixture data) : base(data)
+        {
         }
     }
 }

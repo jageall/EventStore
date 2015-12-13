@@ -96,5 +96,9 @@ namespace EventStore.Core.Tests.Services.Storage.DeletingStream
             Assert.Equal(_event1, events[0]);
             Assert.Equal(_event0, events[1]);
         }
+
+        public when_writing_delete_prepare_but_no_commit_read_index_should(FixtureData fixture) : base(fixture)
+        {
+        }
     }
 }

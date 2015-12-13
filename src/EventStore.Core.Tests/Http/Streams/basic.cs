@@ -34,6 +34,10 @@ namespace EventStore.Core.Tests.Http.Streams
             {
                 Assert.Equal(HttpStatusCode.BadRequest, _response.StatusCode);
             }
+
+            public when_posting_an_event_as_raw_json_without_eventtype(SpecificationFixture data) : base(data)
+            {
+            }
         }
 
         public class when_posting_an_event_to_idempotent_uri_as_events_array : HttpBehaviorSpecification
@@ -55,6 +59,10 @@ namespace EventStore.Core.Tests.Http.Streams
             public void returns_bad_request_status_code()
             {
                 Assert.Equal(HttpStatusCode.UnsupportedMediaType, _response.StatusCode);
+            }
+
+            public when_posting_an_event_to_idempotent_uri_as_events_array(SpecificationFixture data) : base(data)
+            {
             }
         }
 
@@ -81,6 +89,10 @@ namespace EventStore.Core.Tests.Http.Streams
             public void returns_bad_request_status_code()
             {
                 Assert.Equal(HttpStatusCode.BadRequest, _response.StatusCode);
+            }
+
+            public when_posting_an_event_as_json_to_idempotent_uri_without_event_type(SpecificationFixture data) : base(data)
+            {
             }
         }
 
@@ -127,6 +139,10 @@ namespace EventStore.Core.Tests.Http.Streams
                 var json = GetJson<JObject>(_response.Headers[HttpResponseHeader.Location]);
                 HelperExtensions.AssertJson(new {a = "1", b="3", c="5"}, json);
             }
+
+            public when_posting_an_event_in_json_to_idempotent_uri_without_event_id(SpecificationFixture data) : base(data)
+            {
+            }
         }
 
         public class when_posting_an_event_as_raw_json_without_eventid : HttpBehaviorSpecification
@@ -171,6 +187,10 @@ namespace EventStore.Core.Tests.Http.Streams
                 Assert.True(_response.Headers[HttpResponseHeader.Location].Contains("/incoming/"));
                 //HelperExtensions.AssertJson(new {A = "1"}, json);
             }
+
+            public when_posting_an_event_as_raw_json_without_eventid(SpecificationFixture data) : base(data)
+            {
+            }
         }
 
         public class when_posting_an_event_as_array_with_no_event_type : HttpBehaviorSpecification
@@ -196,6 +216,10 @@ namespace EventStore.Core.Tests.Http.Streams
             public void returns_bad_request_status_code()
             {
                 Assert.Equal(HttpStatusCode.BadRequest, _response.StatusCode);
+            }
+
+            public when_posting_an_event_as_array_with_no_event_type(SpecificationFixture data) : base(data)
+            {
             }
         }
 
@@ -236,6 +260,10 @@ namespace EventStore.Core.Tests.Http.Streams
             {
                 var json = GetJson<JObject>(_response.Headers[HttpResponseHeader.Location]);
                 HelperExtensions.AssertJson(new {A = "1"}, json);
+            }
+
+            public when_posting_an_event_as_array(SpecificationFixture data) : base(data)
+            {
             }
         }
 
@@ -287,6 +315,10 @@ namespace EventStore.Core.Tests.Http.Streams
             {
                 Assert.Equal(MakeUrlString(TestStream), _response.Headers[HttpResponseHeader.Location]);
             }
+
+            public when_posting_an_event_as_array_to_stream_with_slash(SpecificationFixture data) : base(data)
+            {
+            }
         }
 
         public class when_deleting_to_stream_with_slash : HttpBehaviorSpecification
@@ -324,6 +356,10 @@ namespace EventStore.Core.Tests.Http.Streams
             public void returns_a_location_header_that_is_to_stream_without_slash()
             {
                 Assert.Equal(MakeUrlString(TestStream), _response.Headers[HttpResponseHeader.Location]);
+            }
+
+            public when_deleting_to_stream_with_slash(SpecificationFixture data) : base(data)
+            {
             }
         }
 
@@ -364,6 +400,10 @@ namespace EventStore.Core.Tests.Http.Streams
             {
                 Assert.Equal(MakeUrlString(TestStream), _response.Headers[HttpResponseHeader.Location]);
             }
+
+            public when_getting_from_stream_with_slash(SpecificationFixture data) : base(data)
+            {
+            }
         }
 
         public class when_getting_from_all_stream_with_slash : HttpBehaviorSpecification
@@ -403,6 +443,10 @@ namespace EventStore.Core.Tests.Http.Streams
             public void returns_a_location_header_that_is_to_stream_without_slash()
             {
                 Assert.Equal(MakeUrlString("/streams/$all"), _response.Headers[HttpResponseHeader.Location]);
+            }
+
+            public when_getting_from_all_stream_with_slash(SpecificationFixture data) : base(data)
+            {
             }
         }
 
@@ -447,6 +491,10 @@ namespace EventStore.Core.Tests.Http.Streams
             {
                 Assert.Equal(MakeUrl("/streams/$all").ToString(), _response.Headers[HttpResponseHeader.Location]);
             }
+
+            public when_getting_from_encoded_all_stream_with_slash(SpecificationFixture data) : base(data)
+            {
+            }
         }
 
         public class when_posting_an_event_as_array_to_metadata_stream_with_slash : HttpBehaviorSpecification
@@ -488,6 +536,10 @@ namespace EventStore.Core.Tests.Http.Streams
             {
                 Assert.Equal(MakeUrlString(TestStream + "/metadata"), _response.Headers[HttpResponseHeader.Location]);
             }
+
+            public when_posting_an_event_as_array_to_metadata_stream_with_slash(SpecificationFixture data) : base(data)
+            {
+            }
         }
 
         public class when_getting_from_metadata_stream_with_slash : HttpBehaviorSpecification
@@ -528,6 +580,10 @@ namespace EventStore.Core.Tests.Http.Streams
             {
                 Assert.Equal(MakeUrlString(TestStream + "/metadata"), _response.Headers[HttpResponseHeader.Location]);
             }
+
+            public when_getting_from_metadata_stream_with_slash(SpecificationFixture data) : base(data)
+            {
+            }
         }
 
         public class when_posting_an_event_without_EventId_as_array : HttpBehaviorSpecification
@@ -553,6 +609,10 @@ namespace EventStore.Core.Tests.Http.Streams
             {
                 Assert.Equal(HttpStatusCode.BadRequest, _response.StatusCode);
             }
+
+            public when_posting_an_event_without_EventId_as_array(SpecificationFixture data) : base(data)
+            {
+            }
         }
 
         public class when_posting_an_event_without_EventType_as_array : HttpBehaviorSpecification
@@ -575,6 +635,10 @@ namespace EventStore.Core.Tests.Http.Streams
             public void returns_bad_request_status_code()
             {
                 Assert.Equal(HttpStatusCode.BadRequest, _response.StatusCode);
+            }
+
+            public when_posting_an_event_without_EventType_as_array(SpecificationFixture data) : base(data)
+            {
             }
         }
 
@@ -624,6 +688,10 @@ namespace EventStore.Core.Tests.Http.Streams
                 var json = GetJson<JObject>(_response.Headers[HttpResponseHeader.Location]);
                 HelperExtensions.AssertJson(new { A = "1987-11-07T00:00:00.000+01:00" }, json);
             }
+
+            public when_posting_an_event_with_date_time(SpecificationFixture data) : base(data)
+            {
+            }
         }
 
         public class when_posting_an_events_as_array : HttpBehaviorSpecification
@@ -668,6 +736,10 @@ namespace EventStore.Core.Tests.Http.Streams
                 var json = GetJson<JObject>(_response.Headers[HttpResponseHeader.Location]);
                 HelperExtensions.AssertJson(new {A = "1"}, json);
             }
+
+            public when_posting_an_events_as_array(SpecificationFixture data) : base(data)
+            {
+            }
         }
 
         public abstract class HttpBehaviorSpecificationWithSingleEvent : HttpBehaviorSpecification
@@ -684,6 +756,9 @@ namespace EventStore.Core.Tests.Http.Streams
                 Fixture.AddStashedValueAssignment(this, instance => instance._response = response);
             }
 
+            public HttpBehaviorSpecificationWithSingleEvent(SpecificationFixture data) : base(data)
+            {
+            }
         }
 
         public class when_requesting_a_single_event_in_the_stream_as_atom_json: HttpBehaviorSpecificationWithSingleEvent
@@ -711,6 +786,9 @@ namespace EventStore.Core.Tests.Http.Streams
                 HelperExtensions.AssertJson(new { Content = new { Data = new {A = "1"}}}, _json);
             }
 
+            public when_requesting_a_single_event_in_the_stream_as_atom_json(SpecificationFixture data) : base(data)
+            {
+            }
         }
 
         public class when_requesting_a_single_event_that_is_deleted_linkto : HttpSpecificationWithLinkToToDeletedEvents
@@ -727,6 +805,10 @@ namespace EventStore.Core.Tests.Http.Streams
 
                 Assert.Equal(HttpStatusCode.NotFound, LastResponse.StatusCode);
             }
+
+            public when_requesting_a_single_event_that_is_deleted_linkto(SpecificationFixture data) : base(data)
+            {
+            }
         }
 
         public class when_requesting_a_single_event_that_is_maxcount_deleted_linkto : SpecificationWithLinkToToMaxCountDeletedEvents
@@ -742,6 +824,10 @@ namespace EventStore.Core.Tests.Http.Streams
             {
 
                 Assert.Equal(HttpStatusCode.NotFound, LastResponse.StatusCode);
+            }
+
+            public when_requesting_a_single_event_that_is_maxcount_deleted_linkto(SpecificationFixture data) : base(data)
+            {
             }
         }
 
@@ -771,6 +857,9 @@ namespace EventStore.Core.Tests.Http.Streams
                 HelperExtensions.AssertJson(new {Data = new {A = "1"}}, _json);
             }
 
+            public when_requesting_a_single_event_in_the_stream_as_event_json(SpecificationFixture data) : base(data)
+            {
+            }
         }
 
         public class when_requesting_a_single_event_in_the_stream_as_json: HttpBehaviorSpecificationWithSingleEvent
@@ -797,6 +886,10 @@ namespace EventStore.Core.Tests.Http.Streams
             {
                 HelperExtensions.AssertJson(new {A = "1"}, _json);
             }
+
+            public when_requesting_a_single_event_in_the_stream_as_json(SpecificationFixture data) : base(data)
+            {
+            }
         }
 
         public class when_requesting_a_single_event_in_the_stream_as_atom_xml: HttpBehaviorSpecificationWithSingleEvent
@@ -815,6 +908,9 @@ namespace EventStore.Core.Tests.Http.Streams
                 Assert.Equal(HttpStatusCode.OK, LastResponse.StatusCode);
             }
 
+            public when_requesting_a_single_event_in_the_stream_as_atom_xml(SpecificationFixture data) : base(data)
+            {
+            }
         }
 
         public class when_requesting_a_single_event_in_the_stream_as_event_xml: HttpBehaviorSpecificationWithSingleEvent
@@ -833,6 +929,9 @@ namespace EventStore.Core.Tests.Http.Streams
                 Assert.Equal(HttpStatusCode.OK, LastResponse.StatusCode);
             }
 
+            public when_requesting_a_single_event_in_the_stream_as_event_xml(SpecificationFixture data) : base(data)
+            {
+            }
         }
 
         public class when_requesting_a_single_event_in_the_stream_as_xml: HttpBehaviorSpecificationWithSingleEvent
@@ -851,6 +950,9 @@ namespace EventStore.Core.Tests.Http.Streams
                 Assert.Equal(HttpStatusCode.OK, LastResponse.StatusCode);
             }
 
+            public when_requesting_a_single_event_in_the_stream_as_xml(SpecificationFixture data) : base(data)
+            {
+            }
         }
 
     }

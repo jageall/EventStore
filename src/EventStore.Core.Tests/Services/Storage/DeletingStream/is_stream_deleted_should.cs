@@ -20,5 +20,9 @@ namespace EventStore.Core.Tests.Services.Storage.DeletingStream
         {
             Assert.Throws<ArgumentNullException>(() => ReadIndex.IsStreamDeleted(string.Empty));
         }
+
+        public is_stream_deleted_should(FixtureData fixture) : base(fixture)
+        {
+        }
     }
 }

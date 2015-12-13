@@ -9,6 +9,10 @@ namespace EventStore.Core.Tests.Services.Storage.Scavenge
 {
     public class when_stream_is_softdeleted_and_temp_and_all_events_and_metaevents_are_in_one_chunk : ScavengeTestScenario
     {
+        public when_stream_is_softdeleted_and_temp_and_all_events_and_metaevents_are_in_one_chunk(Fixture fixture) : base(fixture)
+        {
+            
+        }
         protected override DbResult CreateDb(TFChunkDbCreationHelper dbCreator)
         {
             return dbCreator.Chunk(Rec.Prepare(0, "$$test", metadata: new StreamMetadata(tempStream: true)),

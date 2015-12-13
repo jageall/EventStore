@@ -12,7 +12,7 @@ namespace EventStore.Core.Tests.Index
         private string _filename;
         private IndexMap _map;
 
-        public void SetFixture(SpecificationWithDirectoryPerTestFixture data)
+        public saving_empty_index_to_a_file(SpecificationWithDirectoryPerTestFixture data)
         {
             _filename = data.GetFilePathFor("indexfile");
             _map = IndexMap.FromFile(_filename);

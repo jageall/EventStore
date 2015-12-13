@@ -12,6 +12,10 @@ namespace EventStore.Core.Tests.Http.BasicAuthentication
         {
             protected readonly ICredentials _admin = new NetworkCredential(
                 SystemUsers.Admin, SystemUsers.DefaultAdminPassword);
+
+            public with_admin_user(SpecificationFixture data) : base(data)
+            {
+            }
         }
 
         public class when_requesting_an_unprotected_resource : with_admin_user
@@ -37,6 +41,10 @@ namespace EventStore.Core.Tests.Http.BasicAuthentication
             public void does_not_return_www_authenticate_header()
             {
                 Assert.Null(LastResponse.Headers[HttpResponseHeader.WwwAuthenticate]);
+            }
+
+            public when_requesting_an_unprotected_resource(SpecificationFixture data) : base(data)
+            {
             }
         }
 
@@ -64,6 +72,10 @@ namespace EventStore.Core.Tests.Http.BasicAuthentication
             {
                 Assert.NotNull(LastResponse.Headers[HttpResponseHeader.WwwAuthenticate]);
             }
+
+            public when_requesting_a_protected_resource(SpecificationFixture data) : base(data)
+            {
+            }
         }
 
         public class when_requesting_a_protected_resource_with_credentials_provided : with_admin_user
@@ -86,6 +98,10 @@ namespace EventStore.Core.Tests.Http.BasicAuthentication
             {
                 Assert.Equal(HttpStatusCode.OK, LastResponse.StatusCode);
             }
+
+            public when_requesting_a_protected_resource_with_credentials_provided(SpecificationFixture data) : base(data)
+            {
+            }
         }
 
         public class when_requesting_a_protected_resource_with_invalid_credentials_provided : with_admin_user
@@ -107,6 +123,10 @@ namespace EventStore.Core.Tests.Http.BasicAuthentication
             public void returns_unauthorized_status_code()
             {
                 Assert.Equal(HttpStatusCode.Unauthorized, LastResponse.StatusCode);
+            }
+
+            public when_requesting_a_protected_resource_with_invalid_credentials_provided(SpecificationFixture data) : base(data)
+            {
             }
         }
 
@@ -133,6 +153,10 @@ namespace EventStore.Core.Tests.Http.BasicAuthentication
             {
                 Assert.Equal(HttpStatusCode.Unauthorized, LastResponse.StatusCode);
             }
+
+            public when_requesting_a_protected_resource_with_credentials_of_disabled_user_account(SpecificationFixture data) : base(data)
+            {
+            }
         }
 
         public class when_requesting_a_protected_resource_with_credentials_of_deleted_user_account : with_admin_user
@@ -157,6 +181,10 @@ namespace EventStore.Core.Tests.Http.BasicAuthentication
             public void returns_unauthorized_status_code()
             {
                 Assert.Equal(HttpStatusCode.Unauthorized, LastResponse.StatusCode);
+            }
+
+            public when_requesting_a_protected_resource_with_credentials_of_deleted_user_account(SpecificationFixture data) : base(data)
+            {
             }
         }
     }

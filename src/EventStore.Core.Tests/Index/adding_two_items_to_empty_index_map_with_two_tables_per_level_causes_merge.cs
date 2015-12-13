@@ -14,9 +14,8 @@ namespace EventStore.Core.Tests.Index
         private string _mergeFile;
         private MergeResult _result;
 
-        public void SetFixture(MergeFileFixture data)
+        public adding_two_items_to_empty_index_map_with_two_tables_per_level_causes_merge(MergeFileFixture data)
         {
-         
             _filename = data.Filename;
             _mergeFile = data.MergeFile;
 

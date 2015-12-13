@@ -67,7 +67,7 @@ namespace EventStore.Core.Tests.Http.StreamSecurity
             }
 
             [Fact]
-            [Trait("Category", "LongRunning")][Trait("Category", "A")]
+            [Trait("Category", "LongRunning")]
             public void accepts_post_event_as_authorized_user_by_trusted_auth()
             {
                 var uri = MakeUrl (TestStream);
@@ -93,6 +93,10 @@ namespace EventStore.Core.Tests.Http.StreamSecurity
                 var httpWebResponse = GetRequestResponse(request);
                 var response = httpWebResponse;
                 Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+            }
+
+            public when_creating_a_secured_stream_by_posting_metadata(SpecificationFixture data) : base(data)
+            {
             }
         }
     }

@@ -102,5 +102,9 @@ namespace EventStore.Core.Tests.Services.Storage.MaxAgeMaxCount
             Assert.Equal(_r2, records[4].Event);
             Assert.Equal(_r1, records[5].Event);
         }
+
+        public with_invalid_max_age_and_normal_max_count(FixtureData fixture) : base(fixture)
+        {
+        }
     }
 }

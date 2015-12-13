@@ -13,8 +13,9 @@ namespace EventStore.Core.Tests.TransactionLog.Truncation
 {
     public abstract class TruncateAndReOpenDbScenario : TruncateScenario
     {
-        protected TruncateAndReOpenDbScenario(int maxEntriesInMemTable = 100, int metastreamMaxCount = 1)
-            : base(maxEntriesInMemTable, metastreamMaxCount)
+        protected TruncateAndReOpenDbScenario(FixtureData fixture) : this(fixture, 100, 1) { }
+        protected TruncateAndReOpenDbScenario(FixtureData fixture, int maxEntriesInMemTable, int metastreamMaxCount)
+            : base(fixture,maxEntriesInMemTable, metastreamMaxCount)
         {
         }
 

@@ -113,5 +113,9 @@ namespace EventStore.Core.Tests.Services.Storage.Scavenge
             Assert.True(res.Success);
             Assert.Equal(_event7commit, res.LogRecord);
         }
+
+        public when_deleting_single_stream_spanning_through_2_chunks_in_2nd_chunk_in_db_with_3_chunks(FixtureData fixture) : base(fixture)
+        {
+        }
     }
 }

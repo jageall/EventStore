@@ -10,5 +10,9 @@ namespace EventStore.Core.Tests.ClientAPI.Embedded
         {
             return EmbeddedTestConnection.To(node);
         }
+
+        public read_event_should(SpecificationFixture fixture) : base(fixture)
+        {
+        }
     }
 }

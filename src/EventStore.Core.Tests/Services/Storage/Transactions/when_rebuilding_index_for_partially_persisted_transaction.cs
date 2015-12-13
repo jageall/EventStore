@@ -17,7 +17,7 @@ namespace EventStore.Core.Tests.Services.Storage.Transactions
 {
     public class when_rebuilding_index_for_partially_persisted_transaction : ReadIndexTestScenario
     {
-        public when_rebuilding_index_for_partially_persisted_transaction(): base(maxEntriesInMemTable: 10)
+        public when_rebuilding_index_for_partially_persisted_transaction(FixtureData fixture): base(fixture,maxEntriesInMemTable: 10, metastreamMaxCount:1)
         {
         }
 

@@ -93,7 +93,7 @@ namespace EventStore.Core.Tests.Index
             }
         }
 
-        public void SetFixture(FixtureData data)
+        public adding_sixteen_items_to_empty_index_map_with_four_tables_per_level_causes_double_merge(FixtureData data)
         {
             _result = data._result;
             _map = data._map;

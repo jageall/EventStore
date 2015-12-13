@@ -84,6 +84,10 @@ namespace EventStore.Core.Tests.Http.PersistentSubscription
                        select link).SingleOrDefault();
             return (rel == null) ? (string)null : (string)rel["uri"];
         }
+
+        public SpecificationWithLongFeed(SpecificationFixture data) : base(data)
+        {
+        }
     }
 
     
@@ -147,6 +151,10 @@ namespace EventStore.Core.Tests.Http.PersistentSubscription
         {
             Assert.Equal(0, _feed["entries"].Count());
         }
+
+        public when_retrieving_an_empty_feed(SpecificationFixture data) : base(data)
+        {
+        }
     }
 
     
@@ -193,6 +201,10 @@ namespace EventStore.Core.Tests.Http.PersistentSubscription
             var ids = String.Format("ids={0}", String.Join(",", _eventIds.ToArray()));
             var nackAllLink = String.Format("subscriptions/{0}/{1}/nack", TestStreamName, SubscriptionGroupName);
             Assert.Equal(MakeUrl(nackAllLink, ids).ToString(), GetLink(_feed, "nackAll"));
+        }
+
+        public when_retrieving_a_feed_with_events(SpecificationFixture data) : base(data)
+        {
         }
     }
 
@@ -255,6 +267,10 @@ namespace EventStore.Core.Tests.Http.PersistentSubscription
             Assert.Equal("nack", link["relation"].ToString());
             var ackLink = String.Format("subscriptions/{0}/{1}/nack/{2}", TestStreamName, SubscriptionGroupName, _eventIds.Last());
             Assert.Equal(MakeUrl(ackLink).ToString(), link["uri"].ToString());
+        }
+
+        public when_polling_the_head_forward_and_a_new_event_appears(SpecificationFixture data) : base(data)
+        {
         }
     }
 
@@ -324,6 +340,10 @@ namespace EventStore.Core.Tests.Http.PersistentSubscription
             var nackLink = String.Format("subscriptions/{0}/{1}/nack/{2}", TestStreamName, SubscriptionGroupName, _eventIds[0]);
             Assert.Equal(MakeUrl(nackLink).ToString(), result);
         }
+
+        public when_retrieving_a_feed_with_events_with_competing_xml(SpecificationFixture data) : base(data)
+        {
+        }
     }
 
     public class when_retrieving_a_feed_with_invalid_content_type : SpecificationWithLongFeed
@@ -337,6 +357,10 @@ namespace EventStore.Core.Tests.Http.PersistentSubscription
         public void returns_not_acceptable()
         {
             Assert.Equal(HttpStatusCode.NotAcceptable, LastResponse.StatusCode);
+        }
+
+        public when_retrieving_a_feed_with_invalid_content_type(SpecificationFixture data) : base(data)
+        {
         }
     }
 }

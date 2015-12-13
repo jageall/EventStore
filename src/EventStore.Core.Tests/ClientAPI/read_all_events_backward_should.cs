@@ -98,5 +98,9 @@ namespace EventStore.Core.Tests.ClientAPI
             await Assert.ThrowsAsync<ArgumentException>(
                 () => _conn.ReadAllEventsBackwardAsync(Position.Start, int.MaxValue, resolveLinkTos: false));
         }
+
+        public read_all_events_backward_should(SpecificationFixture fixture) : base(fixture)
+        {
+        }
     }
 }

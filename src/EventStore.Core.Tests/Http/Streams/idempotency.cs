@@ -45,6 +45,10 @@ namespace EventStore.Core.Tests.Http.Streams
                 var json = GetJson<JObject>(_response.Headers[HttpResponseHeader.Location]);
                 HelperExtensions.AssertJson(new { A = "1" }, json);
             }
+
+            public HttpBehaviorSpecificationOfSuccessfulCreateEvent(SpecificationFixture data) : base(data)
+            {
+            }
         }
 
         public class when_posting_to_idempotent_guid_id_then_as_array : HttpBehaviorSpecificationOfSuccessfulCreateEvent
@@ -82,6 +86,10 @@ namespace EventStore.Core.Tests.Http.Streams
                 request.GetRequestStream().Write(bytes, 0, data.Length);
                 _response = GetRequestResponse(request);
             }
+
+            public when_posting_to_idempotent_guid_id_then_as_array(SpecificationFixture data) : base(data)
+            {
+            }
         }
 
         public class when_posting_to_idempotent_guid_id_twice : HttpBehaviorSpecificationOfSuccessfulCreateEvent
@@ -116,6 +124,10 @@ namespace EventStore.Core.Tests.Http.Streams
                 {
                     instance._response = response;
                 });
+            }
+
+            public when_posting_to_idempotent_guid_id_twice(SpecificationFixture data) : base(data)
+            {
             }
         }
 
@@ -153,6 +165,10 @@ namespace EventStore.Core.Tests.Http.Streams
                 {
                     instance._response = response;
                 });
+            }
+
+            public when_posting_to_idempotent_guid_id_three_times(SpecificationFixture data) : base(data)
+            {
             }
         }
 
@@ -193,6 +209,10 @@ namespace EventStore.Core.Tests.Http.Streams
                 request.GetRequestStream().Write(bytes, 0, data.Length);
                 _response = GetRequestResponse(request);
             }
+
+            public when_posting_an_event_once_raw_once_with_array(SpecificationFixture data) : base(data)
+            {
+            }
         }
 
 
@@ -231,6 +251,9 @@ namespace EventStore.Core.Tests.Http.Streams
                 });
             }
 
+            public when_posting_an_event_twice_raw(SpecificationFixture data) : base(data)
+            {
+            }
         }
 
         public class when_posting_an_event_three_times_raw : HttpBehaviorSpecificationOfSuccessfulCreateEvent
@@ -269,6 +292,9 @@ namespace EventStore.Core.Tests.Http.Streams
                 });
             }
 
+            public when_posting_an_event_three_times_raw(SpecificationFixture data) : base(data)
+            {
+            }
         }
 
         public class when_posting_an_event_twice_array : HttpBehaviorSpecificationOfSuccessfulCreateEvent
@@ -299,6 +325,9 @@ namespace EventStore.Core.Tests.Http.Streams
                 });
             }
 
+            public when_posting_an_event_twice_array(SpecificationFixture data) : base(data)
+            {
+            }
         }
 
 
@@ -334,6 +363,9 @@ namespace EventStore.Core.Tests.Http.Streams
                 });
             }
 
+            public when_posting_an_event_three_times_as_array(SpecificationFixture data) : base(data)
+            {
+            }
         }
 
     }

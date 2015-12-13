@@ -45,5 +45,9 @@ namespace EventStore.Core.Tests.Services.Storage.DeletingStream
         {
             Assert.False(ReadIndex.IsStreamDeleted("XXX"));
         }
+
+        public when_deleting_stream_with_1_hash_collision_and_1_stream_with_other_hash_read_index_should(FixtureData fixture) : base(fixture)
+        {
+        }
     }
 }

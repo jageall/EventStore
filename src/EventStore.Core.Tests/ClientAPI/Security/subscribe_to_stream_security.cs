@@ -5,6 +5,10 @@ namespace EventStore.Core.Tests.ClientAPI.Security
 {
     public class subscribe_to_stream_security : AuthenticationTestBase
     {
+        public subscribe_to_stream_security(Fixture fixture) : base(fixture)
+        {
+            
+        }
         [Fact][Trait("Category", "LongRunning")][Trait("Category", "Network")]
         public void subscribing_to_stream_with_not_existing_credentials_is_not_authenticated()
         {

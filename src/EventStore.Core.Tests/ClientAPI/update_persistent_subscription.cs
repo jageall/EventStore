@@ -33,6 +33,10 @@ namespace EventStore.Core.Tests.ClientAPI
             var ex = Record.Exception(() => _conn.UpdatePersistentSubscriptionAsync(_stream, "existing", _settings, DefaultData.AdminCredentials).Wait());
             Assert.Null(ex);
         }
+
+        public update_existing_persistent_subscription(SpecificationFixture fixture) : base(fixture)
+        {
+        }
     }
 
     public class update_existing_persistent_subscription_with_subscribers : SpecificationWithMiniNode
@@ -99,6 +103,9 @@ namespace EventStore.Core.Tests.ClientAPI
             Assert.Null(_exception);
         }
 
+        public update_existing_persistent_subscription_with_subscribers(SpecificationFixture fixture) : base(fixture)
+        {
+        }
     }
 
     public class update_non_existing_persistent_subscription : SpecificationWithMiniNode
@@ -127,6 +134,10 @@ namespace EventStore.Core.Tests.ClientAPI
                 Assert.IsType<AggregateException>(ex);
                 Assert.IsType<InvalidOperationException>(ex.InnerException);
             }
+        }
+
+        public update_non_existing_persistent_subscription(SpecificationFixture fixture) : base(fixture)
+        {
         }
     }
 
@@ -158,6 +169,10 @@ namespace EventStore.Core.Tests.ClientAPI
                 Assert.IsType<AggregateException>(ex);
                 Assert.IsType<AccessDeniedException>(ex.InnerException);
             }
+        }
+
+        public update_existing_persistent_subscription_without_permissions(SpecificationFixture fixture) : base(fixture)
+        {
         }
     }
 }

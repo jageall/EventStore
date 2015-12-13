@@ -5,6 +5,10 @@ namespace EventStore.Core.Tests.ClientAPI.Security
 {
     public class write_stream_security : AuthenticationTestBase
     {
+        public write_stream_security(Fixture fixture) : base(fixture)
+        {
+            
+        }
         [Fact][Trait("Category", "LongRunning")][Trait("Category", "Network")]
         public void writing_to_all_is_never_allowed()
         {

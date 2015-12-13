@@ -16,7 +16,7 @@ namespace EventStore.Core.Tests.Services.Transport.Http
         private IPEndPoint _serverEndPoint;
         private PortableServer _portableServer;
 
-        public void SetFixture(LeasedPort data)
+        public ping_controller_should(LeasedPort data)
         {
             _serverEndPoint = new IPEndPoint(IPAddress.Loopback, data.Port);
             _portableServer = new PortableServer(_serverEndPoint);

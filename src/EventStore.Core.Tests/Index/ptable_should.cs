@@ -28,7 +28,7 @@ namespace EventStore.Core.Tests.Index
             }
         }
 
-        public void SetFixture(FixtureData data)
+        public ptable_should(FixtureData data)
         {
             _ptable = data._ptable;
         }

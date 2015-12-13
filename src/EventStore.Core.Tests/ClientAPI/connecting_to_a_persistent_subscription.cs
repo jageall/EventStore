@@ -30,6 +30,9 @@ namespace EventStore.Core.Tests.ClientAPI
             Assert.IsType<ArgumentException>(thrown.InnerException);
         }
 
+        public connect_to_non_existing_persistent_subscription_with_permissions(SpecificationFixture fixture) : base(fixture)
+        {
+        }
     }
 
     public class connect_to_existing_persistent_subscription_with_permissions : SpecificationWithMiniNode
@@ -54,6 +57,10 @@ namespace EventStore.Core.Tests.ClientAPI
         public void the_subscription_suceeds()
         {
             Assert.NotNull(_sub);
+        }
+
+        public connect_to_existing_persistent_subscription_with_permissions(SpecificationFixture fixture) : base(fixture)
+        {
         }
     }
 
@@ -87,6 +94,10 @@ namespace EventStore.Core.Tests.ClientAPI
                 Assert.IsType<AggregateException>(ex);
                 Assert.IsType<AccessDeniedException>(ex.InnerException);
             }
+        }
+
+        public connect_to_existing_persistent_subscription_without_permissions(SpecificationFixture fixture) : base(fixture)
+        {
         }
     }
 
@@ -140,6 +151,10 @@ namespace EventStore.Core.Tests.ClientAPI
             Assert.IsType<AggregateException>(_exception);
             Assert.IsType<MaximumSubscribersReachedException>(_exception.InnerException);
         }
+
+        public connect_to_existing_persistent_subscription_with_max_one_client(SpecificationFixture fixture) : base(fixture)
+        {
+        }
     }
 
     public class connect_to_existing_persistent_subscription_with_start_from_beginning_and_no_stream : SpecificationWithMiniNode
@@ -189,6 +204,10 @@ namespace EventStore.Core.Tests.ClientAPI
             Assert.True(_resetEvent.WaitOne(TimeSpan.FromSeconds(10)));
             Assert.Equal(0, _firstEvent.Event.EventNumber);
             Assert.Equal(_id, _firstEvent.Event.EventId);
+        }
+
+        public connect_to_existing_persistent_subscription_with_start_from_beginning_and_no_stream(SpecificationFixture fixture) : base(fixture)
+        {
         }
     }
 
@@ -245,6 +264,10 @@ namespace EventStore.Core.Tests.ClientAPI
             Assert.True(_resetEvent.WaitOne(TimeSpan.FromSeconds(10)));
             Assert.Equal(2, _firstEvent.Event.EventNumber);
             Assert.Equal(_id, _firstEvent.Event.EventId);
+        }
+
+        public connect_to_existing_persistent_subscription_with_start_from_two_and_no_stream(SpecificationFixture fixture) : base(fixture)
+        {
         }
     }
     
@@ -308,6 +331,10 @@ namespace EventStore.Core.Tests.ClientAPI
             Assert.Equal(0, _firstEvent.Event.EventNumber);
             Assert.Equal(_ids[0], _firstEvent.Event.EventId);
         }
+
+        public connect_to_existing_persistent_subscription_with_start_from_beginning_and_events_in_it(SpecificationFixture fixture) : base(fixture)
+        {
+        }
     }
 
     public class connect_to_existing_persistent_subscription_with_start_from_beginning_not_set_and_events_in_it : SpecificationWithMiniNode
@@ -357,6 +384,10 @@ namespace EventStore.Core.Tests.ClientAPI
         public void the_subscription_gets_no_events()
         {
             Assert.False(_resetEvent.WaitOne(TimeSpan.FromSeconds(1)));
+        }
+
+        public connect_to_existing_persistent_subscription_with_start_from_beginning_not_set_and_events_in_it(SpecificationFixture fixture) : base(fixture)
+        {
         }
     }
 
@@ -417,6 +448,10 @@ namespace EventStore.Core.Tests.ClientAPI
             Assert.NotNull(_firstEvent);
             Assert.Equal(10, _firstEvent.Event.EventNumber);
             Assert.Equal(_id, _firstEvent.Event.EventId);
+        }
+
+        public connect_to_existing_persistent_subscription_with_start_from_beginning_not_set_and_events_in_it_then_event_written(SpecificationFixture fixture) : base(fixture)
+        {
         }
     }
 
@@ -480,6 +515,10 @@ namespace EventStore.Core.Tests.ClientAPI
             Assert.Equal(11, _firstEvent.Event.EventNumber);
             Assert.Equal(_id, _firstEvent.Event.EventId);
         }
+
+        public connect_to_existing_persistent_subscription_with_start_from_x_set_higher_than_x_and_events_in_it_then_event_written(SpecificationFixture fixture) : base(fixture)
+        {
+        }
     }
 
     public class a_nak_in_subscription_handler_in_autoack_mode_drops_the_subscription : SpecificationWithMiniNode
@@ -538,6 +577,9 @@ namespace EventStore.Core.Tests.ClientAPI
             Assert.Equal("test", _exception.Message);
         }
 
+        public a_nak_in_subscription_handler_in_autoack_mode_drops_the_subscription(SpecificationFixture fixture) : base(fixture)
+        {
+        }
     }
 
     public class connect_to_existing_persistent_subscription_with_start_from_x_set_and_events_in_it_then_event_written : SpecificationWithMiniNode
@@ -599,6 +641,10 @@ namespace EventStore.Core.Tests.ClientAPI
             Assert.NotNull(_firstEvent);
             Assert.Equal(10, _firstEvent.Event.EventNumber);
             Assert.Equal(_id, _firstEvent.Event.EventId);
+        }
+
+        public connect_to_existing_persistent_subscription_with_start_from_x_set_and_events_in_it_then_event_written(SpecificationFixture fixture) : base(fixture)
+        {
         }
     }
 
@@ -665,6 +711,10 @@ namespace EventStore.Core.Tests.ClientAPI
             Assert.NotNull(_firstEvent);
             Assert.Equal(4, _firstEvent.Event.EventNumber);
             Assert.Equal(_id, _firstEvent.Event.EventId);
+        }
+
+        public connect_to_existing_persistent_subscription_with_start_from_x_set_and_events_in_it(SpecificationFixture fixture) : base(fixture)
+        {
         }
     }
     //ALL

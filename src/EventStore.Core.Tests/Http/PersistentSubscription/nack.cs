@@ -40,6 +40,10 @@ namespace EventStore.Core.Tests.Http.PersistentSubscription
         {
             Assert.Equal(HttpStatusCode.Accepted, _response.StatusCode);
         }
+
+        public when_nacking_a_message(SpecificationFixture data) : base(data)
+        {
+        }
     }
 
     public class when_nacking_messages : with_subscription_having_events
@@ -66,6 +70,10 @@ namespace EventStore.Core.Tests.Http.PersistentSubscription
         public void returns_accepted()
         {
             Assert.Equal(HttpStatusCode.Accepted, _response.StatusCode);
+        }
+
+        public when_nacking_messages(SpecificationFixture data) : base(data)
+        {
         }
     }
 }

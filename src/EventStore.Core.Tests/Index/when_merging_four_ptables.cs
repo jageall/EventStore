@@ -42,7 +42,7 @@ namespace EventStore.Core.Tests.Index
             }
         }
 
-        public void SetFixture(FixtureData data)
+        public when_merging_four_ptables(FixtureData data)
         {
             _newtable = data._newtable;
         }

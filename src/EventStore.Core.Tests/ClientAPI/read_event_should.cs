@@ -142,5 +142,9 @@ namespace EventStore.Core.Tests.ClientAPI
             Assert.NotEqual(DateTime.MinValue, res.Event.Value.OriginalEvent.Created);
             Assert.NotEqual(0, res.Event.Value.OriginalEvent.CreatedEpoch);
         }
+
+        public read_event_should(SpecificationFixture fixture) : base(fixture)
+        {
+        }
     }
 }

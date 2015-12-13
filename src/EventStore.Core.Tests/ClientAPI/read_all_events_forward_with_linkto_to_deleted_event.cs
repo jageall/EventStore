@@ -42,5 +42,9 @@ namespace EventStore.Core.Tests.ClientAPI
         {
             Assert.False(_read.Events[0].IsResolved);
         }
+
+        public read_all_events_forward_with_linkto_to_deleted_event(SpecificationFixture fixture) : base(fixture)
+        {
+        }
     }
 }

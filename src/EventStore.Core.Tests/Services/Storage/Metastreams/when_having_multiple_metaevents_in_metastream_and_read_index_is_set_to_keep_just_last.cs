@@ -7,6 +7,9 @@ namespace EventStore.Core.Tests.Services.Storage.Metastreams
 {
     public class when_having_multiple_metaevents_in_metastream_and_read_index_is_set_to_keep_just_last: SimpleDbTestScenario
     {
+        public when_having_multiple_metaevents_in_metastream_and_read_index_is_set_to_keep_just_last(FixtureData fixture):base(fixture)
+        {
+        }
         protected override DbResult CreateDb(TFChunkDbCreationHelper dbCreator)
         {
             return dbCreator.Chunk(Rec.Prepare(0, "$$test", "0", metadata: new StreamMetadata(maxCount: 10)),

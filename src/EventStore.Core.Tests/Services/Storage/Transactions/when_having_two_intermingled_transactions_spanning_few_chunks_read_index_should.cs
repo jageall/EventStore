@@ -346,5 +346,9 @@ namespace EventStore.Core.Tests.Services.Storage.Transactions
             }
             Assert.Equal(recs.Length, count);
         }
+
+        public when_having_two_intermingled_transactions_spanning_few_chunks_read_index_should(FixtureData fixture) : base(fixture)
+        {
+        }
     }
 }

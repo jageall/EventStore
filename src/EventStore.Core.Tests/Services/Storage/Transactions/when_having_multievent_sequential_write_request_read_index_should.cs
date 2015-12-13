@@ -123,5 +123,9 @@ namespace EventStore.Core.Tests.Services.Storage.Transactions
             Assert.Equal(_p2, records[1].Event);
             Assert.Equal(_p3, records[0].Event);
         }
+
+        public when_having_multievent_sequential_write_request_read_index_should(FixtureData fixture) : base(fixture)
+        {
+        }
     }
 }

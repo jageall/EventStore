@@ -63,7 +63,7 @@ namespace EventStore.Core.Tests.TransactionLog
             }
         }
 
-        public void SetFixture(FixtureData data)
+        public when_writing_prepare_record_to_file(FixtureData data)
         {
             _db = data._db;
             _writerCheckpoint = data._writerCheckpoint;

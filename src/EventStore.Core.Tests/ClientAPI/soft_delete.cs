@@ -15,7 +15,7 @@ namespace EventStore.Core.Tests.ClientAPI
         private MiniNode _node;
         private IEventStoreConnection _conn;
 
-        public void SetFixture(MiniNodeFixture data)
+        public soft_delete(MiniNodeFixture data)
         {
             _node = data.Node;
             _conn = BuildConnection(_node);

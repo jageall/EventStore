@@ -43,6 +43,10 @@ namespace EventStore.Core.Tests.Http.Streams
             _links = _descriptionDocument != null ? _descriptionDocument["_links"].ToList() : new List<JToken>();
             Assert.NotNull(_links);
         }
+
+        public when_getting_a_stream_without_accept_header(SpecificationFixture data) : base(data)
+        {
+        }
     }
 
     public class when_getting_a_stream_with_description_document_media_type : HttpBehaviorSpecification
@@ -72,6 +76,10 @@ namespace EventStore.Core.Tests.Http.Streams
             Assert.NotNull(_descriptionDocument);
             _links = _descriptionDocument != null ? _descriptionDocument["_links"].ToList() : new List<JToken>();
             Assert.NotNull(_links);
+        }
+
+        public when_getting_a_stream_with_description_document_media_type(SpecificationFixture data) : base(data)
+        {
         }
     }
 
@@ -133,6 +141,10 @@ namespace EventStore.Core.Tests.Http.Streams
             Assert.Equal(2, supportedContentTypes.Length);
             Assert.Contains("application/atom+xml", supportedContentTypes);
             Assert.Contains("application/vnd.eventstore.atom+json", supportedContentTypes);
+        }
+
+        public when_getting_description_document(SpecificationFixture data) : base(data)
+        {
         }
     }
 
@@ -202,6 +214,10 @@ namespace EventStore.Core.Tests.Http.Streams
             Assert.Equal(2, supportedContentTypes.Length);
             Assert.Contains("application/vnd.eventstore.competingatom+xml", supportedContentTypes);
             Assert.Contains("application/vnd.eventstore.competingatom+json", supportedContentTypes);
+        }
+
+        public when_getting_description_document_and_subscription_exists_for_stream(SpecificationFixture data) : base(data)
+        {
         }
     }
 }

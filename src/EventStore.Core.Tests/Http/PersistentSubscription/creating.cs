@@ -39,6 +39,10 @@ namespace EventStore.Core.Tests.Http.PersistentSubscription
         {
             Assert.Equal("http://" + Node.ExtHttpEndPoint + "/subscriptions/stream/groupname334",_response.Headers["location"]);
         }
+
+        public when_creating_a_subscription(SpecificationFixture data) : base(data)
+        {
+        }
     }
 
     public class when_creating_a_subscription_without_permissions : with_admin_user
@@ -65,6 +69,10 @@ namespace EventStore.Core.Tests.Http.PersistentSubscription
         public void returns_unauthorised()
         {
             Assert.Equal(HttpStatusCode.Unauthorized, _response.StatusCode);
+        }
+
+        public when_creating_a_subscription_without_permissions(SpecificationFixture data) : base(data)
+        {
         }
     }
 
@@ -99,6 +107,10 @@ namespace EventStore.Core.Tests.Http.PersistentSubscription
         public void returns_conflict()
         {
             Assert.Equal(HttpStatusCode.Conflict, _response.StatusCode);
+        }
+
+        public when_creating_a_duplicate_subscription(SpecificationFixture data) : base(data)
+        {
         }
     }
 
@@ -156,6 +168,10 @@ namespace EventStore.Core.Tests.Http.PersistentSubscription
         public void returns_bad_request()
         {
             Assert.Equal(HttpStatusCode.BadRequest, Response.StatusCode);
+        }
+
+        public when_creating_a_subscription_with_bad_config(SpecificationFixture data) : base(data)
+        {
         }
     }
 }

@@ -44,7 +44,8 @@ namespace EventStore.Core.Tests.Index
                 base.Dispose();
             }
         }
-        public void SetFixture(Fixture data)
+
+        public table_index_on_range_query(Fixture data)
         {
             _tableIndex = data._tableIndex;
         }

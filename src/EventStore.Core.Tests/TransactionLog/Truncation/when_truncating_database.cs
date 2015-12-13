@@ -12,7 +12,7 @@ namespace EventStore.Core.Tests.TransactionLog.Truncation
     {
         private MiniNode _miniNode;
 
-        public void SetFixture(SpecificationWithDirectoryPerTestFixture fixture)
+        public when_truncating_database(SpecificationWithDirectoryPerTestFixture fixture)
         {
             PathName = fixture.PathName;
         }

@@ -8,9 +8,9 @@ namespace EventStore.Core.Tests.TransactionLog.Truncation
     {
         protected TFChunkDbTruncator Truncator;
         protected long TruncateCheckpoint = long.MinValue;
-
-        protected TruncateScenario(int maxEntriesInMemTable = 100, int metastreamMaxCount = 1)
-            : base(maxEntriesInMemTable, metastreamMaxCount)
+        protected TruncateScenario(FixtureData fixture) :this(fixture, 100, 1) { }
+        protected TruncateScenario(FixtureData fixture, int maxEntriesInMemTable, int metastreamMaxCount)
+            : base(fixture,maxEntriesInMemTable, metastreamMaxCount)
         {
         }
 

@@ -16,7 +16,7 @@ namespace EventStore.Core.Tests.ClientAPI
     {
         private MiniNode _node;
 
-        public void SetFixture(MiniNodeFixture data)
+        public isjson_flag_on_event(MiniNodeFixture data)
         {
             _node = data.Node;
         }

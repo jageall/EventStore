@@ -8,6 +8,10 @@ namespace EventStore.Core.Tests.Services.Storage.Metastreams
 {
     public class when_having_deleted_stream_its_metastream_is_deleted_as_well: SimpleDbTestScenario
     {
+        public when_having_deleted_stream_its_metastream_is_deleted_as_well(FixtureData fixture) : base(fixture)
+        {
+            
+        }
         protected override DbResult CreateDb(TFChunkDbCreationHelper dbCreator)
         {
             return dbCreator.Chunk(Rec.Prepare(0, "test"),

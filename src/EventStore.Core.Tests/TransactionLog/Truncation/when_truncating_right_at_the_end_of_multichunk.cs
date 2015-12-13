@@ -58,7 +58,7 @@ namespace EventStore.Core.Tests.TransactionLog.Truncation
             }
         }
 
-        public void SetFixture(FixtureData data)
+        public when_truncating_right_at_the_end_of_multichunk(FixtureData data)
         {
             _config = data._config;
             _fixture = data;

@@ -7,6 +7,10 @@ namespace EventStore.Core.Tests.ClientAPI.Security
 {
     public class overriden_system_stream_security_for_all : AuthenticationTestBase
     {
+        public overriden_system_stream_security_for_all(Fixture fixture):base(fixture)
+        {
+            
+        }
         protected override void AdditionalFixtureSetup()
         {    
             var settings = new SystemSettings(

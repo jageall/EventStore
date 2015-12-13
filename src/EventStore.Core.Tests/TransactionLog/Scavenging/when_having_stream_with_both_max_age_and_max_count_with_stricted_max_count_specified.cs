@@ -10,6 +10,10 @@ namespace EventStore.Core.Tests.TransactionLog.Scavenging
 {
     public class when_having_stream_with_both_max_age_and_max_count_with_stricter_max_count_specified : ScavengeTestScenario
     {
+        public when_having_stream_with_both_max_age_and_max_count_with_stricter_max_count_specified(Fixture fixture) : base(fixture)
+        {
+            
+        }
         protected override DbResult CreateDb(TFChunkDbCreationHelper dbCreator)
         {
             return dbCreator

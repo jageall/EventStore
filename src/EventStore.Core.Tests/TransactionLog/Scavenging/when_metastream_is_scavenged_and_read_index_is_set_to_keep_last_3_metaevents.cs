@@ -9,8 +9,8 @@ namespace EventStore.Core.Tests.TransactionLog.Scavenging
 {
     public class when_metastream_is_scavenged_and_read_index_is_set_to_keep_last_3_metaevents : ScavengeTestScenario
     {
-        public when_metastream_is_scavenged_and_read_index_is_set_to_keep_last_3_metaevents() :
-                base(metastreamMaxCount: 3)
+        public when_metastream_is_scavenged_and_read_index_is_set_to_keep_last_3_metaevents(Fixture fixture) :
+                base(fixture,metastreamMaxCount: 3)
         {
         }
 

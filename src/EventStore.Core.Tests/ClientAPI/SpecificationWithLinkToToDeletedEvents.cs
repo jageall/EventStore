@@ -27,5 +27,9 @@ namespace EventStore.Core.Tests.ClientAPI
                 instance.DeletedStreamName = deletedStreamName;
             });
         }
+
+        public SpecificationWithLinkToToDeletedEvents(SpecificationFixture fixture) : base(fixture)
+        {
+        }
     }
 }

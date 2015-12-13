@@ -32,6 +32,10 @@ namespace EventStore.Core.Tests.ClientAPI
         {
             Assert.Equal(EventReadStatus.Success, _read.Status);
         }
+
+        public read_event_of_linkto_to_deleted_event(SpecificationFixture fixture) : base(fixture)
+        {
+        }
     }
 
     public class read_allevents_backward_with_linkto_deleted_event : SpecificationWithLinkToToDeletedEvents
@@ -71,6 +75,10 @@ namespace EventStore.Core.Tests.ClientAPI
         public void the_event_is_not_resolved()
         {
             Assert.False(_read.Events[0].IsResolved);
+        }
+
+        public read_allevents_backward_with_linkto_deleted_event(SpecificationFixture fixture) : base(fixture)
+        {
         }
     }
 }

@@ -170,5 +170,9 @@ namespace EventStore.Core.Tests.TransactionLog.Truncation
             Assert.Equal(_event2, records[0]);
 
         }
+
+        public when_truncating_into_the_middle_of_scavenged_chunk_with_index_in_memory_and_then_reopening_db(FixtureData fixture) : base(fixture)
+        {
+        }
     }
 }

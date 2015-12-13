@@ -245,5 +245,9 @@ namespace EventStore.Core.Tests.Services.Storage.HashCollisions
             Assert.Equal(_delete2, events[1]);
             Assert.Equal(_prepare3, events[0]);
         }
+
+        public with_three_collisioned_streams_one_event_each_with_second_stream_deleted_read_index_should(FixtureData fixture) : base(fixture)
+        {
+        }
     }
 }

@@ -72,6 +72,10 @@ namespace EventStore.Core.Tests.Http.PersistentSubscription
             Assert.NotNull(_parkedEvent);
             Assert.Equal(_eventIdToPark, _parkedEvent.EventId);
         }
+
+        public when_parking_a_message(SpecificationFixture data) : base(data)
+        {
+        }
     }
 
     public class when_replaying_parked_message : with_subscription_having_events
@@ -134,6 +138,10 @@ namespace EventStore.Core.Tests.Http.PersistentSubscription
         {
             Assert.True(_eventParked.WaitOne(TimeSpan.FromSeconds(5)));
             Assert.Equal(_replayedParkedEvent.Event.EventId, _eventIdToPark);
+        }
+
+        public when_replaying_parked_message(SpecificationFixture data) : base(data)
+        {
         }
     }
 }

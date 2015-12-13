@@ -8,8 +8,8 @@ namespace EventStore.Core.Tests.Services.Storage.Metastreams
 {
     public class when_having_multiple_metaevents_in_metastream_and_read_index_is_set_to_keep_last_2: SimpleDbTestScenario
     {
-        public when_having_multiple_metaevents_in_metastream_and_read_index_is_set_to_keep_last_2()
-                : base(metastreamMaxCount: 2)
+        public when_having_multiple_metaevents_in_metastream_and_read_index_is_set_to_keep_last_2(FixtureData fixture)
+                : base(fixture, metastreamMaxCount: 2)
         {
         }
 

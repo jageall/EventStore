@@ -7,6 +7,10 @@ namespace EventStore.Core.Tests.TransactionLog.Scavenging
 {
     public class when_stream_is_deleted : ScavengeTestScenario
     {
+        public when_stream_is_deleted(Fixture fixture) : base(fixture)
+        {
+            
+        }
         protected override DbResult CreateDb(TFChunkDbCreationHelper dbCreator)
         {
             return dbCreator

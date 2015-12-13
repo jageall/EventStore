@@ -47,6 +47,10 @@ namespace EventStore.Core.Tests.Http.Streams
                            select link).SingleOrDefault();
                 return (rel == null) ? (string)null : (string)rel["uri"];
             }
+
+            public SpecificationWithLongFeed(SpecificationFixture data) : base(data)
+            {
+            }
         }
 
         public class when_posting_multiple_events : SpecificationWithLongFeed
@@ -61,6 +65,10 @@ namespace EventStore.Core.Tests.Http.Streams
             public void returns_ok_status_code()
             {
                 Assert.Equal(HttpStatusCode.OK, LastResponse.StatusCode);
+            }
+
+            public when_posting_multiple_events(SpecificationFixture data) : base(data)
+            {
             }
         }
 
@@ -121,6 +129,10 @@ namespace EventStore.Core.Tests.Http.Streams
             {
                 var rel = GetLink(_feed, "last");
                 Assert.NotEmpty(rel);
+            }
+
+            public when_retrieving_feed_head(SpecificationFixture data) : base(data)
+            {
             }
         }
 
@@ -203,6 +215,10 @@ namespace EventStore.Core.Tests.Http.Streams
             {
                 Assert.Equal("max-age=0, no-cache, must-revalidate", LastResponse.Headers["Cache-Control"]);
             }
+
+            public when_retrieving_the_previous_link_of_the_feed_head(SpecificationFixture data) : base(data)
+            {
+            }
         }
 
         public class when_reading_a_stream_forward_with_deleted_linktos : HttpSpecificationWithLinkToToDeletedEvents
@@ -240,6 +256,10 @@ namespace EventStore.Core.Tests.Http.Streams
                 var foo = _entries[0]["links"][1];
                 Assert.Equal("alternate", foo["relation"].ToString());
                 Assert.Equal(MakeUrlString("/streams/" + DeletedStreamName + "/0"), foo["uri"].ToString());
+            }
+
+            public when_reading_a_stream_forward_with_deleted_linktos(SpecificationFixture data) : base(data)
+            {
             }
         }
 
@@ -294,6 +314,10 @@ namespace EventStore.Core.Tests.Http.Streams
                 var foo = _entries[0]["links"][1];
                 Assert.Equal("alternate", foo["relation"].ToString());
                 Assert.Equal(MakeUrlString("/streams/" + StreamName + "/1"), foo["uri"].ToString());
+            }
+
+            public when_reading_a_stream_forward_with_linkto(SpecificationFixture data) : base(data)
+            {
             }
         }
 
@@ -387,6 +411,10 @@ namespace EventStore.Core.Tests.Http.Streams
                 Assert.Equal("alternate", foo["relation"].ToString());
                 Assert.Equal(MakeUrlString("/streams/" + StreamName.Replace("@", "%40") + "/1"), foo["uri"].ToString());
             }
+
+            public when_reading_a_stream_forward_with_linkto_with_at_sign_in_name(SpecificationFixture data) : base(data)
+            {
+            }
         }
 
         public class when_reading_a_stream_forward_with_maxcount_deleted_linktos : SpecificationWithLinkToToMaxCountDeletedEvents
@@ -408,6 +436,10 @@ namespace EventStore.Core.Tests.Http.Streams
             public void the_feed_has_no_events()
             {
                 Assert.Equal(1, _entries.Count());
+            }
+
+            public when_reading_a_stream_forward_with_maxcount_deleted_linktos(SpecificationFixture data) : base(data)
+            {
             }
         }
 
@@ -432,6 +464,10 @@ namespace EventStore.Core.Tests.Http.Streams
             public void the_feed_has_some_events()
             {
                 Assert.Equal(1, _entries.Count());
+            }
+
+            public when_reading_a_stream_forward_with_maxcount_deleted_linktos_with_rich_entry(SpecificationFixture data) : base(data)
+            {
             }
         }
 
@@ -472,6 +508,10 @@ namespace EventStore.Core.Tests.Http.Streams
                 var link = _entries[0].GetLink("alternate");
                 Assert.Equal(MakeUrlString("/streams/" + DeletedStreamName + "/0"), link);
             }
+
+            public when_reading_a_stream_forward_with_deleted_linktos_with_content_enabled_as_xml(SpecificationFixture data) : base(data)
+            {
+            }
         }
 
         public class when_reading_a_stream_forward_with_deleted_linktos_with_content_enabled : HttpSpecificationWithLinkToToDeletedEvents
@@ -511,6 +551,10 @@ namespace EventStore.Core.Tests.Http.Streams
                 Assert.Equal("alternate", foo["relation"].ToString());
                 Assert.Equal(MakeUrlString("/streams/" + DeletedStreamName + "/0"), foo["uri"].ToString());
             }
+
+            public when_reading_a_stream_forward_with_deleted_linktos_with_content_enabled(SpecificationFixture data) : base(data)
+            {
+            }
         }
 
         public class when_reading_a_stream_backward_with_deleted_linktos : HttpSpecificationWithLinkToToDeletedEvents
@@ -548,6 +592,10 @@ namespace EventStore.Core.Tests.Http.Streams
                 var foo = _entries[0]["links"][1];
                 Assert.Equal("alternate", foo["relation"].ToString());
                 Assert.Equal(MakeUrlString("/streams/" + DeletedStreamName + "/0"), foo["uri"].ToString());
+            }
+
+            public when_reading_a_stream_backward_with_deleted_linktos(SpecificationFixture data) : base(data)
+            {
             }
         }
 
@@ -587,6 +635,10 @@ namespace EventStore.Core.Tests.Http.Streams
                 var foo = _entries[0]["links"][1];
                 Assert.Equal("alternate", foo["relation"].ToString());
                 Assert.Equal(MakeUrlString("/streams/" + DeletedStreamName + "/0"), foo["uri"].ToString());
+            }
+
+            public when_reading_a_stream_backward_with_deleted_linktos_and_embed_of_content(SpecificationFixture data) : base(data)
+            {
             }
         }
 
@@ -635,6 +687,10 @@ namespace EventStore.Core.Tests.Http.Streams
             public void returns_a_feed_with_a_single_entry_referring_to_the_last_event()
             {
                 HelperExtensions.AssertJson(new {entries = new[] {new {Id = _lastEventLocation}}}, _feed);
+            }
+
+            public when_polling_the_head_forward_and_a_new_event_appears(SpecificationFixture data) : base(data)
+            {
             }
         }
 

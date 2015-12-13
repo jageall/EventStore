@@ -10,6 +10,10 @@ namespace EventStore.Core.Tests.TransactionLog.Scavenging
 {
     public class when_having_stream_with_strict_max_age_leaving_no_events_in_stream : ScavengeTestScenario
     {
+        public when_having_stream_with_strict_max_age_leaving_no_events_in_stream(Fixture fixture) : base(fixture)
+        {
+            
+        }
         protected override DbResult CreateDb(TFChunkDbCreationHelper dbCreator)
         {
             return dbCreator

@@ -357,5 +357,9 @@ namespace EventStore.Core.Tests.ClientAPI
             Assert.Equal(_testEvents.Skip(3).Select(x => x.EventId).ToArray(),
                             res.Events.Reverse().Select(x => x.Event.EventId).ToArray());
         }
+
+        public when_having_truncatebefore_set_for_stream(SpecificationFixture fixture) : base(fixture)
+        {
+        }
     }
 }

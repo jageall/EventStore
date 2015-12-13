@@ -16,7 +16,7 @@ namespace EventStore.Core.Tests.ClientAPI
         private MiniNode _node;
         private IEventStoreConnection _conn;
 
-        public void SetFixture(SpecificationWithDirectory data)
+        public subscribe_to_all_should(SpecificationWithDirectory data)
         {
             _node = new MiniNode(data.PathName, skipInitializeStandardUsersCheck: false);
             _node.Start();

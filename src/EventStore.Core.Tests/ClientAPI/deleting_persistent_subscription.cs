@@ -27,6 +27,10 @@ namespace EventStore.Core.Tests.ClientAPI
             var ex = Record.Exception(() => _conn.DeletePersistentSubscriptionAsync(_stream, "groupname123", DefaultData.AdminCredentials).Wait());
             Assert.Null(ex);
         }
+
+        public deleting_existing_persistent_subscription_group_with_permissions(SpecificationFixture fixture) : base(fixture)
+        {
+        }
     }
 
     public class deleting_existing_persistent_subscription_with_subscriber : SpecificationWithMiniNode
@@ -58,6 +62,10 @@ namespace EventStore.Core.Tests.ClientAPI
         {
             Assert.True(_called.WaitOne(TimeSpan.FromSeconds(5)));
         }
+
+        public deleting_existing_persistent_subscription_with_subscriber(SpecificationFixture fixture) : base(fixture)
+        {
+        }
     }
 
     public class deleting_persistent_subscription_group_that_doesnt_exist : SpecificationWithMiniNode
@@ -85,6 +93,10 @@ namespace EventStore.Core.Tests.ClientAPI
                 Assert.IsType<InvalidOperationException>(inner);
             }
         }
+
+        public deleting_persistent_subscription_group_that_doesnt_exist(SpecificationFixture fixture) : base(fixture)
+        {
+        }
     }
 
     public class deleting_persistent_subscription_group_without_permissions : SpecificationWithMiniNode
@@ -110,6 +122,10 @@ namespace EventStore.Core.Tests.ClientAPI
                 var inner = ex.InnerException;
                 Assert.IsType<AccessDeniedException>(inner);
             }
+        }
+
+        public deleting_persistent_subscription_group_without_permissions(SpecificationFixture fixture) : base(fixture)
+        {
         }
     }
 //ALL

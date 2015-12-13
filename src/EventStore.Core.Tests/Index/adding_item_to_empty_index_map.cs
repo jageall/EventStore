@@ -16,7 +16,7 @@ namespace EventStore.Core.Tests.Index
         private string _mergeFile;
         private MergeResult _result;
 
-        public void SetFixture(MergeFileFixture data)
+        public adding_item_to_empty_index_map(MergeFileFixture data)
         {
             _filename = data.Filename;
             _tablename = data.GetTempFilePath();

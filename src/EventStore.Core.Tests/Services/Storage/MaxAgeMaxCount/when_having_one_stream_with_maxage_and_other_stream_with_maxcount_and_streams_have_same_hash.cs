@@ -216,5 +216,9 @@ namespace EventStore.Core.Tests.Services.Storage.MaxAgeMaxCount
             Assert.Equal(_r25, records[1].Event);
             Assert.Equal(_r26, records[0].Event);
         }
+
+        public when_having_one_stream_with_maxage_and_other_stream_with_maxcount_and_streams_have_same_hash(FixtureData fixture) : base(fixture)
+        {
+        }
     }
 }

@@ -131,5 +131,9 @@ namespace EventStore.Core.Tests.Services.Storage.DeletingStream
             Assert.Equal(1, events.Length);
             Assert.Equal(_deleteTombstone, events[0]);
         }
+
+        public when_writing_few_prepares_with_same_event_number_and_commiting_delete_on_this_version_read_index_should(FixtureData fixture) : base(fixture)
+        {
+        }
     }
 }

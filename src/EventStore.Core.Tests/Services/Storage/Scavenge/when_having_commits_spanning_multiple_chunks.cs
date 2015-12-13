@@ -89,5 +89,9 @@ namespace EventStore.Core.Tests.Services.Storage.Scavenge
                 Assert.True(chunk.TryReadAt(logPos).Success);
             }
         }
+
+        public when_having_deleted_stream_spanning_two_chunks(FixtureData fixture) : base(fixture)
+        {
+        }
     }
 }

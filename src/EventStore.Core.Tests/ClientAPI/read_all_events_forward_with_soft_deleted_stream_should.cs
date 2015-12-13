@@ -58,5 +58,9 @@ namespace EventStore.Core.Tests.ClientAPI
             var metadata = StreamMetadata.FromJsonBytes(lastEvent.Data);
             Assert.Equal(EventNumber.DeletedStream, metadata.TruncateBefore);
         }
+
+        public read_all_events_forward_with_soft_deleted_stream_should(SpecificationFixture fixture) : base(fixture)
+        {
+        }
     }
 }

@@ -36,5 +36,9 @@ namespace EventStore.Core.Tests.Http.Streams
             }
 
         }
+
+        public SpecificationWithLinkToToMaxCountDeletedEvents(SpecificationFixture data) : base(data)
+        {
+        }
     }
 }

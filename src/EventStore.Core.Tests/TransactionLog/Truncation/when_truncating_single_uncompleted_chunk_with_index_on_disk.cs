@@ -8,8 +8,8 @@ namespace EventStore.Core.Tests.TransactionLog.Truncation
     {
         private EventRecord _event2;
 
-        public when_truncating_single_uncompleted_chunk_with_index_on_disk()
-            : base(maxEntriesInMemTable: 3)
+        public when_truncating_single_uncompleted_chunk_with_index_on_disk(FixtureData fixture)
+            : base(fixture, maxEntriesInMemTable: 3, metastreamMaxCount: 1)
         {
         }
 

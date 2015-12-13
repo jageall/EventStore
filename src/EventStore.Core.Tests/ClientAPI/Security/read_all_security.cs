@@ -5,6 +5,9 @@ namespace EventStore.Core.Tests.ClientAPI.Security
 {
     public class read_all_security : AuthenticationTestBase
     {
+        public read_all_security(Fixture fixture): base(fixture)
+        {
+        }
         [Fact][Trait("Category", "LongRunning")][Trait("Category", "Network")]
         public void reading_all_with_not_existing_credentials_is_not_authenticated()
         {

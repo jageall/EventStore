@@ -199,5 +199,9 @@ namespace EventStore.Core.Tests.Services.Storage.MaxAgeMaxCount.ReadRangeAndNext
             var records = res.Records;
             Assert.Equal(0, records.Length);
         }
+
+        public when_reading_stream_with_max_count(FixtureData fixture) : base(fixture)
+        {
+        }
     }
 }

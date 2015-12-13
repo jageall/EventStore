@@ -6,7 +6,7 @@ namespace EventStore.Core.Tests.ClientAPI.Security
 {
     public class authorized_default_credentials_security : AuthenticationTestBase
     {
-        public authorized_default_credentials_security(): base(new UserCredentials("user1", "pa$$1"))
+        public authorized_default_credentials_security(Fixture fixture): base(fixture, new UserCredentials("user1", "pa$$1"))
         {
         }
 

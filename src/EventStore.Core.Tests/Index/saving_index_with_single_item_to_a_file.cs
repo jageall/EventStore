@@ -47,7 +47,7 @@ namespace EventStore.Core.Tests.Index
         private string _mergeFile;
         private MergeResult _result;
 
-        public void SetFixture(saving_index_with_single_item_to_a_fileFixture data)
+        public saving_index_with_single_item_to_a_file(saving_index_with_single_item_to_a_fileFixture data)
         {
             _filename = data._filename;
             _map = data._map;

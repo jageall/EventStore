@@ -12,6 +12,10 @@ namespace EventStore.Core.Tests.ClientAPI.Embedded
         {
             return EmbeddedTestConnection.To(node);
         }
+
+        public connect_to_non_existing_persistent_subscription_with_permissions(SpecificationFixture fixture) : base(fixture)
+        {
+        }
     }
 
     public class connect_to_existing_persistent_subscription_with_permissions :
@@ -20,6 +24,10 @@ namespace EventStore.Core.Tests.ClientAPI.Embedded
         protected override IEventStoreConnection BuildConnection(MiniNode node)
         {
             return EmbeddedTestConnection.To(node);
+        }
+
+        public connect_to_existing_persistent_subscription_with_permissions(SpecificationFixture fixture) : base(fixture)
+        {
         }
     }
 
@@ -30,6 +38,10 @@ namespace EventStore.Core.Tests.ClientAPI.Embedded
         {
             return EmbeddedTestConnection.To(node);
         }
+
+        public connect_to_existing_persistent_subscription_without_permissions(SpecificationFixture fixture) : base(fixture)
+        {
+        }
     }
 
     public class connect_to_existing_persistent_subscription_with_start_from_beginning_and_events_in_it :
@@ -39,6 +51,10 @@ namespace EventStore.Core.Tests.ClientAPI.Embedded
         {
             return EmbeddedTestConnection.To(node);
         }
+
+        public connect_to_existing_persistent_subscription_with_start_from_beginning_and_events_in_it(SpecificationFixture fixture) : base(fixture)
+        {
+        }
     }
 
     public class connect_to_existing_persistent_subscription_with_start_from_beginning_not_set_and_events_in_it :
@@ -47,6 +63,10 @@ namespace EventStore.Core.Tests.ClientAPI.Embedded
         protected override IEventStoreConnection BuildConnection(MiniNode node)
         {
             return EmbeddedTestConnection.To(node);
+        }
+
+        public connect_to_existing_persistent_subscription_with_start_from_beginning_not_set_and_events_in_it(SpecificationFixture fixture) : base(fixture)
+        {
         }
     }
 
@@ -59,6 +79,10 @@ namespace EventStore.Core.Tests.ClientAPI.Embedded
         {
             return EmbeddedTestConnection.To(node);
         }
+
+        public connect_to_existing_persistent_subscription_with_start_from_beginning_not_set_and_events_in_it_then_event_written(SpecificationFixture fixture) : base(fixture)
+        {
+        }
     }
 
     public class
@@ -70,6 +94,10 @@ namespace EventStore.Core.Tests.ClientAPI.Embedded
         {
             return EmbeddedTestConnection.To(node);
         }
+
+        public connect_to_existing_persistent_subscription_with_start_from_x_set_higher_than_x_and_events_in_it_then_event_written(SpecificationFixture fixture) : base(fixture)
+        {
+        }
     }
 
     public class connect_to_existing_persistent_subscription_with_start_from_x_set_and_events_in_it_then_event_written :
@@ -79,6 +107,10 @@ namespace EventStore.Core.Tests.ClientAPI.Embedded
         {
             return EmbeddedTestConnection.To(node);
         }
+
+        public connect_to_existing_persistent_subscription_with_start_from_x_set_and_events_in_it_then_event_written(SpecificationFixture fixture) : base(fixture)
+        {
+        }
     }
 
     public class connect_to_existing_persistent_subscription_with_start_from_x_set_and_events_in_it :
@@ -87,6 +119,10 @@ namespace EventStore.Core.Tests.ClientAPI.Embedded
         protected override IEventStoreConnection BuildConnection(MiniNode node)
         {
             return EmbeddedTestConnection.To(node);
+        }
+
+        public connect_to_existing_persistent_subscription_with_start_from_x_set_and_events_in_it(SpecificationFixture fixture) : base(fixture)
+        {
         }
     }
 }

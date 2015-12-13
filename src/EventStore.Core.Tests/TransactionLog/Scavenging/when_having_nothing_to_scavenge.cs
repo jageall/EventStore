@@ -6,6 +6,10 @@ namespace EventStore.Core.Tests.TransactionLog.Scavenging
 {
     public class when_having_nothing_to_scavenge: ScavengeTestScenario
     {
+        public when_having_nothing_to_scavenge(Fixture fixture) : base(fixture)
+        {
+            
+        }
         protected override DbResult CreateDb(TFChunkDbCreationHelper dbCreator)
         {
             return dbCreator

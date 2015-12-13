@@ -163,22 +163,19 @@ namespace EventStore.Core.Tests.ClientAPI.Security
         }
         private readonly UserCredentials _userCredentials;
         protected IEventStoreConnection Connection{get { return _fixture.Connection; }}
-        private Fixture _fixture;
+        private readonly Fixture _fixture;
 
-        protected AuthenticationTestBase(UserCredentials userCredentials = null)
+        protected AuthenticationTestBase(Fixture fixture, UserCredentials userCredentials = null)
         {
             _userCredentials = userCredentials;
+
+            _fixture = fixture;
+            fixture.Initialize(SetupConnection, AdditionalFixtureSetup);
         }
 
         public virtual IEventStoreConnection SetupConnection(MiniNode node)
         {
             return TestConnection.Create(node.TcpEndPoint, TcpType.Normal, _userCredentials);
-        }
-
-        public virtual void SetFixture(Fixture fixture)
-        {
-            _fixture = fixture;
-            fixture.Initialize(SetupConnection, AdditionalFixtureSetup);
         }
 
         protected virtual void AdditionalFixtureSetup(){}

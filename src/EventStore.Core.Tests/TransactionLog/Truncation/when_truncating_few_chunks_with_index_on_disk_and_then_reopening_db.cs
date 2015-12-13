@@ -19,8 +19,8 @@ namespace EventStore.Core.Tests.TransactionLog.Truncation
         private string _chunk2;
         private string _chunk3;
 
-        public when_truncating_few_chunks_with_index_on_disk_and_then_reopening_db()
-            : base(maxEntriesInMemTable: 3)
+        public when_truncating_few_chunks_with_index_on_disk_and_then_reopening_db(FixtureData fixture)
+            : base(fixture, maxEntriesInMemTable: 3, metastreamMaxCount:1)
         {
         }
 

@@ -46,5 +46,9 @@ namespace EventStore.Core.Tests.Http.Streams
                 instance.Stream2Name = stream2Name;
             });
         }
+
+        public HttpSpecificationWithLinkToToEvents(SpecificationFixture data) : base(data)
+        {
+        }
     }
 }

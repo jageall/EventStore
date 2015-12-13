@@ -117,5 +117,9 @@ namespace EventStore.Core.Tests.ClientAPI.Security
 
             ExpectNoException(() => DeleteStream(stream, "adm", "admpa$$"));
         }
+
+        public overriden_system_stream_security(Fixture fixture) : base(fixture)
+        {
+        }
     }
 }

@@ -42,7 +42,7 @@ namespace EventStore.Core.Tests.TransactionLog
             }
         }
 
-        public void SetFixture(FixtureData data)
+        public when_uncaching_a_tfchunk(FixtureData data)
         {
             _result = data._result;
             _record = data._record;

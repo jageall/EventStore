@@ -7,6 +7,10 @@ namespace EventStore.Core.Tests.ClientAPI.Security
 {
     public class system_stream_security: AuthenticationTestBase
     {
+        public system_stream_security(Fixture fixture) : base(fixture)
+        {
+            
+        }
         [Fact][Trait("Category", "LongRunning")][Trait("Category", "Network")]
         public void operations_on_system_stream_with_no_acl_set_fail_for_non_admin()
         {

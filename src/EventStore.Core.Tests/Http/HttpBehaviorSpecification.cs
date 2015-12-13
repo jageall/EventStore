@@ -104,8 +104,7 @@ namespace EventStore.Core.Tests.Http
         private Func<HttpWebRequest, byte[]> _dumpRequest2;
 #endif
 
-        public void SetFixture(object foo){}
-        public void SetFixture(SpecificationFixture data)
+        public HttpBehaviorSpecification(SpecificationFixture data)
         {
 #if !__MonoCS__
             Helper.EatException(() => _dumpResponse = CreateDumpResponse());

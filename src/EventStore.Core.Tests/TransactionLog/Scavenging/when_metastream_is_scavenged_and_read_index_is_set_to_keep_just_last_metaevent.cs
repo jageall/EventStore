@@ -9,6 +9,10 @@ namespace EventStore.Core.Tests.TransactionLog.Scavenging
 {
     public class when_metastream_is_scavenged_and_read_index_is_set_to_keep_just_last_metaevent : ScavengeTestScenario
     {
+        public when_metastream_is_scavenged_and_read_index_is_set_to_keep_just_last_metaevent(Fixture fixture) : base(fixture)
+        {
+            
+        }
         protected override DbResult CreateDb(TFChunkDbCreationHelper dbCreator)
         {
             return dbCreator

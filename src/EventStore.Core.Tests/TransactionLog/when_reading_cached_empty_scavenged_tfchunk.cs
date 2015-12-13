@@ -25,7 +25,7 @@ namespace EventStore.Core.Tests.TransactionLog
             }
         }
 
-        public void SetFixture(FixtureData data)
+        public when_reading_cached_empty_scavenged_tfchunk(FixtureData data)
         {
             _chunk = data._chunk;
         }

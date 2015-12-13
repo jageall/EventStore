@@ -106,5 +106,9 @@ namespace EventStore.Core.Tests.Services.Storage.MaxAgeMaxCount.AfterScavenge
             Assert.Equal(_r3, records[3].Event);
             Assert.Equal(_r1, records[4].Event);
         }
+
+        public when_having_stream_with_truncatebefore_specified(FixtureData fixture) : base(fixture)
+        {
+        }
     }
 }

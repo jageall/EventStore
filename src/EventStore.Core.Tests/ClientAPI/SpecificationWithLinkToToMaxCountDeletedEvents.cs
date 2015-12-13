@@ -27,5 +27,9 @@ namespace EventStore.Core.Tests.ClientAPI
                 new EventData(Guid.NewGuid(), SystemEventTypes.LinkTo, false, Encoding.UTF8.GetBytes("0@" + DeletedStreamName), new byte[0])).Wait();
 
         }
+
+        public SpecificationWithLinkToToMaxCountDeletedEvents(SpecificationFixture fixture) : base(fixture)
+        {
+        }
     }
 }

@@ -45,6 +45,10 @@ namespace EventStore.Core.Tests.Http.Streams
             var json = GetJson<JObject>(_response.Headers[HttpResponseHeader.Location]);
             HelperExtensions.AssertJson(new { A = "1" }, json);
         }
+
+        public when_posting_metadata_as_json_to_non_existing_stream(SpecificationFixture data) : base(data)
+        {
+        }
     }
 
     public class when_posting_metadata_as_json_to_existing_stream : HttpBehaviorSpecificationWithSingleEvent
@@ -90,6 +94,10 @@ namespace EventStore.Core.Tests.Http.Streams
             var json = GetJson<JObject>(_response.Headers[HttpResponseHeader.Location]);
             HelperExtensions.AssertJson(new { A = "1" }, json);
         }
+
+        public when_posting_metadata_as_json_to_existing_stream(SpecificationFixture data) : base(data)
+        {
+        }
     }
 
     public class when_getting_metadata_for_an_existing_stream_and_no_metadata_exists : HttpBehaviorSpecificationWithSingleEvent
@@ -122,6 +130,10 @@ namespace EventStore.Core.Tests.Http.Streams
         public void returns_empty_body()
         {
             Assert.Equal("{}", LastResponseBody);
+        }
+
+        public when_getting_metadata_for_an_existing_stream_and_no_metadata_exists(SpecificationFixture data) : base(data)
+        {
         }
     }
 }

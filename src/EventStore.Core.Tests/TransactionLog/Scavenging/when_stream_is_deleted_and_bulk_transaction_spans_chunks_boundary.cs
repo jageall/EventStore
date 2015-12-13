@@ -7,6 +7,10 @@ namespace EventStore.Core.Tests.TransactionLog.Scavenging
 {
     public class when_stream_is_deleted_and_bulk_transaction_spans_chunks_boundary : ScavengeTestScenario
     {
+        public when_stream_is_deleted_and_bulk_transaction_spans_chunks_boundary(Fixture fixture) : base(fixture)
+        {
+            
+        }
         protected override DbResult CreateDb(TFChunkDbCreationHelper dbCreator)
         {
             return dbCreator

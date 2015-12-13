@@ -61,5 +61,9 @@ namespace EventStore.Core.Tests.Services.Storage.BuildingIndex
             var result = ReadIndex.ReadAllEventsBackward(GetBackwardReadPos(), 10);
             Assert.Equal(0, result.Records.Count);
         }
+
+        public when_building_an_index_off_tfile_with_prepares_but_no_commits(FixtureData fixture) : base(fixture)
+        {
+        }
     }
 }

@@ -13,6 +13,10 @@ namespace EventStore.Core.Tests.Http.Users
 
         {
             protected readonly ICredentials _admin = DefaultData.AdminNetworkCredentials;
+
+            public with_admin_user(SpecificationFixture data) : base(data)
+            {
+            }
         }
 
         public class when_creating_a_user : with_admin_user
@@ -43,6 +47,10 @@ namespace EventStore.Core.Tests.Http.Users
             {
                 Assert.Equal(HttpStatusCode.Created, _response.StatusCode);
                 Assert.Equal(MakeUrl("/users/test1").AbsoluteUri, _response.Headers[HttpResponseHeader.Location]);
+            }
+
+            public when_creating_a_user(SpecificationFixture data) : base(data)
+            {
             }
         }
 
@@ -128,6 +136,10 @@ namespace EventStore.Core.Tests.Http.Users
                             }
                         }, _response);
             }
+
+            public when_retrieving_a_user_details(SpecificationFixture data) : base(data)
+            {
+            }
         }
 
         public class when_retrieving_a_disabled_user_details : with_admin_user
@@ -208,6 +220,10 @@ namespace EventStore.Core.Tests.Http.Users
                                 }
                     }, _response);
             }
+
+            public when_retrieving_a_disabled_user_details(SpecificationFixture data) : base(data)
+            {
+            }
         }
 
         public class when_creating_an_already_existing_user_account : with_admin_user
@@ -237,6 +253,10 @@ namespace EventStore.Core.Tests.Http.Users
             {
                 Assert.Equal(HttpStatusCode.Created, _response.StatusCode);
             }
+
+            public when_creating_an_already_existing_user_account(SpecificationFixture data) : base(data)
+            {
+            }
         }
 
         public class when_creating_an_already_existing_user_account_with_a_different_password : with_admin_user
@@ -265,6 +285,10 @@ namespace EventStore.Core.Tests.Http.Users
             public void returns_conflict_status_code_and_location()
             {
                 Assert.Equal(HttpStatusCode.Conflict, _response.StatusCode);
+            }
+
+            public when_creating_an_already_existing_user_account_with_a_different_password(SpecificationFixture data) : base(data)
+            {
             }
         }
 
@@ -302,6 +326,10 @@ namespace EventStore.Core.Tests.Http.Users
                 HelperExtensions.AssertJson(
                     new {Success = true, Error = "Success", Data = new {LoginName = "test1", Disabled = true}},
                     jsonResponse);
+            }
+
+            public when_disabling_an_enabled_user_account(SpecificationFixture data) : base(data)
+            {
             }
         }
 
@@ -341,6 +369,10 @@ namespace EventStore.Core.Tests.Http.Users
                     new {Success = true, Error = "Success", Data = new {LoginName = "test1", Disabled = false}},
                     jsonResponse);
             }
+
+            public when_enabling_a_disabled_user_account(SpecificationFixture data) : base(data)
+            {
+            }
         }
 
         public class when_updating_user_details : with_admin_user
@@ -376,6 +408,10 @@ namespace EventStore.Core.Tests.Http.Users
                 var jsonResponse = GetJson<JObject>("/users/test1");
                 HelperExtensions.AssertJson(
                     new { Success = true, Error = "Success", Data = new { FullName = "Updated Full Name" } }, jsonResponse);
+            }
+
+            public when_updating_user_details(SpecificationFixture data) : base(data)
+            {
             }
         }
 
@@ -416,6 +452,10 @@ namespace EventStore.Core.Tests.Http.Users
                     new {CurrentPassword = "NewPassword!", NewPassword = "TheVeryNewPassword!"});
                 Assert.Equal(HttpStatusCode.OK, response.StatusCode);
             }
+
+            public when_resetting_a_password(SpecificationFixture data) : base(data)
+            {
+            }
         }
 
 
@@ -451,6 +491,10 @@ namespace EventStore.Core.Tests.Http.Users
             {
                 GetJson<JObject>("/users/test1");
                 Assert.Equal(HttpStatusCode.NotFound, LastResponse.StatusCode);
+            }
+
+            public when_deleting_a_user_account(SpecificationFixture data) : base(data)
+            {
             }
         }
     }

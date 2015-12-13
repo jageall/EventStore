@@ -7,6 +7,10 @@ namespace EventStore.Core.Tests.ClientAPI.Security
 {
     public class all_stream_with_no_acl_security : AuthenticationTestBase
     {
+        public all_stream_with_no_acl_security(Fixture fixture) : base(fixture)
+        {
+            
+        }
         protected override void AdditionalFixtureSetup()
         {
             Connection.SetStreamMetadataAsync("$all", ExpectedVersion.Any, StreamMetadata.Build(), new UserCredentials("adm", "admpa$$")).Wait();

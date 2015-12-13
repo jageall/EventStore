@@ -68,7 +68,7 @@ namespace EventStore.Core.Tests.Services.Transport.Http
             }
         }
 
-        public void SetFixture(Fixture fixture)
+        public http_service_should(Fixture fixture)
         {
             _fixture = fixture;
             fixture.EnsureInitialized();

@@ -55,5 +55,9 @@ namespace EventStore.Core.Tests.Services.Storage.CheckCommitStartingAt
             Assert.Equal(-1, res.StartEventNumber);
             Assert.Equal(-1, res.EndEventNumber);
         }
+
+        public when_writing_prepares_in_wrong_order_and_committing_in_right_order(FixtureData fixture) : base(fixture)
+        {
+        }
     }
 }

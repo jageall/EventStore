@@ -53,8 +53,8 @@ namespace EventStore.Core.Tests.Index
                 base.Dispose();
             }
         }
-        
-        public void SetFixture(FixtureData data)
+
+        public table_index_on_try_get_one_value_query(FixtureData data)
         {
             _indexDir = data._indexDir;
             _tableIndex = data._tableIndex;

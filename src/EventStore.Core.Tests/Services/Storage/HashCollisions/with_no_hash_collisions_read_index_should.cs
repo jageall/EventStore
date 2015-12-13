@@ -224,5 +224,9 @@ namespace EventStore.Core.Tests.Services.Storage.HashCollisions
             Assert.Equal(ReadStreamResult.NoStream, result.Result);
             Assert.Equal(0, result.Records.Length);
         }
+
+        public with_no_hash_collisions_read_index_should(FixtureData fixture) : base(fixture)
+        {
+        }
     }
 }

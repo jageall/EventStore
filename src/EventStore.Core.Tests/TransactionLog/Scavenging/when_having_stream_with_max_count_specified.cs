@@ -8,6 +8,10 @@ namespace EventStore.Core.Tests.TransactionLog.Scavenging
 {
     public class when_having_stream_with_max_count_specified : ScavengeTestScenario
     {
+        public when_having_stream_with_max_count_specified(Fixture fixture) : base(fixture)
+        {
+            
+        }
         protected override DbResult CreateDb(TFChunkDbCreationHelper dbCreator)
         {
             return dbCreator

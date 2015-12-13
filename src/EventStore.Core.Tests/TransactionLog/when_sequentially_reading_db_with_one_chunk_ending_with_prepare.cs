@@ -80,7 +80,7 @@ namespace EventStore.Core.Tests.TransactionLog
             }
         }
 
-        public void SetFixture(Fixture fixture)
+        public when_sequentially_reading_db_with_one_chunk_ending_with_prepare(Fixture fixture)
         {
             _db = fixture._db;
         }

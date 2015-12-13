@@ -52,5 +52,9 @@ namespace EventStore.Core.Tests.Services.Storage.DeletingStream
         {
             Assert.False(ReadIndex.IsStreamDeleted("ES2"));
         }
+
+        public when_deleting_streams_with_different_hashes_spanning_through_multiple_chunks_in_db_with_1_stream_with_same_hash_read_index_should(FixtureData fixture) : base(fixture)
+        {
+        }
     }
 }

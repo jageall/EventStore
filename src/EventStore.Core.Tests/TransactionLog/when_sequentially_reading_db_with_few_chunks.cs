@@ -71,7 +71,7 @@ namespace EventStore.Core.Tests.TransactionLog
             }
         }
 
-        public void SetFixture(Fixture fixture)
+        public when_sequentially_reading_db_with_few_chunks(Fixture fixture)
         {
             _results = fixture._results;
             _records = fixture._records;

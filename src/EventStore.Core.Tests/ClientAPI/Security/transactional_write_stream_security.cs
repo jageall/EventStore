@@ -6,6 +6,10 @@ namespace EventStore.Core.Tests.ClientAPI.Security
 {
     public class transactional_write_stream_security : AuthenticationTestBase
     {
+        public transactional_write_stream_security(Fixture fixture) : base(fixture)
+        {
+            
+        }
         [Fact][Trait("Category", "LongRunning")][Trait("Category", "Network")]
         public void starting_transaction_with_not_existing_credentials_is_not_authenticated()
         {

@@ -29,5 +29,9 @@ namespace EventStore.Core.Tests.Services.Storage.DeletingStream
         {
             Assert.False(ReadIndex.IsStreamDeleted("XXX"));
         }
+
+        public when_deleting_the_only_existing_stream_in_db_read_index_should(FixtureData fixture) : base(fixture)
+        {
+        }
     }
 }

@@ -11,6 +11,10 @@ namespace EventStore.Core.Tests.ClientAPI.Embedded
         {
             return EmbeddedTestConnection.To(node);
         }
+
+        public append_to_stream(MiniNodeFixture data) : base(data)
+        {
+        }
     }
 
 }

@@ -54,7 +54,7 @@ namespace EventStore.Core.Tests.TransactionLog.Truncation
             }
         }
 
-        public void SetFixture(FixtureData data)
+        public when_truncating_to_the_very_beginning_of_multichunk_db(FixtureData data)
         {
             _config = data._config;
             _fixture = data;

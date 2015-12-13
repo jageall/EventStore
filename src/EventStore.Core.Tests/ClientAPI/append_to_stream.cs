@@ -9,6 +9,7 @@ using Xunit;
 
 namespace EventStore.Core.Tests.ClientAPI
 {
+
     public class MiniNodeFixture : SpecificationWithDirectoryPerTestFixture
     {
         public MiniNodeFixture()
@@ -303,7 +304,7 @@ namespace EventStore.Core.Tests.ClientAPI
             }
         }
 
-        public void SetFixture(MiniNodeFixture data)
+        public append_to_stream(MiniNodeFixture data)
         {
             _node = data.Node;
         }
@@ -486,7 +487,7 @@ namespace EventStore.Core.Tests.ClientAPI
             }
         }
 
-        public void SetFixture(MiniNodeFixture data)
+        public ssl_append_to_stream(MiniNodeFixture data)
         {
             _node = data.Node;
         }

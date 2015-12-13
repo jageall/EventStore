@@ -30,6 +30,10 @@ namespace EventStore.Core.Tests.ClientAPI
                         .Wait());
             Assert.Null(ex);
         }
+
+        public create_persistent_subscription_on_existing_stream(SpecificationFixture fixture) : base(fixture)
+        {
+        }
     }
 
     public class create_persistent_subscription_on_non_existing_stream : SpecificationWithMiniNode
@@ -49,6 +53,10 @@ namespace EventStore.Core.Tests.ClientAPI
         {
             var ex = Record.Exception(() => _conn.CreatePersistentSubscriptionAsync(_stream, "nonexistinggroup", _settings, DefaultData.AdminCredentials).Wait());
             Assert.Null(ex);
+        }
+
+        public create_persistent_subscription_on_non_existing_stream(SpecificationFixture fixture) : base(fixture)
+        {
         }
     }
 
@@ -80,6 +88,10 @@ namespace EventStore.Core.Tests.ClientAPI
                 Assert.IsType<InvalidOperationException>(inner);
             }
         }
+
+        public create_duplicate_persistent_subscription_group(SpecificationFixture fixture) : base(fixture)
+        {
+        }
     }
 
     public class can_create_duplicate_persistent_subscription_group_name_on_different_streams : SpecificationWithMiniNode
@@ -104,6 +116,10 @@ namespace EventStore.Core.Tests.ClientAPI
                         _conn.CreatePersistentSubscriptionAsync("someother" + _stream, "group3211", _settings,
                             DefaultData.AdminCredentials).Wait());
             Assert.Null(ex);
+        }
+
+        public can_create_duplicate_persistent_subscription_group_name_on_different_streams(SpecificationFixture fixture) : base(fixture)
+        {
         }
     }
 
@@ -133,6 +149,10 @@ namespace EventStore.Core.Tests.ClientAPI
                 Assert.IsType<AccessDeniedException>(inner);
             }
         }
+
+        public create_persistent_subscription_group_without_permissions(SpecificationFixture fixture) : base(fixture)
+        {
+        }
     }
 
 
@@ -157,6 +177,10 @@ namespace EventStore.Core.Tests.ClientAPI
         {
             var ex = Record.Exception(() => _conn.CreatePersistentSubscriptionAsync(_stream, "existing", _settings, DefaultData.AdminCredentials).Wait());
             Assert.Null(ex);
+        }
+
+        public create_persistent_subscription_after_deleting_the_same(SpecificationFixture fixture) : base(fixture)
+        {
         }
     }
 

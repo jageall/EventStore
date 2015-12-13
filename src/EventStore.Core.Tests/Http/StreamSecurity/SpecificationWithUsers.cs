@@ -62,5 +62,9 @@ namespace EventStore.Core.Tests.Http.StreamSecurity
         {
             return new NetworkCredential(user+ Tag, user + "!");
         }
+
+        public SpecificationWithUsers(SpecificationFixture data) : base(data)
+        {
+        }
     }
 }

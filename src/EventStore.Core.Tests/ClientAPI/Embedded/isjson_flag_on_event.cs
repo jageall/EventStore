@@ -10,5 +10,9 @@ namespace EventStore.Core.Tests.ClientAPI.Embedded
         {
             return EmbeddedTestConnection.To(node);
         }
+
+        public isjson_flag_on_event(MiniNodeFixture data) : base(data)
+        {
+        }
     }
 }

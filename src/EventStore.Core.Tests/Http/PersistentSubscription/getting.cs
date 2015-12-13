@@ -86,6 +86,10 @@ namespace EventStore.Core.Tests.Http.PersistentSubscription
                     });
             Assert.Equal(HttpStatusCode.Created, response.StatusCode);
         }
+
+        public with_subscription_having_events(SpecificationFixture data) : base(data)
+        {
+        }
     }
 
     public class when_getting_messages_without_permission : with_subscription_having_events
@@ -106,6 +110,10 @@ namespace EventStore.Core.Tests.Http.PersistentSubscription
         public void returns_unauthorised()
         {
             Assert.Equal(HttpStatusCode.Unauthorized, LastResponse.StatusCode);
+        }
+
+        public when_getting_messages_without_permission(SpecificationFixture data) : base(data)
+        {
         }
     }
 
@@ -175,6 +183,10 @@ namespace EventStore.Core.Tests.Http.PersistentSubscription
             var count = ((JObject)_response)["entries"].Count();
             Assert.Equal(0, count);
         }
+
+        public when_getting_messages_from_an_empty_subscription(SpecificationFixture data) : base(data)
+        {
+        }
     }
 
     public class when_getting_messages_from_a_subscription_with_n_messages : with_subscription_having_events
@@ -199,6 +211,10 @@ namespace EventStore.Core.Tests.Http.PersistentSubscription
         {
             var count = ((JObject)_response)["entries"].Count();
             Assert.Equal(Events.Count, count);
+        }
+
+        public when_getting_messages_from_a_subscription_with_n_messages(SpecificationFixture data) : base(data)
+        {
         }
     }
 
@@ -225,6 +241,10 @@ namespace EventStore.Core.Tests.Http.PersistentSubscription
             var count = ((JArray)_response["entries"]).Count;
             Assert.Equal(Events.Count - 1, count);
         }
+
+        public when_getting_messages_from_a_subscription_with_more_than_n_messages(SpecificationFixture data) : base(data)
+        {
+        }
     }
 
     public class when_getting_messages_from_a_subscription_with_less_than_n_messags : with_subscription_having_events
@@ -248,6 +268,10 @@ namespace EventStore.Core.Tests.Http.PersistentSubscription
         {
             var count = ((JArray)_response["entries"]).Count;
             Assert.Equal(Events.Count, count);
+        }
+
+        public when_getting_messages_from_a_subscription_with_less_than_n_messags(SpecificationFixture data) : base(data)
+        {
         }
     }
    
@@ -274,6 +298,10 @@ namespace EventStore.Core.Tests.Http.PersistentSubscription
             var count = ((JArray)_response["entries"]).Count;
             Assert.Equal(1, count);
         }
+
+        public when_getting_messages_from_a_subscription_with_unspecified_count(SpecificationFixture data) : base(data)
+        {
+        }
     }
 
     public class when_getting_messages_from_a_subscription_with_a_negative_count : with_subscription_having_events
@@ -290,6 +318,10 @@ namespace EventStore.Core.Tests.Http.PersistentSubscription
         public void returns_bad_request()
         {
             Assert.Equal(HttpStatusCode.BadRequest, LastResponse.StatusCode);
+        }
+
+        public when_getting_messages_from_a_subscription_with_a_negative_count(SpecificationFixture data) : base(data)
+        {
         }
     }
 
@@ -308,6 +340,10 @@ namespace EventStore.Core.Tests.Http.PersistentSubscription
         {
             Assert.Equal(HttpStatusCode.BadRequest, LastResponse.StatusCode);
         }
+
+        public when_getting_messages_from_a_subscription_with_a_count_of_0(SpecificationFixture data) : base(data)
+        {
+        }
     }
 
     public class when_getting_messages_from_a_subscription_with_count_more_than_100 : with_subscription_having_events
@@ -324,6 +360,10 @@ namespace EventStore.Core.Tests.Http.PersistentSubscription
         public void returns_bad_request()
         {
             Assert.Equal(HttpStatusCode.BadRequest, LastResponse.StatusCode);
+        }
+
+        public when_getting_messages_from_a_subscription_with_count_more_than_100(SpecificationFixture data) : base(data)
+        {
         }
     }
 
@@ -342,6 +382,10 @@ namespace EventStore.Core.Tests.Http.PersistentSubscription
         {
             Assert.Equal(HttpStatusCode.BadRequest, LastResponse.StatusCode);
         }
+
+        public when_getting_messages_from_a_subscription_with_count_not_an_integer(SpecificationFixture data) : base(data)
+        {
+        }
     }
 
     public class when_getting_messages_from_a_subscription_with_count_not_a_number : with_subscription_having_events
@@ -358,6 +402,10 @@ namespace EventStore.Core.Tests.Http.PersistentSubscription
         public void returns_bad_request()
         {
             Assert.Equal(HttpStatusCode.BadRequest, LastResponse.StatusCode);
+        }
+
+        public when_getting_messages_from_a_subscription_with_count_not_a_number(SpecificationFixture data) : base(data)
+        {
         }
     }
 }

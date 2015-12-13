@@ -37,5 +37,9 @@ namespace EventStore.Core.Tests.Services.Storage.CheckCommitStartingAt
             Assert.Equal(-1, res.StartEventNumber);
             Assert.Equal(-1, res.EndEventNumber);
         }
+
+        public when_writing_few_prepares_with_same_expected_version_and_committing_one_of_them(FixtureData fixture) : base(fixture)
+        {
+        }
     }
 }

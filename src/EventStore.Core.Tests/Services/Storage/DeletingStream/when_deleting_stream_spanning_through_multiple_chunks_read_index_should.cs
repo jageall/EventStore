@@ -35,5 +35,9 @@ namespace EventStore.Core.Tests.Services.Storage.DeletingStream
         {
             Assert.False(ReadIndex.IsStreamDeleted("XXX"));
         }
+
+        public when_deleting_stream_spanning_through_multiple_chunks_read_index_should(FixtureData fixture) : base(fixture)
+        {
+        }
     }
 }

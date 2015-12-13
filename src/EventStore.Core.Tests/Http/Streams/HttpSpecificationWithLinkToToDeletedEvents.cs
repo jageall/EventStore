@@ -35,5 +35,9 @@ namespace EventStore.Core.Tests.Http.Streams
                 instance.DeletedStreamName = deletedStreamName;
             });
         }
+
+        public HttpSpecificationWithLinkToToDeletedEvents(SpecificationFixture data) : base(data)
+        {
+        }
     }
 }

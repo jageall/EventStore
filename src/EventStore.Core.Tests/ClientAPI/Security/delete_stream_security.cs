@@ -7,6 +7,10 @@ namespace EventStore.Core.Tests.ClientAPI.Security
 {
     public class delete_stream_security : AuthenticationTestBase
     {
+        public delete_stream_security(Fixture fixture):base(fixture)
+        {
+            
+        }
         [Fact][Trait("Category", "LongRunning")][Trait("Category", "Network")]
         public void delete_of_all_is_never_allowed()
         {

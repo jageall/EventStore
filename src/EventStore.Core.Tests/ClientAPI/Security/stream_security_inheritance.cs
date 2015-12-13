@@ -8,6 +8,10 @@ namespace EventStore.Core.Tests.ClientAPI.Security
 {
     public class stream_security_inheritance: AuthenticationTestBase
     {
+        public stream_security_inheritance(Fixture fixture) : base(fixture)
+        {
+            
+        }
         protected override void AdditionalFixtureSetup()
         {
             var settings = new SystemSettings(userStreamAcl: new StreamAcl(null, "user1", null, null, null),

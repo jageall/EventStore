@@ -88,7 +88,8 @@ namespace EventStore.Core.Tests.TransactionLog
         private CommitLogRecord _c1, _c2, _c3;
         private RecordWriteResult _res1, _res2, _res3;
         private RecordWriteResult _cres1, _cres2, _cres3;
-        public void SetFixture(Fixture fixture)
+
+        public when_having_scavenged_tfchunk_with_all_records_removed(Fixture fixture)
         {
             _scavengedChunk = fixture._scavengedChunk;
             _p1 = fixture._p1;

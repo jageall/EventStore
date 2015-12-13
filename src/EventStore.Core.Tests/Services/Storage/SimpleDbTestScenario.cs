@@ -83,17 +83,17 @@ namespace EventStore.Core.Tests.Services.Storage
             }
         }
 
-        protected SimpleDbTestScenario(int maxEntriesInMemTable = 20, int metastreamMaxCount = 1)
+        public SimpleDbTestScenario(FixtureData fixture, int maxEntriesInMemTable = 20, int metastreamMaxCount = 1)
         {
             Ensure.Positive(maxEntriesInMemTable, "maxEntriesInMemTable");
+            Ensure.Positive(maxEntriesInMemTable, "metastreamMaxCount");
             MaxEntriesInMemTable = maxEntriesInMemTable;
             _metastreamMaxCount = metastreamMaxCount;
-        }
 
-        public void SetFixture(FixtureData fixture)
-        {
             fixture.EnsureInitialized(MaxEntriesInMemTable, _metastreamMaxCount, CreateDb);
             ReadIndex = fixture.ReadIndex;
+
+            
         }
 
         protected abstract DbResult CreateDb(TFChunkDbCreationHelper dbCreator);

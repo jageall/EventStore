@@ -38,6 +38,10 @@ namespace EventStore.Core.Tests.Http.PersistentSubscription
         {
             Assert.Equal(TestStreamName, _json[0]["eventStreamId"].Value<string>());
         }
+
+        public can_get_all_statistics_in_json(SpecificationFixture data) : base(data)
+        {
+        }
     }
 
 
@@ -65,6 +69,10 @@ namespace EventStore.Core.Tests.Http.PersistentSubscription
         {
             Assert.Equal(TestStreamName, _xml.Descendants("EventStreamId").First().Value);
         }
+
+        public when_getting_all_statistics_in_xml(SpecificationFixture data) : base(data)
+        {
+        }
     }
 
     public class when_getting_non_existent_single_statistics : HttpBehaviorSpecification
@@ -91,6 +99,10 @@ namespace EventStore.Core.Tests.Http.PersistentSubscription
         {
             Assert.Equal(HttpStatusCode.NotFound, _response.StatusCode);
         }
+
+        public when_getting_non_existent_single_statistics(SpecificationFixture data) : base(data)
+        {
+        }
     }
 
     public class when_getting_non_existent_stream_statistics : HttpBehaviorSpecification
@@ -116,6 +128,10 @@ namespace EventStore.Core.Tests.Http.PersistentSubscription
         public void returns_not_found()
         {
             Assert.Equal(HttpStatusCode.NotFound, _response.StatusCode);
+        }
+
+        public when_getting_non_existent_stream_statistics(SpecificationFixture data) : base(data)
+        {
         }
     }
 
@@ -217,6 +233,10 @@ namespace EventStore.Core.Tests.Http.PersistentSubscription
         public void the_second_connection_has_user()
         {
             Assert.Equal("admin", _json["connections"][1]["username"].Value<string>());
+        }
+
+        public when_getting_subscription_statistics_for_individual(SpecificationFixture data) : base(data)
+        {
         }
     }
 
@@ -362,6 +382,10 @@ namespace EventStore.Core.Tests.Http.PersistentSubscription
         {
             Assert.Equal(3, _json[1]["connectionCount"].Value<int>());
         }
+
+        public when_getting_subscription_stats_summary(SpecificationFixture data) : base(data)
+        {
+        }
     }
 
     public class when_getting_subscription_stats_for_stream : SpecificationWithPersistentSubscriptionAndConnections
@@ -471,6 +495,10 @@ namespace EventStore.Core.Tests.Http.PersistentSubscription
         {
             Assert.Equal(3, _json[1]["connectionCount"].Value<int>());
         }
+
+        public when_getting_subscription_stats_for_stream(SpecificationFixture data) : base(data)
+        {
+        }
     }
 
     public abstract class SpecificationWithPersistentSubscriptionAndConnections : with_admin_user
@@ -506,6 +534,10 @@ namespace EventStore.Core.Tests.Http.PersistentSubscription
         protected override void When()
         {
 
+        }
+
+        public SpecificationWithPersistentSubscriptionAndConnections(SpecificationFixture data) : base(data)
+        {
         }
     }
 }

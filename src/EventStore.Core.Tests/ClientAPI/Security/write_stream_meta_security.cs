@@ -6,6 +6,10 @@ namespace EventStore.Core.Tests.ClientAPI.Security
 {
     public class write_stream_meta_security : AuthenticationTestBase
     {
+        public write_stream_meta_security(Fixture fixture) : base(fixture)
+        {
+        }
+
         [Fact][Trait("Category", "LongRunning")][Trait("Category", "Network")]
         public void writing_meta_with_not_existing_credentials_is_not_authenticated()
         {

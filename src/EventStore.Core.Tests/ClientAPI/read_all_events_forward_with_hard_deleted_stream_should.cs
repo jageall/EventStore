@@ -54,5 +54,9 @@ namespace EventStore.Core.Tests.ClientAPI
             Assert.Equal("stream", lastEvent.EventStreamId);
             Assert.Equal(SystemEventTypes.StreamDeleted, lastEvent.EventType);
         }
+
+        public read_all_events_forward_with_hard_deleted_stream_should(SpecificationFixture fixture) : base(fixture)
+        {
+        }
     }
 }

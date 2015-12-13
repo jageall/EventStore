@@ -15,5 +15,9 @@ namespace EventStore.Core.Tests.Services.Storage.DeletingStream
             Assert.False(ReadIndex.IsStreamDeleted("YY"));
             Assert.False(ReadIndex.IsStreamDeleted("ZZZ"));
         }
+
+        public with_empty_db_read_index_should(FixtureData fixture) : base(fixture)
+        {
+        }
     }
 }

@@ -10,6 +10,10 @@ namespace EventStore.Core.Tests.Services.Storage.Scavenge
         private List<LogRecord> _survivors;
         private List<LogRecord> _scavenged;
 
+        public when_having_commit_spanning_multiple_chunks(FixtureData fixture):base(fixture)
+        {
+            
+        }
         protected override void WriteTestScenario()
         {
             _survivors = new List<LogRecord>();

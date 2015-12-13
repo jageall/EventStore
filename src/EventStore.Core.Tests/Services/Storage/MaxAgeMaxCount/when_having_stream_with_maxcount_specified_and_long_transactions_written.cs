@@ -44,5 +44,9 @@ namespace EventStore.Core.Tests.Services.Storage.MaxAgeMaxCount
             Assert.Equal(_records[7], result.Records[0]);
             Assert.Equal(_records[8], result.Records[1]);
         }
+
+        public when_having_stream_with_maxcount_specified_and_long_transactions_written(FixtureData fixture) : base(fixture)
+        {
+        }
     }
 }

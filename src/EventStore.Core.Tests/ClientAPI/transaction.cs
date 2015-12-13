@@ -16,7 +16,7 @@ namespace EventStore.Core.Tests.ClientAPI
     {
         private MiniNode _node;
 
-        public void SetFixture(SpecificationWithDirectoryPerTestFixture data)
+        public transaction(SpecificationWithDirectoryPerTestFixture data)
         {
             _node = new MiniNode(data.PathName);
             _node.Start();

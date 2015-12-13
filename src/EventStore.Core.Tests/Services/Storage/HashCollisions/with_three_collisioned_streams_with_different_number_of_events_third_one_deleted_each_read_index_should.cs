@@ -679,5 +679,9 @@ namespace EventStore.Core.Tests.Services.Storage.HashCollisions
         }
 
         #endregion
+
+        public with_three_collisioned_streams_with_different_number_of_events_third_one_deleted_each_read_index_should(FixtureData fixture) : base(fixture)
+        {
+        }
     }
 }

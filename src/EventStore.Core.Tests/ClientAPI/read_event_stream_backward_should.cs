@@ -12,7 +12,7 @@ namespace EventStore.Core.Tests.ClientAPI
     {
         private MiniNode _node;
 
-        public void SetFixture(MiniNodeFixture data)
+        public read_event_stream_backward_should(MiniNodeFixture data)
         {
             _node = data.Node;
         }

@@ -11,8 +11,8 @@ namespace EventStore.Core.Tests.TransactionLog.Truncation
         private EventRecord _event2;
         private EventRecord _event3;
 
-        public when_truncating_single_uncompleted_chunk_with_index_in_memory_and_then_reopening_db()
-            : base(20000)
+        public when_truncating_single_uncompleted_chunk_with_index_in_memory_and_then_reopening_db(FixtureData fixture)
+            : base(fixture, maxEntriesInMemTable: 20000, metastreamMaxCount:1)
         {
         }
 

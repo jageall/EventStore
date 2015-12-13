@@ -10,5 +10,9 @@ namespace EventStore.Core.Tests.ClientAPI.Embedded
         {
             return EmbeddedTestConnection.To(node);
         }
+
+        public deleting_stream(MiniNodeFixture data) : base(data)
+        {
+        }
     }
 }

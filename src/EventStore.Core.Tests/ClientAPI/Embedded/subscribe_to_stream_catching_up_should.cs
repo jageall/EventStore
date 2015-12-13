@@ -10,5 +10,9 @@ namespace EventStore.Core.Tests.ClientAPI.Embedded
         {
             return EmbeddedTestConnection.To(node);
         }
+
+        public subscribe_to_stream_catching_up_should(SpecificationWithDirectoryPerTestFixture data) : base(data)
+        {
+        }
     }
 }

@@ -17,7 +17,7 @@ namespace EventStore.Core.Tests.ClientAPI
 
         private MiniNode _node;
 
-        public void SetFixture(SpecificationWithDirectoryPerTestFixture data)
+        public subscribe_to_stream_catching_up_should(SpecificationWithDirectoryPerTestFixture data)
         {
             _node = new MiniNode(data.PathName);
             _node.Start();

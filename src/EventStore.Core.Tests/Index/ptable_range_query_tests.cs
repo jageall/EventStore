@@ -31,7 +31,7 @@ namespace EventStore.Core.Tests.Index
             }
         }
 
-        public void SetFixture(FixtureData data)
+        public ptable_range_query_tests(FixtureData data)
         {
             _ptable = data._ptable;
         }

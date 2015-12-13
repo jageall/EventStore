@@ -79,7 +79,7 @@ namespace EventStore.Core.Tests.ClientAPI
             }
         }
 
-        public void SetFixture(SpecificationFixture fixture)
+        public SpecificationWithMiniNode(SpecificationFixture fixture)
         {
             _fixture = fixture;
             _fixture.EnsureInitialized(BuildConnection, Given, When);

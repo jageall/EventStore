@@ -402,16 +402,13 @@ namespace EventStore.Core.Tests.Services.Storage
                 _assignStashedValues(scenario);
             }
         }
-
-        protected ReadIndexTestScenario(int maxEntriesInMemTable = 20, int metastreamMaxCount = 1)
+        protected ReadIndexTestScenario(FixtureData fixture):this(fixture, 20, 1) { }
+        protected ReadIndexTestScenario(FixtureData fixture, int maxEntriesInMemTable, int metastreamMaxCount)
         {
             Ensure.Positive(maxEntriesInMemTable, "maxEntriesInMemTable");
             MaxEntriesInMemTable = maxEntriesInMemTable;
             MetastreamMaxCount = metastreamMaxCount;
-        }
-
-        public void SetFixture(FixtureData fixture)
-        {
+        
             _fixture = fixture;
             fixture.EnsureInitialized(MaxEntriesInMemTable, MetastreamMaxCount, WriteTestScenario, AdditionalFixtureSetup, AdditionalFixtureTeardown);
             fixture.AssignStashedValues(this);

@@ -11,7 +11,7 @@ namespace EventStore.Core.Tests.ClientAPI
     {
         private MiniNode _node;
 
-        public void SetFixture(MiniNodeFixture data)
+        public event_store_connection_should(MiniNodeFixture data)
         {
             _node = data.Node;
         }

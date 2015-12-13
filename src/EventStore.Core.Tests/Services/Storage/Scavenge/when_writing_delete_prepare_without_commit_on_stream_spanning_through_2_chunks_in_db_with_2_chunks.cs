@@ -80,5 +80,9 @@ namespace EventStore.Core.Tests.Services.Storage.Scavenge
             Assert.Equal(_event1, events[0]);
             Assert.Equal(_event0, events[1]);
         }
+
+        public when_writing_delete_prepare_without_commit_and_scavenging(FixtureData fixture) : base(fixture)
+        {
+        }
     }
 }

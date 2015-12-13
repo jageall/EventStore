@@ -44,7 +44,10 @@ namespace EventStore.Core.Tests.Http.ArgumentPassing
                 HelperExtensions.AssertJson(new { a = _ra, b = _rb }, _response);
             }
 
-            
+
+            public when_matching_against_simple_placeholders(SpecificationFixture data) : base(data)
+            {
+            }
         }
 
         public class when_matching_against_placeholders_with_reserved_characters : HttpBehaviorSpecification
@@ -72,6 +75,10 @@ namespace EventStore.Core.Tests.Http.ArgumentPassing
                 Assert.Equal(HttpStatusCode.OK, LastResponse.StatusCode);
                 Console.WriteLine(_response.ToString());
                 HelperExtensions.AssertJson(new {a = _ra, b = _rb}, _response);
+            }
+
+            public when_matching_against_placeholders_with_reserved_characters(SpecificationFixture data) : base(data)
+            {
             }
         }
     }

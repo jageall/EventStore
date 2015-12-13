@@ -136,5 +136,9 @@ namespace EventStore.Core.Tests.Services.Storage.BuildingIndex
             Assert.Equal(_id2, records[1].Event.EventId);
             Assert.Equal(_id3, records[0].Event.EventId);
         }
+
+        public when_building_an_index_off_tfile_with_prepares_and_commits(FixtureData fixture) : base(fixture)
+        {
+        }
     }
 }

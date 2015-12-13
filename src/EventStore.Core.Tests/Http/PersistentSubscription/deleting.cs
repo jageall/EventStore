@@ -38,6 +38,10 @@ namespace EventStore.Core.Tests.Http.PersistentSubscription
         {
             Assert.Equal(HttpStatusCode.NotFound, _response.StatusCode);
         }
+
+        public when_deleting_non_existing_subscription(SpecificationFixture data) : base(data)
+        {
+        }
     }
 
     public class when_deleting_an_existing_subscription : with_admin_user
@@ -74,6 +78,10 @@ namespace EventStore.Core.Tests.Http.PersistentSubscription
         {
             Assert.Equal(HttpStatusCode.OK, _response.StatusCode);
         }
+
+        public when_deleting_an_existing_subscription(SpecificationFixture data) : base(data)
+        {
+        }
     }
 
     public class when_deleting_an_existing_subscription_without_permissions : with_admin_user
@@ -109,6 +117,10 @@ namespace EventStore.Core.Tests.Http.PersistentSubscription
         public void returns_unauthorized()
         {
             Assert.Equal(HttpStatusCode.Unauthorized, _response.StatusCode);
+        }
+
+        public when_deleting_an_existing_subscription_without_permissions(SpecificationFixture data) : base(data)
+        {
         }
     }
 
@@ -173,6 +185,10 @@ namespace EventStore.Core.Tests.Http.PersistentSubscription
             Assert.True(_dropped.WaitOne(TimeSpan.FromSeconds(5)));
             Assert.Equal(SubscriptionDropReason.UserInitiated, _reason);
             Assert.Null(_exception);
+        }
+
+        public when_deleting_an_existing_subscription_with_subscribers(SpecificationFixture data) : base(data)
+        {
         }
     }
 }

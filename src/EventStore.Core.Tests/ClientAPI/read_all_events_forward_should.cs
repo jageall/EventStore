@@ -97,5 +97,9 @@ namespace EventStore.Core.Tests.ClientAPI
                 () => _conn.ReadAllEventsForwardAsync(Position.Start, int.MaxValue, resolveLinkTos: false));
 
         }
+
+        public read_all_events_forward_should(SpecificationFixture fixture) : base(fixture)
+        {
+        }
     }
 }

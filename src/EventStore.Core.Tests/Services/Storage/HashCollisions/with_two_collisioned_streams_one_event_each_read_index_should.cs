@@ -122,5 +122,9 @@ namespace EventStore.Core.Tests.Services.Storage.HashCollisions
             Assert.Equal(ReadStreamResult.NoStream, result.Result);
             Assert.Equal(0, result.Records.Length);
         }
+
+        public with_two_collisioned_streams_one_event_each_read_index_should(FixtureData fixture) : base(fixture)
+        {
+        }
     }
 }

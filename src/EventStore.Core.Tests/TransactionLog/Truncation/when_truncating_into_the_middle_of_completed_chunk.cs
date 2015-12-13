@@ -63,7 +63,7 @@ namespace EventStore.Core.Tests.TransactionLog.Truncation
             }
         }
 
-        public void SetFixture(FixtureData fixture)
+        public when_truncating_into_the_middle_of_completed_chunk(FixtureData fixture)
         {
             _config = fixture._config;
             _file1Contents = fixture._file1Contents;

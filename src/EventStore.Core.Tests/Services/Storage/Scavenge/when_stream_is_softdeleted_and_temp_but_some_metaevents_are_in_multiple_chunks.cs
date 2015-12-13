@@ -9,6 +9,10 @@ namespace EventStore.Core.Tests.Services.Storage.Scavenge
 {
     public class when_stream_is_softdeleted_and_temp_but_some_metaevents_are_in_multiple_chunks : ScavengeTestScenario
     {
+        public when_stream_is_softdeleted_and_temp_but_some_metaevents_are_in_multiple_chunks(Fixture fixture) : base(fixture)
+        {
+            
+        }
         protected override DbResult CreateDb(TFChunkDbCreationHelper dbCreator)
         {
             return dbCreator.Chunk(Rec.Prepare(0, "$$test", metadata: new StreamMetadata(tempStream: true)),

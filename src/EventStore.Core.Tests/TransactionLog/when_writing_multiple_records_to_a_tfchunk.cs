@@ -55,7 +55,7 @@ namespace EventStore.Core.Tests.TransactionLog
             }
         }
 
-        public void SetFixture(FixtureData data)
+        public when_writing_multiple_records_to_a_tfchunk(FixtureData data)
         {
             _chunk = data._chunk;
             _position1 = data._position1;

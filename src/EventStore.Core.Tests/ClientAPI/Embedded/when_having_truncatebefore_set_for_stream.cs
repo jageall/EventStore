@@ -10,5 +10,9 @@ namespace EventStore.Core.Tests.ClientAPI.Embedded
         {
             return EmbeddedTestConnection.To(node);
         }
+
+        public when_having_truncatebefore_set_for_stream(SpecificationFixture fixture) : base(fixture)
+        {
+        }
     }
 }

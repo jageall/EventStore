@@ -60,7 +60,7 @@ namespace EventStore.Core.Tests.Index
             }
         }
 
-        public void SetFixture(FixtureData data)
+        public table_index_with_two_ptables_and_memtable_on_range_query(FixtureData data)
         {
             _tableIndex = data._tableIndex;
         }

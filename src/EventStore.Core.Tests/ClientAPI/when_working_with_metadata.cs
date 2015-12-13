@@ -17,7 +17,7 @@ namespace EventStore.Core.Tests.ClientAPI
         private MiniNode _node;
         private IEventStoreConnection _connection;
 
-        public void SetFixture(ConnectedMiniNodeFixture data)
+        public when_working_with_metadata(ConnectedMiniNodeFixture data)
         {
             _node = data.Node;
             _connection = data.Connection;

@@ -311,5 +311,9 @@ namespace EventStore.Core.Tests.Services.Storage.Transactions
             }
             Assert.Equal(recs.Length, count);
         }
+
+        public when_having_two_intermingled_transactions_and_some_uncommited_prepares_in_the_end_read_index_should(FixtureData fixture) : base(fixture)
+        {
+        }
     }
 }

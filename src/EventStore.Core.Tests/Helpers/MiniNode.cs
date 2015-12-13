@@ -27,7 +27,7 @@ namespace EventStore.Core.Tests.Helpers
 {
     public class MiniNode
     {
-        private static bool _running;
+        //private static bool _running;
 
         public static int RunCount = 0;
         public static readonly Stopwatch RunningTime = new Stopwatch();
@@ -56,8 +56,8 @@ namespace EventStore.Core.Tests.Helpers
                         int memTableSize = 1000,
                         bool inMemDb = true, bool disableFlushToDisk = false)
         {
-            if (_running) throw new Exception("Previous MiniNode is still running!!!");
-            _running = true;
+            //if (_running) throw new Exception("Previous MiniNode is still running!!!");
+            //_running = true;
 
             RunningTime.Start();
             RunCount += 1;
@@ -188,7 +188,7 @@ namespace EventStore.Core.Tests.Helpers
             StoppingTime.Stop();
             RunningTime.Stop();
 
-            _running = false;
+            //_running = false;
         }
 
         private void TryDeleteDirectory(string directory)
