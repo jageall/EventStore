@@ -6,6 +6,7 @@ using EventStore.Core.Tests.Fakes;
 using EventStore.Core.Tests.Helpers;
 using NUnit.Framework;
 using EventStore.Core.Services.RequestManager.Managers;
+using EventStore.Core.Tests.Authorization;
 
 namespace EventStore.Core.Tests.Services.RequestManagement.DeleteMgr {
 	[TestFixture]
@@ -20,7 +21,6 @@ namespace EventStore.Core.Tests.Services.RequestManagement.DeleteMgr {
 				"test123",
 				true,
 				ExpectedVersion.Any,
-				null,
 				false,
 				CommitSource);
 		}

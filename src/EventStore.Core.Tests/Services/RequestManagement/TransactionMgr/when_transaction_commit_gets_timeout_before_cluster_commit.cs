@@ -7,6 +7,7 @@ using EventStore.Core.Tests.Helpers;
 using EventStore.Core.TransactionLog.LogRecords;
 using NUnit.Framework;
 using EventStore.Core.Services.RequestManager.Managers;
+using EventStore.Core.Tests.Authorization;
 
 namespace EventStore.Core.Tests.Services.RequestManagement.TransactionMgr {
 	public class when_transaction_commit_gets_timeout_before_cluster_commit : RequestManagerSpecification<TransactionCommit> {
@@ -21,8 +22,7 @@ namespace EventStore.Core.Tests.Services.RequestManagement.TransactionMgr {
 				InternalCorrId,
 				ClientCorrId,
 				transactionId,
-				true,				
-				null,
+				true,
 				CommitSource);
 		}
 

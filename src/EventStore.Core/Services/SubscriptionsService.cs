@@ -8,6 +8,9 @@ using EventStore.Core.Messaging;
 using EventStore.Core.Services.Storage.ReaderIndex;
 using EventStore.Core.Services.TimerService;
 using System.Linq;
+using System.Security.Claims;
+using System.Threading;
+using EventStore.Core.Authorization;
 using EventStore.Core.Util;
 using ILogger = Serilog.ILogger;
 
@@ -49,9 +52,10 @@ namespace EventStore.Core.Services {
 		private readonly IEnvelope _busEnvelope;
 		private readonly IQueuedHandler _queuedHandler;
 		private readonly IReadIndex _readIndex;
+		private readonly IAuthorizationProvider _authorizationProvider;
 		private static readonly char[] _linkToSeparator = new[] {'@'};
 
-		public SubscriptionsService(IPublisher bus, IQueuedHandler queuedHandler, IReadIndex readIndex) {
+		public SubscriptionsService(IPublisher bus, IQueuedHandler queuedHandler, IReadIndex readIndex, IAuthorizationProvider authorizationProvider) {
 			Ensure.NotNull(bus, "bus");
 			Ensure.NotNull(queuedHandler, "queudHandler");
 			Ensure.NotNull(readIndex, "readIndex");
@@ -60,6 +64,7 @@ namespace EventStore.Core.Services {
 			_busEnvelope = new PublishEnvelope(bus);
 			_queuedHandler = queuedHandler;
 			_readIndex = readIndex;
+			_authorizationProvider = authorizationProvider;
 		}
 
 		public void Handle(SystemMessage.SystemStart message) {
@@ -103,12 +108,9 @@ namespace EventStore.Core.Services {
 		}
 
 		public void Handle(ClientMessage.SubscribeToStream msg) {
-			var streamAccess = _readIndex.CheckStreamAccess(
-				msg.EventStreamId.IsEmptyString() ? SystemStreams.AllStream : msg.EventStreamId, 
-				StreamAccessType.Read,
-				msg.User);
 
-			if (streamAccess.Granted) {
+			var streamId = msg.EventStreamId.IsEmptyString() ? SystemStreams.AllStream : msg.EventStreamId;
+			if (CheckStreamAccess(msg.User, streamId)) {
 				var lastEventNumber = msg.EventStreamId.IsEmptyString()
 					? (long?)null
 					: _readIndex.GetStreamLastEventNumber(msg.EventStreamId);
@@ -124,12 +126,14 @@ namespace EventStore.Core.Services {
 			}
 		}
 
-		public void Handle(ClientMessage.FilteredSubscribeToStream msg) {
-			var streamAccess = _readIndex.CheckStreamAccess(
-				msg.EventStreamId.IsEmptyString() ? SystemStreams.AllStream : msg.EventStreamId, StreamAccessType.Read,
-				msg.User);
+		private bool CheckStreamAccess(ClaimsPrincipal user, string streamId)
+		{
+			return _authorizationProvider.CheckAccessAsync(user, new Operation(Operations.Streams.Read).WithParameter(Operations.Streams.Parameters.StreamId(streamId)), CancellationToken.None).Result;
+		}
 
-			if (streamAccess.Granted) {
+		public void Handle(ClientMessage.FilteredSubscribeToStream msg) {
+			var streamId = msg.EventStreamId.IsEmptyString() ? SystemStreams.AllStream : msg.EventStreamId;
+			if (CheckStreamAccess(msg.User, streamId)) {
 				var lastEventNumber = msg.EventStreamId.IsEmptyString()
 					? (long?)null
 					: _readIndex.GetStreamLastEventNumber(msg.EventStreamId);

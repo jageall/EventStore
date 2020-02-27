@@ -7,6 +7,7 @@ using EventStore.Core.Messaging;
 using EventStore.Core.Tests.Fakes;
 using NUnit.Framework;
 using EventStore.Core.Services.RequestManager.Managers;
+using EventStore.Core.Tests.Authorization;
 
 namespace EventStore.Core.Tests.Services.RequestManagement.DeleteMgr {
 	public class when_delete_stream_gets_timeout_after_commit : RequestManagerSpecification<DeleteStream> {
@@ -21,7 +22,6 @@ namespace EventStore.Core.Tests.Services.RequestManagement.DeleteMgr {
 				"test123",
 				true,
 				ExpectedVersion.Any,
-				null,
 				false,
 				CommitSource);
 		}

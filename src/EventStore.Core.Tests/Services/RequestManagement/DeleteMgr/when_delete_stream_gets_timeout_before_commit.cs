@@ -4,6 +4,7 @@ using EventStore.Core.Data;
 using EventStore.Core.Messages;
 using EventStore.Core.Messaging;
 using EventStore.Core.Services.RequestManager.Managers;
+using EventStore.Core.Tests.Authorization;
 using EventStore.Core.Tests.Fakes;
 using EventStore.Core.Tests.Helpers;
 using NUnit.Framework;
@@ -20,7 +21,6 @@ namespace EventStore.Core.Tests.Services.RequestManagement.DeleteMgr {
 				"test123",
 				true,
 				ExpectedVersion.Any,
-				null,
 				false,
 				CommitSource);
 		}

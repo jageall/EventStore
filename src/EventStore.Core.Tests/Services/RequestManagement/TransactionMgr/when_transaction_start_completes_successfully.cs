@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using EventStore.Core.Messages;
 using EventStore.Core.Messaging;
 using EventStore.Core.Services.RequestManager.Managers;
+using EventStore.Core.Tests.Authorization;
 using EventStore.Core.Tests.Fakes;
 using EventStore.Core.Tests.Helpers;
 using EventStore.Core.TransactionLog.LogRecords;
@@ -22,7 +23,6 @@ namespace EventStore.Core.Tests.Services.RequestManagement.TransactionMgr {
 				$"testStream-{nameof(when_transaction_commit_completes_successfully)}",
 				true,				
 				0,
-			    null,
 				CommitSource);
 			}
 

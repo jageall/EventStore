@@ -2,6 +2,7 @@
 using EventStore.Core.Bus;
 using EventStore.Core.Messaging;
 using EventStore.Core.Services.RequestManager;
+using EventStore.Core.Tests.Authorization;
 using NUnit.Framework;
 // ReSharper disable ObjectCreationAsStatement
 
@@ -29,6 +30,7 @@ namespace EventStore.Core.Tests.Services.RequestManagement {
 					ExpectedVersion,
 					new CommitSource()));
 		}
+
 		[Test]
 		public void null_envelope_throws_argument_null_exception() {
 			Assert.Throws<ArgumentNullException>(() =>

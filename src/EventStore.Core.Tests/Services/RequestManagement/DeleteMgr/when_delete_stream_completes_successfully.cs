@@ -8,6 +8,7 @@ using EventStore.Core.Tests.Fakes;
 using EventStore.Core.Tests.Helpers;
 using NUnit.Framework;
 using EventStore.Core.Services.RequestManager.Managers;
+using EventStore.Core.Tests.Authorization;
 
 namespace EventStore.Core.Tests.Services.RequestManagement.DeleteMgr {
 	[TestFixture]
@@ -24,13 +25,11 @@ namespace EventStore.Core.Tests.Services.RequestManagement.DeleteMgr {
 			   	streamId: _streamId,
 				betterOrdering: true,
 				expectedVersion: ExpectedVersion.Any,
-				user: null,
 				hardDelete: false,
 				commitSource: CommitSource);
 		}
 
 		protected override IEnumerable<Message> WithInitialMessages() {
-			yield return new StorageMessage.CheckStreamAccessCompleted(InternalCorrId, _streamId, null, StreamAccessType.Delete, new StreamAccess(true));
 			yield return new StorageMessage.CommitAck(InternalCorrId, commitPosition, 2, 3, 3);
 			}
 

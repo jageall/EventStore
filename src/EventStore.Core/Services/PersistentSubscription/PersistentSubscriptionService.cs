@@ -2,7 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
+using System.Threading;
 using EventStore.Common.Utils;
+using EventStore.Core.Authorization;
 using EventStore.Core.Bus;
 using EventStore.Core.Data;
 using EventStore.Core.Helpers;
@@ -48,6 +50,7 @@ namespace EventStore.Core.Services.PersistentSubscription {
 		private readonly PersistentSubscriptionConsumerStrategyRegistry _consumerStrategyRegistry;
 		private readonly IPersistentSubscriptionCheckpointReader _checkpointReader;
 		private readonly IPersistentSubscriptionStreamReader _streamReader;
+		private readonly IAuthorizationProvider _authorizationProvider;
 		private PersistentSubscriptionConfig _config = new PersistentSubscriptionConfig();
 		private bool _started = false;
 		private VNodeState _state;
@@ -56,16 +59,18 @@ namespace EventStore.Core.Services.PersistentSubscription {
 
 		internal PersistentSubscriptionService(IQueuedHandler queuedHandler, IReadIndex readIndex,
 			IODispatcher ioDispatcher, IPublisher bus,
-			PersistentSubscriptionConsumerStrategyRegistry consumerStrategyRegistry) {
+			PersistentSubscriptionConsumerStrategyRegistry consumerStrategyRegistry, IAuthorizationProvider authorizationProvider) {
 			Ensure.NotNull(queuedHandler, "queuedHandler");
 			Ensure.NotNull(readIndex, "readIndex");
 			Ensure.NotNull(ioDispatcher, "ioDispatcher");
+			Ensure.NotNull(authorizationProvider, nameof(authorizationProvider));
 
 			_queuedHandler = queuedHandler;
 			_readIndex = readIndex;
 			_ioDispatcher = ioDispatcher;
 			_bus = bus;
 			_consumerStrategyRegistry = consumerStrategyRegistry;
+			_authorizationProvider = authorizationProvider;
 			_checkpointReader = new PersistentSubscriptionCheckpointReader(_ioDispatcher);
 			_streamReader = new PersistentSubscriptionStreamReader(_ioDispatcher, 100);
 			//TODO CC configurable
@@ -119,10 +124,6 @@ namespace EventStore.Core.Services.PersistentSubscription {
 			_started = false;
 		}
 
-		public bool IsUserOpsOrAdmin(ClaimsPrincipal user){
-			return user != null && (user.LegacyRoleCheck(SystemRoles.Admins) || user.LegacyRoleCheck(SystemRoles.Operations));
-		}
-
 		public void Handle(ClientMessage.UnsubscribeFromStream message) {
 			if (!_started) return;
 			UnsubscribeFromStream(message.CorrelationId, true);
@@ -132,8 +133,8 @@ namespace EventStore.Core.Services.PersistentSubscription {
 			if (!_started) return;
 			var key = BuildSubscriptionGroupKey(message.EventStreamId, message.GroupName);
 			Log.Debug("Creating persistent subscription {subscriptionKey}", key);
-
-			if (!IsUserOpsOrAdmin(message.User)) {
+			
+			if (!_authorizationProvider.CheckAccessAsync(message.User, new Operation(Operations.Subscriptions.Create),CancellationToken.None).Result) {
 				message.Envelope.ReplyWith(new ClientMessage.CreatePersistentSubscriptionCompleted(
 					message.CorrelationId,
 					ClientMessage.CreatePersistentSubscriptionCompleted.CreatePersistentSubscriptionResult.AccessDenied,
@@ -213,7 +214,7 @@ namespace EventStore.Core.Services.PersistentSubscription {
 			var key = BuildSubscriptionGroupKey(message.EventStreamId, message.GroupName);
 			Log.Debug("Updating persistent subscription {subscriptionKey}", key);
 
-			if (!IsUserOpsOrAdmin(message.User)) {
+			if (!_authorizationProvider.CheckAccessAsync(message.User, new Operation(Operations.Subscriptions.Update),CancellationToken.None).Result) {
 				message.Envelope.ReplyWith(new ClientMessage.UpdatePersistentSubscriptionCompleted(
 					message.CorrelationId,
 					ClientMessage.UpdatePersistentSubscriptionCompleted.UpdatePersistentSubscriptionResult.AccessDenied,
@@ -332,7 +333,7 @@ namespace EventStore.Core.Services.PersistentSubscription {
 			var key = BuildSubscriptionGroupKey(message.EventStreamId, message.GroupName);
 			Log.Debug("Deleting persistent subscription {subscriptionKey}", key);
 
-			if (!IsUserOpsOrAdmin(message.User)) {
+			if (!_authorizationProvider.CheckAccessAsync(message.User, new Operation(Operations.Subscriptions.Delete),CancellationToken.None).Result) {
 				message.Envelope.ReplyWith(new ClientMessage.DeletePersistentSubscriptionCompleted(
 					message.CorrelationId,
 					ClientMessage.DeletePersistentSubscriptionCompleted.DeletePersistentSubscriptionResult.AccessDenied,
@@ -406,10 +407,8 @@ namespace EventStore.Core.Services.PersistentSubscription {
 
 		public void Handle(ClientMessage.ConnectToPersistentSubscription message) {
 			if (!_started) return;
-			var streamAccess = _readIndex.CheckStreamAccess(
-				message.EventStreamId, StreamAccessType.Read, message.User);
-
-			if (!streamAccess.Granted) {
+			
+			if (!_authorizationProvider.CheckAccessAsync(message.User, new Operation(Operations.Streams.Read).WithParameter(Operations.Streams.Parameters.StreamId(message.EventStreamId)),CancellationToken.None).Result) {
 				message.Envelope.ReplyWith(new ClientMessage.SubscriptionDropped(message.CorrelationId,
 					SubscriptionDropReason.AccessDenied));
 				return;
@@ -513,10 +512,8 @@ namespace EventStore.Core.Services.PersistentSubscription {
 
 		public void Handle(ClientMessage.ReadNextNPersistentMessages message) {
 			if (!_started) return;
-			var streamAccess = _readIndex.CheckStreamAccess(
-				message.EventStreamId, StreamAccessType.Read, message.User);
-
-			if (!streamAccess.Granted) {
+			
+			if (!_authorizationProvider.CheckAccessAsync(message.User, new Operation(Operations.Streams.Read).WithParameter(Operations.Streams.Parameters.StreamId(message.EventStreamId)),CancellationToken.None).Result) {
 				message.Envelope.ReplyWith(
 					new ClientMessage.ReadNextNPersistentMessagesCompleted(message.CorrelationId,
 						ClientMessage.ReadNextNPersistentMessagesCompleted.ReadNextNPersistentMessagesResult
@@ -571,7 +568,7 @@ namespace EventStore.Core.Services.PersistentSubscription {
 				return;
 			}
 				
-			if (!IsUserOpsOrAdmin(message.User)) {
+			if (!_authorizationProvider.CheckAccessAsync(message.User, new Operation(Operations.Subscriptions.ReplayParked),CancellationToken.None).Result) {
 				message.Envelope.ReplyWith(new ClientMessage.ReplayMessagesReceived(message.CorrelationId,
 					ClientMessage.ReplayMessagesReceived.ReplayMessagesReceivedResult.AccessDenied,
 					"You do not have permissions to replay messages"));
@@ -594,7 +591,7 @@ namespace EventStore.Core.Services.PersistentSubscription {
 			var key = BuildSubscriptionGroupKey(message.EventStreamId, message.GroupName);
 			PersistentSubscription subscription;
 
-			if (!IsUserOpsOrAdmin(message.User)) {
+			if (!_authorizationProvider.CheckAccessAsync(message.User, new Operation(Operations.Subscriptions.ReplayParked),CancellationToken.None).Result) {
 				message.Envelope.ReplyWith(new ClientMessage.ReplayMessagesReceived(message.CorrelationId,
 					ClientMessage.ReplayMessagesReceived.ReplayMessagesReceivedResult.AccessDenied,
 					"You do not have permissions to replay messages"));

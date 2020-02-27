@@ -7,6 +7,7 @@ using EventStore.Core.Tests.Helpers;
 using EventStore.Core.TransactionLog.LogRecords;
 using NUnit.Framework;
 using EventStore.Core.Services.RequestManager.Managers;
+using EventStore.Core.Tests.Authorization;
 
 namespace EventStore.Core.Tests.Services.RequestManagement.WriteStreamMgr {
 	[TestFixture]
@@ -23,7 +24,6 @@ namespace EventStore.Core.Tests.Services.RequestManagement.WriteStreamMgr {
 				"test123",
 				true,
 				ExpectedVersion.Any,
-				null,
 				new[] {DummyEvent()},
 				CommitSource);
 		}

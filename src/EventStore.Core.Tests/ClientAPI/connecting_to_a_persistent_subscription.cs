@@ -51,8 +51,13 @@ namespace EventStore.Core.Tests.ClientAPI {
 			.DoNotResolveLinkTos()
 			.StartFromCurrent();
 
+		protected override async Task Given() {
+			await _conn.CreatePersistentSubscriptionAsync(_stream, "agroupname17", _settings,
+				DefaultData.AdminCredentials);
+		}
+
 		protected override async Task When() {
-			await _conn.CreatePersistentSubscriptionAsync(_stream, "agroupname17", _settings, DefaultData.AdminCredentials)
+			
 ;
 			_sub = _conn.ConnectToPersistentSubscription(_stream,
 				"agroupname17",

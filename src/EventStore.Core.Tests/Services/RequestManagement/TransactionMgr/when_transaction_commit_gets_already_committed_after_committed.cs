@@ -7,6 +7,7 @@ using EventStore.Core.Tests.Fakes;
 using EventStore.Core.TransactionLog.LogRecords;
 using NUnit.Framework;
 using EventStore.Core.Services.RequestManager.Managers;
+using EventStore.Core.Tests.Authorization;
 
 namespace EventStore.Core.Tests.Services.RequestManagement.TransactionMgr {
 	[TestFixture]
@@ -24,7 +25,6 @@ namespace EventStore.Core.Tests.Services.RequestManagement.TransactionMgr {
 				ClientCorrId,
 				transactionId,
 				true,
-				null,
 				CommitSource);
 		}
 
