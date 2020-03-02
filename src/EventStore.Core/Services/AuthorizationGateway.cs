@@ -25,14 +25,11 @@ namespace EventStore.Core.Services {
 				TFPos.Invalid, default);
 
 		private static readonly Func<ClientMessage.ReadStreamEventsForward, Message> ReadStreamEventsForwardDenied =
-			msg => new ClientMessage.ReadAllEventsForwardCompleted(msg.CorrelationId, ReadAllResult.AccessDenied,
-				AccessDenied, Array.Empty<ResolvedEvent>(), StreamMetadata.Empty, false, default, default, default,
-				default, default);
+			msg => new ClientMessage.ReadStreamEventsForwardCompleted(msg.CorrelationId, msg.EventStreamId, msg.FromEventNumber, msg.MaxCount,ReadStreamResult.AccessDenied, Array.Empty<ResolvedEvent>(), StreamMetadata.Empty, false, AccessDenied, -1, default, true, default);
 
 		private static readonly Func<ClientMessage.ReadStreamEventsBackward, Message> ReadStreamEventsBackwardDenied =
-			msg => new ClientMessage.ReadAllEventsBackwardCompleted(msg.CorrelationId, ReadAllResult.AccessDenied,
-				AccessDenied, Array.Empty<ResolvedEvent>(), StreamMetadata.Empty, false, default, default, default,
-				default, default);
+			msg => new ClientMessage.ReadStreamEventsBackwardCompleted(msg.CorrelationId, msg.EventStreamId, msg.FromEventNumber, msg.MaxCount,
+				ReadStreamResult.AccessDenied,Array.Empty<ResolvedEvent>(), StreamMetadata.Empty, default, AccessDenied, -1, default, true, default);
 
 		private static readonly Func<ClientMessage.WriteEvents, Message> WriteEventsDenied = msg =>
 			new ClientMessage.WriteEventsCompleted(msg.CorrelationId, OperationResult.AccessDenied, AccessDenied);
@@ -99,7 +96,7 @@ namespace EventStore.Core.Services {
 					AccessDenied);
 
 		private static readonly Func<ClientMessage.TransactionStart, Message> TransactionStartDenied = msg =>
-			new ClientMessage.TransactionCommitCompleted(msg.CorrelationId, -1, OperationResult.AccessDenied,
+			new ClientMessage.TransactionStartCompleted(msg.CorrelationId, -1, OperationResult.AccessDenied,
 				AccessDenied);
 
 		private static readonly Func<ClientMessage.TransactionWrite, Message> TransactionWriteDenied = msg =>
@@ -202,6 +199,12 @@ namespace EventStore.Core.Services {
 				case ClientMessage.PersistentSubscriptionAckEvents _:
 				case ClientMessage.PersistentSubscriptionNackEvents _:
 				case ClientMessage.UnsubscribeFromStream _:
+				case ClientMessage.NotHandled _:
+				case ClientMessage.WriteEventsCompleted _:
+				case ClientMessage.TransactionStartCompleted _:
+				case ClientMessage.TransactionWriteCompleted _:
+				case ClientMessage.TransactionCommitCompleted _:
+				case ClientMessage.DeleteStreamCompleted _:
 					destination.Publish(toValidate);
 					break;
 				case ReplicationMessage.AckLogPosition _:

@@ -12,8 +12,6 @@ namespace EventStore.Core.Services.RequestManager.Managers {
 		private readonly bool _hardDelete;
 		private readonly string _streamId;
 		private readonly bool _betterOrdering;
-		private readonly ClaimsPrincipal _user;
-		private Operation _deleteOperation;
 
 		public DeleteStream(
 					IPublisher publisher,

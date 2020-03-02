@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace EventStore.Core.Authorization
 {
-	class AllowAuthenticatedAssertion : IAssertion {
+	class RequireAuthenticatedAssertion : IAssertion {
 		public Grant Grant { get; } = Grant.Unknown;
 		public AssertionInformation Information { get; } = new AssertionInformation("match", "authenticated", Grant.Unknown);
 		public ValueTask<bool> Evaluate(ClaimsPrincipal cp, Operation operation, PolicyInformation policy, Evaluation result) {

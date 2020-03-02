@@ -18,9 +18,16 @@ namespace EventStore.ClientAPI.Tests {
 			var streamName = $"{GetStreamName()}_{useSsl}";
 			var connection = _fixture.Connections[useSsl];
 
-			await Assert.ThrowsAsync<AccessDeniedException>(() => connection.ConnectToPersistentSubscriptionAsync(
+			var ex = await Record.ExceptionAsync(() => connection.ConnectToPersistentSubscriptionAsync(
 				streamName, Group,
 				delegate { return Task.CompletedTask; })).WithTimeout();
+			if (ex is AggregateException agg) {
+				agg = agg.Flatten();
+				ex = Assert.Single(agg.InnerExceptions);
+			}
+
+			Assert.IsType<AccessDeniedException>(ex);
+
 		}
 	}
 }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using EventStore.Core.Authorization;
 using EventStore.Core.Bus;
 using EventStore.Core.Cluster.Settings;
 using EventStore.Core.Messages;
@@ -22,6 +23,7 @@ using MidFunc = System.Func<
 	System.Threading.Tasks.Task
 >;
 using ElectionsService = EventStore.Core.Services.Transport.Grpc.Elections;
+using Operations = EventStore.Core.Services.Transport.Grpc.Operations;
 
 namespace EventStore.Core {
 	public class ClusterVNodeStartup : IStartup, IHandle<SystemMessage.SystemReady>,
@@ -44,11 +46,13 @@ namespace EventStore.Core {
 		private readonly StatusCheck _statusCheck;
 
 		private bool _ready;
+		private IAuthorizationProvider _authorizationProvider;
 
 		public ClusterVNodeStartup(
 			ISubsystem[] subsystems,
 			IQueuedHandler mainQueue,
 			IReadOnlyList<IHttpAuthenticationProvider> httpAuthenticationProviders,
+			IAuthorizationProvider authorizationProvider,
 			IReadIndex readIndex,
 			ClusterVNodeSettings vNodeSettings,
 			KestrelHttpService externalHttpService) {
@@ -63,6 +67,9 @@ namespace EventStore.Core {
 			if (httpAuthenticationProviders == null) {
 				throw new ArgumentNullException(nameof(httpAuthenticationProviders));
 			}
+
+			if(authorizationProvider == null)
+				throw new ArgumentNullException(nameof(authorizationProvider));
 
 			if (readIndex == null) {
 				throw new ArgumentNullException(nameof(readIndex));
@@ -79,6 +86,7 @@ namespace EventStore.Core {
 			_subsystems = subsystems;
 			_mainQueue = mainQueue;
 			_httpAuthenticationProviders = httpAuthenticationProviders;
+			_authorizationProvider = authorizationProvider;
 			_readIndex = readIndex;
 			_vNodeSettings = vNodeSettings;
 			_externalHttpService = externalHttpService;
@@ -125,7 +133,7 @@ namespace EventStore.Core {
 						.AddSingleton<AuthenticationMiddleware>()
 						.AddSingleton(_readIndex)
 						.AddSingleton(new Streams(_mainQueue, _readIndex,
-							_vNodeSettings.MaxAppendSize))
+							_vNodeSettings.MaxAppendSize,_authorizationProvider))
 						.AddSingleton(new PersistentSubscriptions(_mainQueue))
 						.AddSingleton(new Users(_mainQueue))
 						.AddSingleton(new Operations(_mainQueue))

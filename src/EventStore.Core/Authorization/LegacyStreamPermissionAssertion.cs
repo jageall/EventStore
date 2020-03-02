@@ -7,7 +7,6 @@ using EventStore.Core.Bus;
 using EventStore.Core.Messages;
 using EventStore.Core.Messaging;
 using EventStore.Core.Services;
-using Microsoft.AspNetCore.SignalR.Protocol;
 
 namespace EventStore.Core.Authorization
 {
@@ -43,7 +42,7 @@ namespace EventStore.Core.Authorization
 			}
 
 			if (streamId == SystemStreams.AllStream &&
-			    (operation == Operations.Streams.Delete || operation == Operations.Streams.Delete))
+			    (operation == Operations.Streams.Delete || operation == Operations.Streams.Write))
 			{
 				result.Add(new AssertionMatch(policy,
 					new AssertionInformation("streamId", $"{operation.Action} denied on $all", Grant.Deny)));

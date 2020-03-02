@@ -1,13 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using EventStore.Core.Data;
 using EventStore.Core.Util;
 using EventStore.Client;
 using EventStore.Client.Shared;
 using EventStore.Client.Streams;
+using EventStore.Core.Authorization;
 using Google.Protobuf;
 using Grpc.Core;
 using CountOptionOneofCase = EventStore.Client.Streams.ReadReq.Types.Options.CountOptionOneofCase;
@@ -17,6 +17,7 @@ using StreamOptionOneofCase = EventStore.Client.Streams.ReadReq.Types.Options.St
 
 namespace EventStore.Core.Services.Transport.Grpc {
 	partial class Streams {
+		
 		public override async Task Read(
 			ReadReq request,
 			IServerStreamWriter<ReadResp> responseStream,
@@ -29,6 +30,18 @@ namespace EventStore.Core.Services.Transport.Grpc {
 			var uuidOptionsCase = options.UuidOption.ContentCase;
 
 			var user = context.GetHttpContext().User;
+
+			var op = streamOptionsCase switch {
+				StreamOptionOneofCase.Stream => ReadOperation.WithParameter(
+					Authorization.Operations.Streams.Parameters.StreamId(request.Options.Stream.StreamName)),
+				StreamOptionOneofCase.All => ReadOperation.WithParameter(
+					Authorization.Operations.Streams.Parameters.StreamId(SystemStreams.AllStream)),
+				_ => throw new InvalidOperationException()
+			};
+
+			if (!await _provider.CheckAccessAsync(user, op, context.CancellationToken).ConfigureAwait(false)) {
+				throw AccessDenied();
+			}
 
 			await using var enumerator =
 				(streamOptionsCase, countOptionsCase, readDirection, filterOptionsCase) switch {

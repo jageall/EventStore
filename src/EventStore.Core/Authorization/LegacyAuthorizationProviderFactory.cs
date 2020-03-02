@@ -55,7 +55,7 @@ namespace EventStore.Core.Authorization
 
 			var subscriptionAccess =
 				new AndAssertion(
-					new AllowAuthenticatedAssertion(),
+					new RequireAuthenticatedAssertion(),
 					new RequireStreamReadAssertion(streamAssertion));
 
 			policy.AllowAuthenticated(Operations.Subscriptions.Statistics);

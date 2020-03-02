@@ -10,6 +10,7 @@ using NUnit.Framework;
 using HttpStatusCode = System.Net.HttpStatusCode;
 using System.Xml.Linq;
 using System.Threading.Tasks;
+using EventStore.ClientAPI.SystemData;
 using EventStore.Core.Tests.Http.Users.users;
 
 namespace EventStore.Core.Tests.Http.PersistentSubscription {
@@ -173,7 +174,7 @@ namespace EventStore.Core.Tests.Http.PersistentSubscription {
 
 		[Test]
 		public void the_first_connection_has_user() {
-			Assert.AreEqual("anonymous", _json["connections"][0]["username"].Value<string>());
+			Assert.AreEqual("admin", _json["connections"][0]["username"].Value<string>());
 		}
 
 		[Test]
@@ -199,7 +200,8 @@ namespace EventStore.Core.Tests.Http.PersistentSubscription {
 					Console.WriteLine();
 					return Task.CompletedTask;
 				},
-				(subscription, reason, arg3) => Console.WriteLine());
+				(subscription, reason, arg3) => Console.WriteLine(),
+				DefaultData.AdminCredentials);
 			_conn.ConnectToPersistentSubscription(_streamName, "secondgroup",
 				(subscription, @event) => {
 					Console.WriteLine();
@@ -334,7 +336,7 @@ namespace EventStore.Core.Tests.Http.PersistentSubscription {
 					Console.WriteLine();
 					return Task.CompletedTask;
 				},
-				(subscription, reason, arg3) => Console.WriteLine());
+				(subscription, reason, arg3) => Console.WriteLine(), DefaultData.AdminCredentials);
 			_sub4 = _conn.ConnectToPersistentSubscription(_streamName, "secondgroup",
 				(subscription, @event) => {
 					Console.WriteLine();
@@ -450,7 +452,7 @@ namespace EventStore.Core.Tests.Http.PersistentSubscription {
 					Console.WriteLine();
 					return Task.CompletedTask;
 				},
-				(subscription, reason, arg3) => Console.WriteLine());
+				(subscription, reason, arg3) => Console.WriteLine(), DefaultData.AdminCredentials);
 			_sub2 = _conn.ConnectToPersistentSubscription(_streamName, _groupName,
 				(subscription, @event) => {
 					Console.WriteLine();
