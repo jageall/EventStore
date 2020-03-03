@@ -77,7 +77,7 @@ namespace EventStore.Core.Services.Transport.Grpc {
 
 			var envelope = new CallbackEnvelope(HandleWriteEventsCompleted);
 
-			_queue.Publish(new ClientMessage.WriteEvents(
+			_publisher.Publish(new ClientMessage.WriteEvents(
 				correlationId,
 				correlationId,
 				envelope,

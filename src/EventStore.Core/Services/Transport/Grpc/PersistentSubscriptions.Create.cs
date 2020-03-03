@@ -17,7 +17,7 @@ namespace EventStore.Core.Services.Transport.Grpc {
 
 			var user = context.GetHttpContext().User;
 
-			_queue.Publish(new ClientMessage.CreatePersistentSubscription(
+			_publisher.Publish(new ClientMessage.CreatePersistentSubscription(
 				correlationId,
 				correlationId,
 				new CallbackEnvelope(HandleCreatePersistentSubscriptionCompleted),

@@ -471,7 +471,6 @@ namespace EventStore.Core {
 
 			_mainBus.Subscribe<SystemMessage.SystemInit>(_externalHttpService);
 			_mainBus.Subscribe<SystemMessage.BecomeShuttingDown>(_externalHttpService);
-			_mainBus.Subscribe<HttpMessage.PurgeTimedOutRequests>(_externalHttpService);
 
 			// Authentication plugin HTTP
 			vNodeSettings.AuthenticationProviderFactory.RegisterHttpControllers(_externalHttpService, httpSendService,
@@ -707,7 +706,7 @@ namespace EventStore.Core {
 				}
 			}
 
-			_startup = new ClusterVNodeStartup(_subsystems, _mainQueue, httpAuthenticationProviders, _authorizationProvider, _readIndex,
+			_startup = new ClusterVNodeStartup(_subsystems, _mainQueue, _mainBus, _workersHandler, httpAuthenticationProviders, _authorizationProvider, _readIndex,
 				_vNodeSettings, _externalHttpService);
 			_mainBus.Subscribe<SystemMessage.SystemReady>(_startup);
 			_mainBus.Subscribe<SystemMessage.BecomeShuttingDown>(_startup);

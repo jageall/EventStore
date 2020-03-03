@@ -277,6 +277,7 @@ namespace EventStore.Core.Tests.Authorization {
 
 			IEnumerable<Tuple<Operation, string, StorageMessage.EffectiveAcl>> AuthenticatedOperations() {
 				yield return CreateOperation(Operations.Subscriptions.Statistics);
+				yield return CreateOperation(Operations.Projections.List);
 			}
 
 			IEnumerable<Tuple<Operation, string, StorageMessage.EffectiveAcl>> AnonymousOperations() {

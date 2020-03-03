@@ -16,7 +16,7 @@ namespace EventStore.Core.Services.Transport.Grpc {
 
 			var envelope = new CallbackEnvelope(OnMessage);
 
-			_queue.Publish(
+			_publisher.Publish(
 				new UserManagementMessage.ResetPassword(envelope, user, options.LoginName, options.NewPassword));
 
 			await resetPasswordSource.Task.ConfigureAwait(false);

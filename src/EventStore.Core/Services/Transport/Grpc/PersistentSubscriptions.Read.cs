@@ -46,7 +46,7 @@ namespace EventStore.Core.Services.Transport.Grpc {
 #pragma warning restore 4014
 
 			await using var enumerator = new PersistentStreamSubscriptionEnumerator(correlationId, connectionName,
-				_queue, options.StreamName, options.GroupName, options.BufferSize, user, context.CancellationToken);
+				_publisher, options.StreamName, options.GroupName, options.BufferSize, user, context.CancellationToken);
 
 			subscriptionId = await enumerator.Started.ConfigureAwait(false);
 
@@ -63,7 +63,7 @@ namespace EventStore.Core.Services.Transport.Grpc {
 			}
 
 			Task HandleAckNack(ReadReq request) {
-				_queue.Publish(request.ContentCase switch {
+				_publisher.Publish(request.ContentCase switch {
 					ReadReq.ContentOneofCase.Ack => (Message)
 					new ClientMessage.PersistentSubscriptionAckEvents(
 						correlationId, correlationId, new NoopEnvelope(), subscriptionId,

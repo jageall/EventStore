@@ -38,7 +38,8 @@ namespace EventStore.Core {
 		private static readonly PathString ElectionsSegment = "/event_store.cluster.Elections";
 
 		private readonly ISubsystem[] _subsystems;
-		private readonly IQueuedHandler _mainQueue;
+		private readonly IPublisher _mainQueue;
+		private readonly ISubscriber _mainBus;
 		private readonly IReadOnlyList<IHttpAuthenticationProvider> _httpAuthenticationProviders;
 		private readonly IReadIndex _readIndex;
 		private readonly ClusterVNodeSettings _vNodeSettings;
@@ -46,11 +47,14 @@ namespace EventStore.Core {
 		private readonly StatusCheck _statusCheck;
 
 		private bool _ready;
-		private IAuthorizationProvider _authorizationProvider;
+		private readonly IAuthorizationProvider _authorizationProvider;
+		private readonly MultiQueuedHandler _httpMessageHandler;
 
 		public ClusterVNodeStartup(
 			ISubsystem[] subsystems,
-			IQueuedHandler mainQueue,
+			IPublisher mainQueue,
+			ISubscriber mainBus,
+			MultiQueuedHandler httpMessageHandler,
 			IReadOnlyList<IHttpAuthenticationProvider> httpAuthenticationProviders,
 			IAuthorizationProvider authorizationProvider,
 			IReadIndex readIndex,
@@ -83,8 +87,13 @@ namespace EventStore.Core {
 				throw new ArgumentNullException(nameof(externalHttpService));
 			}
 
+			if (mainBus == null) {
+				throw new ArgumentNullException(nameof(mainBus));
+			}
 			_subsystems = subsystems;
 			_mainQueue = mainQueue;
+			_mainBus = mainBus;
+			_httpMessageHandler = httpMessageHandler;
 			_httpAuthenticationProviders = httpAuthenticationProviders;
 			_authorizationProvider = authorizationProvider;
 			_readIndex = readIndex;
@@ -96,7 +105,9 @@ namespace EventStore.Core {
 
 		public void Configure(IApplicationBuilder app) {
 			app.Map("/health", _statusCheck.Configure)
-				.UseMiddleware<AuthenticationMiddleware>();
+				.UseMiddleware<AuthenticationMiddleware>()
+				.UseRouting()
+				.UseMiddleware<KestrelToInternalBridgeMiddleware>();
 			_subsystems
 				.Aggregate(app
 						.UseWhen(context => context.Request.Path.StartsWithSegments(PersistentSegment),
@@ -118,22 +129,29 @@ namespace EventStore.Core {
 							inner => inner.UseRouting().UseEndpoints(endpoint =>
 								endpoint.MapGrpcService<Operations>())),
 					(b, subsystem) => subsystem.Configure(b));
-
-			app.UseLegacyHttp(_externalHttpService);
+			var internalDispatcher = new InternalDispatcherEndpoint(_mainQueue, _httpMessageHandler);
+			_mainBus.Subscribe(internalDispatcher);
+			app.UseMiddleware<AuthorizationMiddleware>()
+				.UseLegacyHttp(internalDispatcher.InvokeAsync, _externalHttpService);
 		}
 
 		IServiceProvider IStartup.ConfigureServices(IServiceCollection services) => ConfigureServices(services)
 			.BuildServiceProvider();
 
-		public IServiceCollection ConfigureServices(IServiceCollection services) =>
-			_subsystems
+		public IServiceCollection ConfigureServices(IServiceCollection services) {
+
+			var bridge = new KestrelToInternalBridgeMiddleware(_externalHttpService.UriRouter, _externalHttpService.LogHttpRequests, _externalHttpService.AdvertiseAsAddress, _externalHttpService.AdvertiseAsPort);
+			return _subsystems
 				.Aggregate(services
 						.AddRouting()
 						.AddSingleton(_httpAuthenticationProviders)
+						.AddSingleton(_authorizationProvider)
 						.AddSingleton<AuthenticationMiddleware>()
+						.AddSingleton<AuthorizationMiddleware>()
+						.AddSingleton<KestrelToInternalBridgeMiddleware>(bridge)
 						.AddSingleton(_readIndex)
 						.AddSingleton(new Streams(_mainQueue, _readIndex,
-							_vNodeSettings.MaxAppendSize,_authorizationProvider))
+							_vNodeSettings.MaxAppendSize, _authorizationProvider))
 						.AddSingleton(new PersistentSubscriptions(_mainQueue))
 						.AddSingleton(new Users(_mainQueue))
 						.AddSingleton(new Operations(_mainQueue))
@@ -141,6 +159,7 @@ namespace EventStore.Core {
 						.AddSingleton(new Elections(_mainQueue))
 						.AddGrpc().Services,
 					(s, subsystem) => subsystem.ConfigureServices(s));
+		}
 
 		private static RequestDelegate RequireAuthenticated(RequestDelegate next) =>
 			context => {

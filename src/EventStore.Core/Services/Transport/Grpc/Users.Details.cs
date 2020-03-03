@@ -17,7 +17,7 @@ namespace EventStore.Core.Services.Transport.Grpc {
 
 			var envelope = new CallbackEnvelope(OnMessage);
 
-			_queue.Publish(string.IsNullOrWhiteSpace(options?.LoginName)
+			_publisher.Publish(string.IsNullOrWhiteSpace(options?.LoginName)
 				? (Message)new UserManagementMessage.GetAll(envelope, user)
 				: new UserManagementMessage.Get(envelope, user, options.LoginName));
 

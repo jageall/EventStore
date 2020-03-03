@@ -10,11 +10,11 @@ using Grpc.Core;
 namespace EventStore.Core.Services.Transport.Grpc {
 	public partial class Operations
 		: EventStore.Client.Operations.Operations.OperationsBase {
-		private readonly IQueuedHandler _queue;
+		private readonly IPublisher _publisher;
 
-		public Operations(IQueuedHandler queue) {
-			if (queue == null) throw new ArgumentNullException(nameof(queue));
-			_queue = queue;
+		public Operations(IPublisher publisher) {
+			if (publisher == null) throw new ArgumentNullException(nameof(publisher));
+			_publisher = publisher;
 		}
 	}
 }

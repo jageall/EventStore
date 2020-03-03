@@ -76,8 +76,9 @@ namespace EventStore.Core.Authorization
 		private ValueTask<bool> Check(ClaimsPrincipal cp, Operation operation, string action, string streamId,
 			PolicyInformation policy, Evaluation result) {
 			var preChecks = IsSystemOrAdmin(cp, operation,  policy, result);
-			if (preChecks.IsCompleted && preChecks.Result)
+			if (preChecks.IsCompleted && preChecks.Result) {
 				return preChecks;
+			}
 
 			return CheckAsync(preChecks, cp, action, streamId, policy, result);
 		}

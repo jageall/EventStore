@@ -9,12 +9,13 @@ using EventStore.Transport.Http;
 using EventStore.Transport.Http.Codecs;
 using EventStore.Transport.Http.EntityManagement;
 using Microsoft.AspNetCore.Http;
+using Serilog;
 using HttpStatusCode = EventStore.Transport.Http.HttpStatusCode;
 
 namespace EventStore.Core.Services.Transport.Http
 {
-	public class KestrelToInternalBridgeMiddleware {
-		private static readonly ILogger Log = LogManager.GetLoggerFor<KestrelToInternalBridgeMiddleware>();
+	public class KestrelToInternalBridgeMiddleware : IMiddleware {
+		private static readonly ILogger Log = Serilog.Log.ForContext<KestrelToInternalBridgeMiddleware>();
 		private readonly IUriRouter _uriRouter;
 		private readonly bool _logHttpRequests;
 		private readonly IPAddress _advertiseAsAddress;
@@ -26,7 +27,7 @@ namespace EventStore.Core.Services.Transport.Http
 			_advertiseAsAddress =advertiseAsAddress;
 			_advertiseAsPort = advertiseAsPort;
 		}
-		public static bool TryMatch(HttpContext context, IUriRouter uriRouter, bool logHttpRequests, IPAddress advertiseAsAddress, int advertiseAsPort) {
+		private static bool TryMatch(HttpContext context, IUriRouter uriRouter, bool logHttpRequests, IPAddress advertiseAsAddress, int advertiseAsPort) {
 			var tcs = new TaskCompletionSource<bool>();
 			var httpEntity = new HttpEntity(new CoreHttpRequestAdapter(context.Request),
 				new CoreHttpResponseAdapter(context.Response), context.User, logHttpRequests,
@@ -82,12 +83,12 @@ namespace EventStore.Core.Services.Transport.Http
 					context.Items.Add(tcs.GetType(), tcs);
 					return true;
 				} catch (Exception exc) {
-					Log.ErrorException(exc, "Error while handling HTTP request '{url}'.", request.Url);
+					Log.Error(exc, "Error while handling HTTP request '{url}'.", request.Url);
 					InternalServerError(httpEntity);
 					
 				}
 			} catch (Exception exc) {
-				Log.ErrorException(exc, "Unhandled exception while processing HTTP request at {url}.",
+				Log.Error(exc, "Unhandled exception while processing HTTP request at {url}.",
 					httpEntity.RequestedUrl);
 				InternalServerError(httpEntity);
 			}
@@ -196,5 +197,11 @@ namespace EventStore.Core.Services.Transport.Http
 					throw new NotSupportedException("Unknown format requested");
 			}
 		}
+
+		public Task InvokeAsync(HttpContext context, RequestDelegate next) {
+			TryMatch(context, _uriRouter, _logHttpRequests, _advertiseAsAddress, _advertiseAsPort);
+			return next(context);
+		}
+
 	}
 }

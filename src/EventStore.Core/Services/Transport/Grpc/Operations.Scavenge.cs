@@ -12,7 +12,7 @@ namespace EventStore.Core.Services.Transport.Grpc {
 
 			var user = context.GetHttpContext().User;
 
-			_queue.Publish(new ClientMessage.ScavengeDatabase(new CallbackEnvelope(OnMessage), Guid.NewGuid(), user,
+			_publisher.Publish(new ClientMessage.ScavengeDatabase(new CallbackEnvelope(OnMessage), Guid.NewGuid(), user,
 				request.Options.StartFromChunk, request.Options.ThreadCount));
 
 			var (scavengeId, scavengeResult) = await scavengeResultSource.Task.ConfigureAwait(false);
@@ -30,7 +30,7 @@ namespace EventStore.Core.Services.Transport.Grpc {
 
 			var user = context.GetHttpContext().User;
 
-			_queue.Publish(new ClientMessage.StopDatabaseScavenge(new CallbackEnvelope(OnMessage), Guid.NewGuid(), user,
+			_publisher.Publish(new ClientMessage.StopDatabaseScavenge(new CallbackEnvelope(OnMessage), Guid.NewGuid(), user,
 				request.Options.ScavengeId));
 
 			var (scavengeId, scavengeResult) = await scavengeResultSource.Task.ConfigureAwait(false);

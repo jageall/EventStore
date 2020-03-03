@@ -15,7 +15,7 @@ namespace EventStore.Core.Services.Transport.Grpc {
 
 			var user = context.GetHttpContext().User;
 
-			_queue.Publish(new ClientMessage.DeletePersistentSubscription(
+			_publisher.Publish(new ClientMessage.DeletePersistentSubscription(
 				correlationId,
 				correlationId,
 				new CallbackEnvelope(HandleDeletePersistentSubscriptionCompleted),

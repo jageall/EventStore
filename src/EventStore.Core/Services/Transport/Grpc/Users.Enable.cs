@@ -15,7 +15,7 @@ namespace EventStore.Core.Services.Transport.Grpc {
 
 			var envelope = new CallbackEnvelope(OnMessage);
 
-			_queue.Publish(new UserManagementMessage.Enable(envelope, user, options.LoginName));
+			_publisher.Publish(new UserManagementMessage.Enable(envelope, user, options.LoginName));
 
 			await enableSource.Task.ConfigureAwait(false);
 

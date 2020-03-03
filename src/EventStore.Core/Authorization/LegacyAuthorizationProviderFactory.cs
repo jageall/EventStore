@@ -91,6 +91,21 @@ namespace EventStore.Core.Authorization
 			
 
 			policy.AllowAuthenticated(Operations.Projections.List);
+			
+			policy.AllowAuthenticated(Operations.Projections.Abort);
+			policy.AllowAuthenticated(Operations.Projections.Create);
+			policy.AllowAuthenticated(Operations.Projections.DebugProjection);
+			policy.AllowAuthenticated(Operations.Projections.Delete);
+			policy.AllowAuthenticated(Operations.Projections.Disable);
+			policy.AllowAuthenticated(Operations.Projections.Enable);
+			policy.AllowAuthenticated(Operations.Projections.Read);
+			policy.AllowAuthenticated(Operations.Projections.ReadConfiguration);
+			policy.AllowAuthenticated(Operations.Projections.Reset);
+			policy.AllowAuthenticated(Operations.Projections.Update);
+			policy.AllowAuthenticated(Operations.Projections.UpdateConfiguration);
+			policy.AllowAuthenticated(Operations.Projections.State);
+			policy.AllowAuthenticated(Operations.Projections.Status);
+			policy.AllowAuthenticated(Operations.Projections.Statistics);
 			policy.AddMatchAnyAssertion(Operations.Projections.Restart, Grant.Allow, Admins);
 			
 

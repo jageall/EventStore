@@ -9,16 +9,17 @@ using EventStore.Core.Services.TimerService;
 using EventStore.Core.Services.Transport.Http.Messages;
 using EventStore.Transport.Http;
 using Microsoft.AspNetCore.Http;
+using Serilog;
 
 namespace EventStore.Core.Services.Transport.Http
 {
-	public class InternalDispatcherMiddleware : IHandle<HttpMessage.PurgeTimedOutRequests>, IMiddleware {
-		private static readonly ILogger Log = LogManager.GetLoggerFor<AuthorizationMiddleware>();
+	public class InternalDispatcherEndpoint : IHandle<HttpMessage.PurgeTimedOutRequests> {
+		private static readonly ILogger Log = Serilog.Log.ForContext<AuthorizationMiddleware>();
 		private readonly IPublisher _inputBus;
 		private readonly MultiQueuedHandler _requestsMultiHandler;
 		private static readonly TimeSpan UpdateInterval = TimeSpan.FromSeconds(1);
 		private readonly IEnvelope _publishEnvelope;
-		public InternalDispatcherMiddleware(IPublisher inputBus, MultiQueuedHandler requestsMultiHandler) {
+		public InternalDispatcherEndpoint(IPublisher inputBus, MultiQueuedHandler requestsMultiHandler) {
 
 			_inputBus = inputBus;
 			_requestsMultiHandler = requestsMultiHandler;
@@ -33,7 +34,7 @@ namespace EventStore.Core.Services.Transport.Http
 					UpdateInterval, _publishEnvelope, message));
 		}
 
-		public Task InvokeAsync(HttpContext context,  RequestDelegate _) {
+		public Task InvokeAsync(HttpContext context) {
 			
 			if (InternalHttpHelper.TryGetInternalContext(context, out var manager, out var match, out var tcs)) {
 				_requestsMultiHandler.Publish(new AuthenticatedHttpRequestMessage(manager, match));

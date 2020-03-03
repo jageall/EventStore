@@ -16,7 +16,7 @@ namespace EventStore.Core.Services.Transport.Grpc {
 
 			var envelope = new CallbackEnvelope(OnMessage);
 
-			_queue.Publish(new UserManagementMessage.Create(envelope, user, options.LoginName, options.FullName,
+			_publisher.Publish(new UserManagementMessage.Create(envelope, user, options.LoginName, options.FullName,
 				options.Groups.ToArray(),
 				options.Password));
 

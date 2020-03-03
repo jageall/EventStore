@@ -5,6 +5,7 @@
 		public static class Node {
 			private const string Resource = "node";
 			public static readonly OperationDefinition Redirect = new Operation(Resource, "redirect");
+			public static readonly OperationDefinition Options = new Operation(Resource, "options");
 			public static readonly OperationDefinition Ping = new Operation(Resource, "ping");
 			public static readonly OperationDefinition StaticContent = new OperationDefinition(Resource + "/content", "read");
 
