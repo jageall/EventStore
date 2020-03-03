@@ -46,23 +46,23 @@ namespace EventStore.Core.Services.Transport.Http.Controllers {
 				DefaultCodecs, DefaultCodecs, new Operation(Operations.Subscriptions.Update));
 			RegisterUrlBased(service, "/subscriptions/{stream}/{subscription}", HttpMethod.Delete, new Operation(Operations.Subscriptions.Delete), DeleteSubscription);
 			Register(service, "/subscriptions/{stream}/{subscription}", HttpMethod.Get, GetNextNMessages,
-				Codec.NoCodecs, AtomCodecs, WithParameters(Operations.Subscriptions.ReadMessages));
+				Codec.NoCodecs, AtomCodecs, WithParameters(Operations.Subscriptions.ProcessMessages));
 			Register(service, "/subscriptions/{stream}/{subscription}?embed={embed}", HttpMethod.Get, GetNextNMessages,
-				Codec.NoCodecs, AtomCodecs, WithParameters(Operations.Subscriptions.ReadMessages));
+				Codec.NoCodecs, AtomCodecs, WithParameters(Operations.Subscriptions.ProcessMessages));
 			Register(service, "/subscriptions/{stream}/{subscription}/{count}?embed={embed}", HttpMethod.Get,
-				GetNextNMessages, Codec.NoCodecs, AtomCodecs, WithParameters(Operations.Subscriptions.ReadMessages));
+				GetNextNMessages, Codec.NoCodecs, AtomCodecs, WithParameters(Operations.Subscriptions.ProcessMessages));
 			Register(service, "/subscriptions/{stream}/{subscription}/info", HttpMethod.Get, GetSubscriptionInfo,
 				Codec.NoCodecs, DefaultCodecs, new Operation(Operations.Subscriptions.Statistics));
 			RegisterUrlBased(service, "/subscriptions/{stream}/{subscription}/replayParked?stopAt={stopAt}", HttpMethod.Post,
 				WithParameters(Operations.Subscriptions.ReplayParked), ReplayParkedMessages);
 			RegisterUrlBased(service, "/subscriptions/{stream}/{subscription}/ack/{messageid}", HttpMethod.Post, 
-				WithParameters(Operations.Subscriptions.Ack), AckMessage);
+				WithParameters(Operations.Subscriptions.ProcessMessages), AckMessage);
 			RegisterUrlBased(service, "/subscriptions/{stream}/{subscription}/nack/{messageid}?action={action}",
-				HttpMethod.Post, WithParameters(Operations.Subscriptions.Nack), NackMessage);
+				HttpMethod.Post, WithParameters(Operations.Subscriptions.ProcessMessages), NackMessage);
 			RegisterUrlBased(service, "/subscriptions/{stream}/{subscription}/ack?ids={messageids}", HttpMethod.Post, 
-				WithParameters(Operations.Subscriptions.Ack), AckMessages);
+				WithParameters(Operations.Subscriptions.ProcessMessages), AckMessages);
 			RegisterUrlBased(service, "/subscriptions/{stream}/{subscription}/nack?ids={messageids}&action={action}",
-				HttpMethod.Post, WithParameters(Operations.Subscriptions.Nack), NackMessages);
+				HttpMethod.Post, WithParameters(Operations.Subscriptions.ProcessMessages), NackMessages);
 		}
 
 		static Func<UriTemplateMatch, Operation> WithParameters(OperationDefinition definition) {

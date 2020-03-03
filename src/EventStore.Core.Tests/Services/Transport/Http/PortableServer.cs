@@ -3,11 +3,16 @@ using System.Net;
 using System.Net.Http;
 using System.Threading;
 using EventStore.Common.Utils;
+using EventStore.Core.Authentication;
+using EventStore.Core.Authorization;
 using EventStore.Core.Bus;
 using EventStore.Core.Messages;
 using EventStore.Core.Messaging;
 using EventStore.Core.Services.Transport.Http;
 using EventStore.Core.Services.Transport.Http.Authentication;
+using EventStore.Core.Tests.Authorization;
+using EventStore.Core.Tests.Common.VNodeBuilderTests;
+using EventStore.Core.Tests.TransactionLog;
 using EventStore.Transport.Http.Client;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -57,7 +62,11 @@ namespace EventStore.Core.Tests.Services.Transport.Http {
 			bootstrap?.Invoke(_service);
 			_server = new TestServer(
 				new WebHostBuilder()
-					.UseStartup(new HttpServiceStartup(_internalDispatcher.InvokeAsync, _service)));
+					.UseStartup(new ClusterVNodeStartup(Array.Empty<ISubsystem>(), queue, _bus, _multiQueuedHandler,
+						new IHttpAuthenticationProvider[] {
+							new BasicHttpAuthenticationProvider(new TestAuthenticationProvider()),
+							new AnonymousHttpAuthenticationProvider(),
+						}, new TestAuthorizationProvider(), new FakeReadIndex(_ => false), 1024 * 1024, _service)));
 			_httpMessageHandler = _server.CreateHandler();
 			_client = new HttpAsyncClient(_timeout, _httpMessageHandler);
 			

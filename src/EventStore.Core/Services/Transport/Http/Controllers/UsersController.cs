@@ -25,7 +25,7 @@ namespace EventStore.Core.Services.Transport.Http.Controllers {
 			RegisterUrlBased(service, "/users", HttpMethod.Get, new Operation(Operations.Users.List), GetUsers);
 			RegisterUrlBased(service, "/users/", HttpMethod.Get, new Operation(Operations.Users.List), GetUsers);
 			RegisterUrlBased(service, "/users/{login}", HttpMethod.Get, new Operation(Operations.Users.Read), GetUser);
-			RegisterUrlBased(service, "/users/$current", HttpMethod.Get, ForUser(Operations.Users.Read), GetCurrentUser);
+			RegisterUrlBased(service, "/users/$current", HttpMethod.Get, new Operation(Operations.Users.CurrentUser), GetCurrentUser);
 			Register(service, "/users", HttpMethod.Post, PostUser, DefaultCodecs, DefaultCodecs, new Operation(Operations.Users.Create));
 			Register(service, "/users/", HttpMethod.Post, PostUser, DefaultCodecs, DefaultCodecs, new Operation(Operations.Users.Create));
 			Register(service, "/users/{login}", HttpMethod.Put, PutUser, DefaultCodecs, DefaultCodecs, new Operation(Operations.Users.Update));
@@ -40,7 +40,7 @@ namespace EventStore.Core.Services.Transport.Http.Controllers {
 
 		private static Func<UriTemplateMatch, Operation> ForUser(OperationDefinition definition) {
 			var operation = new Operation(definition);
-			return match => operation.WithParameter(Operations.Users.Parameters.User(match.BoundVariables["user"]));
+			return match => operation.WithParameter(Operations.Users.Parameters.User(match.BoundVariables["login"]));
 		}
 
 		private void GetUsers(HttpEntityManager http, UriTemplateMatch match) {

@@ -11,7 +11,7 @@ namespace EventStore.Core.Services.Transport.Grpc {
 			var scavengeResultSource = new TaskCompletionSource<(string, ScavengeResp.Types.ScavengeResult)>();
 
 			var user = context.GetHttpContext().User;
-
+			
 			_publisher.Publish(new ClientMessage.ScavengeDatabase(new CallbackEnvelope(OnMessage), Guid.NewGuid(), user,
 				request.Options.StartFromChunk, request.Options.ThreadCount));
 

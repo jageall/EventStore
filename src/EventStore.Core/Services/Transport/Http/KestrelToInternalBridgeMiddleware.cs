@@ -199,8 +199,9 @@ namespace EventStore.Core.Services.Transport.Http
 		}
 
 		public Task InvokeAsync(HttpContext context, RequestDelegate next) {
-			TryMatch(context, _uriRouter, _logHttpRequests, _advertiseAsAddress, _advertiseAsPort);
-			return next(context);
+			if(TryMatch(context, _uriRouter, _logHttpRequests, _advertiseAsAddress, _advertiseAsPort))
+				return next(context);
+			return Task.CompletedTask;
 		}
 
 	}

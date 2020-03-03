@@ -126,7 +126,7 @@ namespace EventStore.Core.Services {
 			ReplayAllParkedMessages = new Operation(Operations.Subscriptions.ReplayParked);
 
 		private static readonly Operation ConnectToPersistentSubscription =
-			new Operation(Operations.Subscriptions.Connect);
+			new Operation(Operations.Subscriptions.ProcessMessages);
 
 		public AuthorizationGateway(IAuthorizationProvider authorizationProvider) {
 			_authorizationProvider = authorizationProvider;

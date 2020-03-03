@@ -64,11 +64,7 @@ namespace EventStore.Projections.Core {
 		private Guid _instanceCorrelationId;
 		
 		public Func<IApplicationBuilder, IApplicationBuilder> Configure => builder => builder
-			.UseWhen(
-				context => context.Request.Path.StartsWithSegments(ProjectionsSegment),
-				inner => inner
-					.UseRouting()
-					.UseEndpoints(endpoints => endpoints.MapGrpcService<ProjectionManagement>()));
+			.UseEndpoints(endpoints => endpoints.MapGrpcService<ProjectionManagement>());
 
 		public Func<IServiceCollection, IServiceCollection> ConfigureServices => services =>
 			services.AddSingleton(provider =>

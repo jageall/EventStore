@@ -14,10 +14,7 @@ namespace EventStore.Core.Authorization
 		static readonly Operation StreamRead = new Operation(Operations.Streams.Read);
 		public Grant Grant { get; } = Grant.Unknown;
 		public ValueTask<bool> Evaluate(ClaimsPrincipal cp, Operation operation, PolicyInformation policy, Evaluation result) {
-			if (operation == Operations.Subscriptions.Connect ||
-				operation == Operations.Subscriptions.Ack ||
-			    operation == Operations.Subscriptions.ReadMessages || 
-			    operation == Operations.Subscriptions.Nack || 
+			if (operation == Operations.Subscriptions.ProcessMessages ||
 			    operation == Operations.Subscriptions.ReplayParked) {
 				var stream = FindStreamId(operation.Parameters.Span);
 				return _streamAssertion.Evaluate(cp,

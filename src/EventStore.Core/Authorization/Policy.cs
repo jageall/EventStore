@@ -51,7 +51,7 @@ namespace EventStore.Core.Authorization
 			Add(operation, new AllowAnonymousAssertion());
 		}
 
-		public void AllowAuthenticated(in OperationDefinition operation) {
+		public void RequireAuthenticated(in OperationDefinition operation) {
 			Add(operation, new RequireAuthenticatedAssertion());
 		}
 	}

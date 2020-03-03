@@ -58,15 +58,12 @@ namespace EventStore.Core.Authorization
 					new RequireAuthenticatedAssertion(),
 					new RequireStreamReadAssertion(streamAssertion));
 
-			policy.AllowAuthenticated(Operations.Subscriptions.Statistics);
+			policy.RequireAuthenticated(Operations.Subscriptions.Statistics);
 			policy.AddMatchAnyAssertion(Operations.Subscriptions.Create, Grant.Allow, OperationsOrAdmins);
 			policy.AddMatchAnyAssertion(Operations.Subscriptions.Update, Grant.Allow, OperationsOrAdmins);
 			policy.AddMatchAnyAssertion(Operations.Subscriptions.Delete, Grant.Allow, OperationsOrAdmins);
-			policy.Add(Operations.Subscriptions.Connect, subscriptionAccess);
+			policy.Add(Operations.Subscriptions.ProcessMessages, subscriptionAccess);
 			policy.Add(Operations.Subscriptions.ReplayParked, subscriptionAccess);
-			policy.Add(Operations.Subscriptions.ReadMessages, subscriptionAccess);
-			policy.Add(Operations.Subscriptions.Ack, subscriptionAccess);
-			policy.Add(Operations.Subscriptions.Nack, subscriptionAccess);
 
 
 			policy.Add(Operations.Streams.Read, streamAssertion);
@@ -85,27 +82,27 @@ namespace EventStore.Core.Authorization
 			policy.Add(Operations.Users.Enable, isAdmin);
 			policy.Add(Operations.Users.Disable, isAdmin);
 			policy.Add(Operations.Users.ResetPassword, isAdmin);
-
+			policy.RequireAuthenticated(Operations.Users.CurrentUser);
 			policy.Add(Operations.Users.Read, new OrAssertion(isAdmin, matchUsername));
 			policy.Add(Operations.Users.ChangePassword, matchUsername);
 			
 
-			policy.AllowAuthenticated(Operations.Projections.List);
+			policy.RequireAuthenticated(Operations.Projections.List);
 			
-			policy.AllowAuthenticated(Operations.Projections.Abort);
-			policy.AllowAuthenticated(Operations.Projections.Create);
-			policy.AllowAuthenticated(Operations.Projections.DebugProjection);
-			policy.AllowAuthenticated(Operations.Projections.Delete);
-			policy.AllowAuthenticated(Operations.Projections.Disable);
-			policy.AllowAuthenticated(Operations.Projections.Enable);
-			policy.AllowAuthenticated(Operations.Projections.Read);
-			policy.AllowAuthenticated(Operations.Projections.ReadConfiguration);
-			policy.AllowAuthenticated(Operations.Projections.Reset);
-			policy.AllowAuthenticated(Operations.Projections.Update);
-			policy.AllowAuthenticated(Operations.Projections.UpdateConfiguration);
-			policy.AllowAuthenticated(Operations.Projections.State);
-			policy.AllowAuthenticated(Operations.Projections.Status);
-			policy.AllowAuthenticated(Operations.Projections.Statistics);
+			policy.RequireAuthenticated(Operations.Projections.Abort);
+			policy.RequireAuthenticated(Operations.Projections.Create);
+			policy.RequireAuthenticated(Operations.Projections.DebugProjection);
+			policy.RequireAuthenticated(Operations.Projections.Delete);
+			policy.RequireAuthenticated(Operations.Projections.Disable);
+			policy.RequireAuthenticated(Operations.Projections.Enable);
+			policy.RequireAuthenticated(Operations.Projections.Read);
+			policy.RequireAuthenticated(Operations.Projections.ReadConfiguration);
+			policy.RequireAuthenticated(Operations.Projections.Reset);
+			policy.RequireAuthenticated(Operations.Projections.Update);
+			policy.RequireAuthenticated(Operations.Projections.UpdateConfiguration);
+			policy.RequireAuthenticated(Operations.Projections.State);
+			policy.RequireAuthenticated(Operations.Projections.Status);
+			policy.RequireAuthenticated(Operations.Projections.Statistics);
 			policy.AddMatchAnyAssertion(Operations.Projections.Restart, Grant.Allow, Admins);
 			
 

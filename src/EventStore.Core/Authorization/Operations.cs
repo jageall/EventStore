@@ -78,10 +78,8 @@
 			public static readonly OperationDefinition Delete = new OperationDefinition(Resource, "delete");
 			public static readonly OperationDefinition ReplayParked = new OperationDefinition(Resource, "replay");
 
-			public static readonly OperationDefinition Connect = new OperationDefinition(Resource, "connect");
-			public static readonly OperationDefinition ReadMessages = new OperationDefinition(Resource, "readMessages");
-			public static readonly OperationDefinition Ack = new OperationDefinition(Resource, "ack");
-			public static readonly OperationDefinition Nack = new OperationDefinition(Resource, "nack");
+			public static readonly OperationDefinition ProcessMessages = new OperationDefinition(Resource, "process");
+
 
 
 			public static class Parameters {
@@ -97,6 +95,7 @@
 			public static readonly OperationDefinition Delete = new OperationDefinition(Resource, "delete");
 			public static readonly OperationDefinition List = new OperationDefinition(Resource, "list");
 			public static readonly OperationDefinition Read = new OperationDefinition(Resource, "read");
+			public static readonly OperationDefinition CurrentUser = new OperationDefinition(Resource, "self");
 			public static readonly OperationDefinition Enable = new OperationDefinition(Resource, "enable");
 			public static readonly OperationDefinition Disable = new OperationDefinition(Resource, "disable");
 			public static readonly OperationDefinition ResetPassword = new OperationDefinition(Resource, "resetPassword");

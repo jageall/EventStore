@@ -265,13 +265,9 @@ namespace EventStore.Core.Tests.Authorization {
 			}
 
 			IEnumerable<Tuple<Operation, string, StorageMessage.EffectiveAcl>> UserOperations() {
-				yield return new Tuple<Operation, string, StorageMessage.EffectiveAcl>(new Operation(Operations.Subscriptions.ReadMessages).WithParameter(Operations.Subscriptions.Parameters.StreamId("PSstream")), "PSstream", userStreamPermission);
-				yield return new Tuple<Operation, string, StorageMessage.EffectiveAcl>(new Operation(Operations.Subscriptions.Ack).WithParameter(Operations.Subscriptions.Parameters.StreamId("PSstream")), "PSstream", userStreamPermission);
-				yield return new Tuple<Operation, string, StorageMessage.EffectiveAcl>(new Operation(Operations.Subscriptions.Nack).WithParameter(Operations.Subscriptions.Parameters.StreamId("PSstream")), "PSstream", userStreamPermission);
+				yield return new Tuple<Operation, string, StorageMessage.EffectiveAcl>(new Operation(Operations.Subscriptions.ProcessMessages).WithParameter(Operations.Subscriptions.Parameters.StreamId("PSstream")), "PSstream", userStreamPermission);
 				yield return new Tuple<Operation, string, StorageMessage.EffectiveAcl>(new Operation(Operations.Subscriptions.ReplayParked).WithParameter(Operations.Subscriptions.Parameters.StreamId("PSstream")), "PSstream", userStreamPermission);
-				yield return new Tuple<Operation, string, StorageMessage.EffectiveAcl>(new Operation(Operations.Subscriptions.ReadMessages).WithParameter(Operations.Subscriptions.Parameters.StreamId("PSstreamAll")), "PSstreamAll", defaultUseruserStreamPermission);
-				yield return new Tuple<Operation, string, StorageMessage.EffectiveAcl>(new Operation(Operations.Subscriptions.Ack).WithParameter(Operations.Subscriptions.Parameters.StreamId("PSstreamAll")), "PSstreamAll", defaultUseruserStreamPermission);
-				yield return new Tuple<Operation, string, StorageMessage.EffectiveAcl>(new Operation(Operations.Subscriptions.Nack).WithParameter(Operations.Subscriptions.Parameters.StreamId("PSstreamAll")), "PSstreamAll", defaultUseruserStreamPermission);
+				yield return new Tuple<Operation, string, StorageMessage.EffectiveAcl>(new Operation(Operations.Subscriptions.ProcessMessages).WithParameter(Operations.Subscriptions.Parameters.StreamId("PSstreamAll")), "PSstreamAll", defaultUseruserStreamPermission);
 				yield return new Tuple<Operation, string, StorageMessage.EffectiveAcl>(new Operation(Operations.Subscriptions.ReplayParked).WithParameter(Operations.Subscriptions.Parameters.StreamId("PSstreamAll")), "PSstreamAll", defaultUseruserStreamPermission);
 			}
 
