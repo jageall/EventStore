@@ -96,8 +96,9 @@ namespace EventStore.Client {
 					tcs.TrySetException(new Exception($"Wrong expected message type {m.GetType().FullName}"));
 				}
 			});
-			await tcs.Task;
 			Node.MainQueue.Publish(new UserManagementMessage.Create(envelope, SystemAccounts.System, TestCredentials.TestUser1.Username, "test", Array.Empty<string>(), TestCredentials.TestUser1.Password));
+			await tcs.Task;
+			
 			await Given().WithTimeout(TimeSpan.FromMinutes(5));
 			await When().WithTimeout(TimeSpan.FromMinutes(5));
 		}

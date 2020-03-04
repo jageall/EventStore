@@ -231,7 +231,7 @@ namespace EventStore.Core.Tests.Services.Transport.Http {
 			if (GetAuthLevel(userAuthorizationLevel) >= GetAuthLevel(requiredMinAuthorizationLevel)) {
 				Assert.AreNotEqual(401, statusCode);
 			} else {
-				if (statusCode < 400) {
+				if (statusCode >= 300 && statusCode < 400) {
 					//Redirects are always allowed because authorization is done on the canonical url
 					Assert.GreaterOrEqual(statusCode,300);
 					Assert.LessOrEqual(statusCode, 307);
